@@ -1,0 +1,27 @@
+site_name: PytestArch
+
+theme:
+  name: "material"
+
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: false
+            show_root_heading: true
+            show_root_full_path: false
+  - search
+
+nav:
+  - index.md
+  - details.md
+  - changelog.md
+  - Reference:
+      - general.md
+      - eval_structure.md
+      - parsing.md
+      - query_language.md
+
+
+repo_url: https://github.com/zyskarch/pytestarch
