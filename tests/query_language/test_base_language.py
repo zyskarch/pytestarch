@@ -82,7 +82,7 @@ def test_partially_configured_rule_raises_error(evaluable1: Evaluable) -> None:
         match="Specify a RuleSubject, a BehaviorSpecification, "
         "a DependencySpecification, a RuleObject.",
     ):
-        rule.applies(evaluable1)
+        rule.assert_applies(evaluable1)
 
     x = rule.modules_that()
 
@@ -91,7 +91,7 @@ def test_partially_configured_rule_raises_error(evaluable1: Evaluable) -> None:
         match="Specify a RuleSubject, a BehaviorSpecification, "
         "a DependencySpecification, a RuleObject.",
     ):
-        rule.applies(evaluable1)
+        rule.assert_applies(evaluable1)
 
     y = x.are_named(MODULE_1)
 
@@ -100,7 +100,7 @@ def test_partially_configured_rule_raises_error(evaluable1: Evaluable) -> None:
         match="Specify a BehaviorSpecification, a "
         "DependencySpecification, a RuleObject.",
     ):
-        rule.applies(evaluable1)
+        rule.assert_applies(evaluable1)
 
     z = y.should()
 
@@ -108,7 +108,7 @@ def test_partially_configured_rule_raises_error(evaluable1: Evaluable) -> None:
         ImproperlyConfigured,
         match="Specify a DependencySpecification, a RuleObject.",
     ):
-        rule.applies(evaluable1)
+        rule.assert_applies(evaluable1)
 
     a = z.import_modules_that()
 
@@ -116,22 +116,22 @@ def test_partially_configured_rule_raises_error(evaluable1: Evaluable) -> None:
         ImproperlyConfigured,
         match="Specify a RuleObject.",
     ):
-        rule.applies(evaluable1)
+        rule.assert_applies(evaluable1)
 
     a.are_named(MODULE_2)
 
-    rule.applies(evaluable1)
+    rule.assert_applies(evaluable1)
 
     assert True
 
 
 def assert_rule_applies(rule: Rule, evaluable: Evaluable) -> None:
-    rule.applies(evaluable)
+    rule.assert_applies(evaluable)
 
 
 def assert_not_rule_does_not_apply(rule: Rule, evaluable: Evaluable) -> None:
     with pytest.raises(AssertionError):
-        rule.applies(evaluable)
+        rule.assert_applies(evaluable)
 
 
 def test_should_import_named_named_positive(evaluable1: Evaluable) -> None:

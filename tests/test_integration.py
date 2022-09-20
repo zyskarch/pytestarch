@@ -131,10 +131,10 @@ def test_architecture_based_on_string_modules(
     graph_based_on_string_module_names: Evaluable,
 ) -> None:
     if expected_result:
-        rule.applies(graph_based_on_string_module_names)
+        rule.assert_applies(graph_based_on_string_module_names)
     else:
         with pytest.raises(AssertionError):
-            assert rule.applies(graph_based_on_string_module_names)
+            assert rule.assert_applies(graph_based_on_string_module_names)
 
 
 @pytest.mark.parametrize("rule, expected_result, skip_with_level_limit", rules_to_test)
@@ -145,10 +145,10 @@ def test_architecture_based_on_module_objects(
     graph_based_on_string_module_names: Evaluable,
 ) -> None:
     if expected_result:
-        rule.applies(graph_based_on_string_module_names)
+        rule.assert_applies(graph_based_on_string_module_names)
     else:
         with pytest.raises(AssertionError):
-            assert rule.applies(graph_based_on_string_module_names)
+            assert rule.assert_applies(graph_based_on_string_module_names)
 
 
 def test_depending_on_module_does_not_imply_depending_on_submodule(
@@ -171,8 +171,8 @@ def test_depending_on_module_does_not_imply_depending_on_submodule(
         .are_named("src.moduleB.submoduleB1.fileB3")
     )
 
-    rule_1.applies(graph_including_tests)
-    rule_2.applies(graph_including_tests)
+    rule_1.assert_applies(graph_including_tests)
+    rule_2.assert_applies(graph_including_tests)
 
 
 @pytest.mark.parametrize("rule, expected_result, skip_with_level_limit", rules_to_test)
@@ -183,10 +183,10 @@ def test_identical_source_and_module_path_do_not_lead_to_errors(
     graph_with_identical_source_and_module_path: Evaluable,
 ) -> None:
     if expected_result:
-        rule.applies(graph_with_identical_source_and_module_path)
+        rule.assert_applies(graph_with_identical_source_and_module_path)
     else:
         with pytest.raises(AssertionError):
-            assert rule.applies(graph_with_identical_source_and_module_path)
+            assert rule.assert_applies(graph_with_identical_source_and_module_path)
 
 
 @pytest.mark.parametrize("rule, expected_result, skip_with_level_limit", rules_to_test)
@@ -200,10 +200,10 @@ def test_level_limit_flattens_dependencies_correctly(
         return
 
     if expected_result:
-        rule.applies(graph_with_level_limit_1)
+        rule.assert_applies(graph_with_level_limit_1)
     else:
         with pytest.raises(AssertionError):
-            assert rule.applies(graph_with_level_limit_1)
+            assert rule.assert_applies(graph_with_level_limit_1)
 
 
 # def test_exporting_as_image_does_not_raise_error(
