@@ -31,7 +31,7 @@ PREFIX_MAPPING.update(
 
 class RuleApplier(ABC):
     @abstractmethod
-    def applies(self, evaluable: Evaluable) -> None:
+    def assert_applies(self, evaluable: Evaluable) -> None:
         """
         Calculates whether it (the rule) applies to a given Evaluable.
         This means calculating which behavior is wanted and then
@@ -213,7 +213,7 @@ class Rule(
         self._modules_to_check_to_be_specified_next = False
         return self
 
-    def applies(self, evaluable: Evaluable) -> None:
+    def assert_applies(self, evaluable: Evaluable) -> None:
         self._assert_required_configuration_present()
 
         module_requirement = ModuleRequirement(

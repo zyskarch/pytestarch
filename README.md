@@ -39,6 +39,6 @@ that is a submodule of "src.moduleA", including "src.moduleA" itself.
 3) Evaluate your code against this rule
 
 ```
-assert rule.applies(evaluable)
+assert rule.assert_applies(evaluable)
 ```
 That's it!

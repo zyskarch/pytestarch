@@ -576,4 +576,4 @@ def test_rule_violated_raises_proper_error_message(
     graph_based_on_string_module_names: Evaluable,
 ) -> None:
     with pytest.raises(AssertionError, match=expected_error_message):
-        rule.applies(graph_based_on_string_module_names)
+        rule.assert_applies(graph_based_on_string_module_names)
