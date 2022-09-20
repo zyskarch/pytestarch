@@ -1,4 +1,5 @@
 import ast
+import os
 from pathlib import Path
 from typing import Optional, Tuple, List
 
@@ -81,7 +82,7 @@ class Parser:
                 module_path = self._path_prefix / module_path
 
         module_without_file_suffix = module_path.with_suffix("")
-        return str(module_without_file_suffix).replace("/", ".")
+        return str(module_without_file_suffix).replace(os.sep, ".")
 
     def _file_should_be_parsed(self, path: Path) -> bool:
         """Returns True if path represents a python file that does not match any exclusion filters."""
