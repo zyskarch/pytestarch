@@ -34,5 +34,10 @@ Then share the tag via
 `git push origin v<insert new version>`
 
 
-## Release
+## Release a new version of the documentation
+Run `mike deploy --push --update-aliases <insert new version> latest`. This will update the project's documentation 
+hosted on GitHub Pages.
+
+
+## Release a new version of PyTestArch
 Create a release via GitHub. This will trigger the `Release` GitHub Action, which will push the newest version to PyPI.
