@@ -5,10 +5,15 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 
 ## [Unreleased]
 
+## [0.1.0] -- 2022-09-23
+### Added
+- More detailed error message for violations of rules checking for absence of imports
+- Versioning of documentation
+
 ## [0.1.0-alpha.4] -- 2022-09-23
 ### Added
 - Documentation for release of PyTestArch
-- More detailed project descriptin
+- More detailed project description
 
 ### Changed
 - Computation of dependencies between modules on graph
