@@ -3,7 +3,7 @@ In order to deploy the newest version of PyTestArch to PyPI, the following steps
 
 
 ### Check out release branch
-Check out the `main` branch.
+Create a new release branch based on the current `main` branch.
 
 
 ### Ensure that everything works
@@ -11,7 +11,7 @@ Run all tests just to be safe.
 
 
 ### Ensure that changelog is up-to-date
-Each PR should come with an update of the changelog. Make sure that all recent features/bug fixes/...
+Each PR should come with an update of the [changelog](docs/changelog.md). Make sure that all recent features/bug fixes/...
 are mentioned in the changelog. If they are not, update the changelog and open a PR for this first.
 
 
