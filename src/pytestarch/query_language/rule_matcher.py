@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, fields
-from typing import Set, List
+from typing import Set, List, Optional, Tuple
 
 from pytestarch.eval_structure.eval_structure_types import Module, Evaluable
 from pytestarch.query_language.exceptions import ImproperlyConfigured
@@ -38,7 +38,8 @@ class ModuleRequirement:
 
 @dataclass
 class RuleViolations:
-    dependencies_found: Set[Module]
+    lax_dependencies_found: List[Module]
+    strict_dependency: Optional[Tuple[str, str]]
 
     should_not_except_violated: bool = False
     should_only_except_violated_by_forbidden_import: bool = False
@@ -112,11 +113,13 @@ class BehaviorRequirement:
             raise ImproperlyConfigured("Lax dependency both required and not allowed.")
 
     def generate_rule_violation(
-        self, strict_dependency_present: bool, lax_dependencies: Set[Module]
+        self,
+        strict_dependency: Optional[Tuple[str, str]],
+        lax_dependencies: Set[Module],
     ) -> RuleViolations:
         """Translate from the detected types of dependencies back to which behavior and dependency requirements are violated by them.
         Args:
-            strict_dependency_present: whether any dependencies between the two specified modules were found
+            strict_dependency: dependency between the two specified modules found
             lax_dependencies: other dependencies found beside the two specified modules
         Returns:
             overview of all rule violations
@@ -136,12 +139,13 @@ class BehaviorRequirement:
         lax_dependencies_present = (
             lax_dependencies is not None and len(lax_dependencies) > 0
         )
+        strict_dependency_present = strict_dependency is not None
 
         return RuleViolations(
             should_not_except_violated=should_not_except_expected
             and lax_dependencies_present,
             should_only_except_violated_by_forbidden_import=should_only_except_violated_by_forbidden_expected
-            and (strict_dependency_present or not lax_dependencies_present),
+            and (strict_dependency_present and lax_dependencies_present),
             should_not_violated=should_not_expected and strict_dependency_present,
             should_only_violated=should_only_expected
             and (not strict_dependency_present or lax_dependencies_present),
@@ -150,7 +154,8 @@ class BehaviorRequirement:
             should_except_violated=should_except_expected
             and not lax_dependencies_present,
             should_violated=should_expected and not strict_dependency_present,
-            dependencies_found=lax_dependencies,
+            lax_dependencies_found=lax_dependencies,
+            strict_dependency=strict_dependency,
         )
 
 
@@ -194,11 +199,11 @@ class DefaultRuleMatcher(RuleMatcher):
         left_hand_module = self._module_requirement.left_hand_module
         right_hand_module = self._module_requirement.right_hand_module
 
-        strict_dependency_present = None
+        strict_dependency = None
         lax_dependencies = None
 
         if strict_dependency_required or no_strict_dependency_allowed:
-            strict_dependency_present = evaluable.is_dependent(
+            strict_dependency = evaluable.is_dependent(
                 left_hand_module, right_hand_module
             )
 
@@ -214,5 +219,5 @@ class DefaultRuleMatcher(RuleMatcher):
             )
 
         return self._behavior_requirement.generate_rule_violation(
-            strict_dependency_present, lax_dependencies
+            strict_dependency, lax_dependencies
         )

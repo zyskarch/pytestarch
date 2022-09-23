@@ -2,13 +2,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol, Optional, Any, Set
+from typing import Protocol, Optional, Any, Tuple, List
 
 from pytestarch.eval_structure.graph import Node
 
 
 class Evaluable(Protocol):
-    def is_dependent(self, dependent: Module, dependent_upon: Module) -> bool:
+    def is_dependent(
+        self, dependent: Module, dependent_upon: Module
+    ) -> Optional[Tuple[str, str]]:
         """Returns True if the dependent module is indeed
         depending on the dependent_upon module.
         Submodules of dependent towards are taken into account, but submodules of dependent_upon are not.
@@ -18,13 +20,13 @@ class Evaluable(Protocol):
             dependent_upon: Module
 
         Returns:
-            Indicator of whether the dependent module truly depends on the dependent_upon module
+            Importer and importee if there are any that are sub modules of dependent and dependent_upon respectively.
         """
         raise NotImplementedError()
 
     def any_dependency_to_module_other_than(
         self, dependent: Module, dependent_upon: Module
-    ) -> Set[Module]:
+    ) -> List[Module]:
         """Returns True if the dependent module has any
         dependency to a module other than the dependent_upon module
         or any of its submodules.
@@ -40,7 +42,7 @@ class Evaluable(Protocol):
 
     def any_other_dependency_to_module_than(
         self, dependent: Module, dependent_upon: Module
-    ) -> Set[Module]:
+    ) -> List[Module]:
         """Returns True if any module other than the dependent
         module and its submodules has any dependency to the
         dependent_upon module.
