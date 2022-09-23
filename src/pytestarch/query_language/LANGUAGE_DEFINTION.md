@@ -1,4 +1,4 @@
-# PytestArch Query Language
+# PyTestArch Query Language
 
 ## Structure
 SUBJECT VERB_MARKER_1 IMPORT_TYPE VERB_MARKER_2 OBJECT

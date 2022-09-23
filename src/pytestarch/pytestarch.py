@@ -1,5 +1,5 @@
 """
-The following two functions are the main entry point to PytestArch. They can be used to create an evaluable object,
+The following two functions are the main entry point to PyTestArch. They can be used to create an evaluable object,
 for which the user can then define architectural rules.
 """
 import os

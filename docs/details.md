@@ -1,7 +1,7 @@
 # Details
 
 ## General Concept
-PytestArch creates an Abstract Syntax Tree for each Python file it scans. It then extracts only the information about 
+PyTestArch creates an Abstract Syntax Tree for each Python file it scans. It then extracts only the information about 
 module imports from the AST and converts them to an internal representation. This is currently a graph supplied by the 
 [NetworkX](https://networkx.org/) library.
 
@@ -129,7 +129,7 @@ from the "B" module is "fileA11", which is a submodule of "A".
 
 ### Features
 
-Currently, the following markers are supported by PytestArch:
+Currently, the following markers are supported by PyTestArch:
 
 #### RULE_SUBJECT
 * are_named("X"): applies to module named "X"
