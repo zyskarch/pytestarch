@@ -28,7 +28,6 @@ classifiers = [
 python = "^3.8"
 networkx = "^2.8.6"
 matplotlib = "^3.5.3"
-mike = "^1.1.2"
 
 [tool.poetry.dev-dependencies]
 black = "^22.6.0"
@@ -40,6 +39,8 @@ nox = "^2022.8.7"
 pre-commit = "^2.20.0"
 pytest = "^7.1.2"
 coverage = "^6.4.4"
+mike = "^1.1.2"
+bandit = "^1.7.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

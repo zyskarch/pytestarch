@@ -23,3 +23,10 @@ def black(session):
     session.run("poetry", "shell")
     session.run("poetry", "install", external=True)
     session.run("poetry", "run", "black", *locations)
+
+
+@nox.session(python="3.8")
+def bandit(session):
+    session.run("poetry", "shell")
+    session.run("poetry", "install", external=True)
+    session.run("poetry", "run", "bandit", "-r", "src")
