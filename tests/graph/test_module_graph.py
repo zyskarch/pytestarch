@@ -20,7 +20,7 @@ def modules_and_ast(
     search_path: Path = Path(ROOT_PATH / "tests/resources/importer"),
 ) -> Tuple[List[str], List[NamedModule]]:
     return Parser(
-        root_path, FileFilter(Config(("*__pycache", "*__init__"))), False
+        root_path, FileFilter(Config(("*__pycache__", "*__init__"))), False
     ).parse(search_path)
 
 
@@ -46,7 +46,7 @@ def module_graph(all_modules: List[str], imports: List[Import]) -> Graph:
 
 
 def test_node_edge_count_as_expected(module_graph: Graph) -> None:
-    assert module_graph.nodes_number == 36
+    assert module_graph.nodes_number == 33
     assert module_graph.edges_number == 23
 
 
