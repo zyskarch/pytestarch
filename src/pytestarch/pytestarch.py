@@ -18,7 +18,7 @@ from pytestarch.importer.importee_module_calculator import ImporteeModuleCalcula
 from pytestarch.importer.parser import Parser
 
 
-DEFAULT_EXCLUSIONS = ("*__pycache__", "*__init__.py")
+DEFAULT_EXCLUSIONS = ("*__pycache__",)
 
 
 def get_evaluable(
