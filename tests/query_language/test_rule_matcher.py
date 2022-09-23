@@ -93,7 +93,7 @@ test_cases = [
         .should_not()
         .import_modules_that()
         .are_named(A),
-        '"src.moduleB" imports "src.moduleA.',
+        '"src.moduleB.submoduleB1.fileB2" imports "src.moduleA.submoduleA1.submoduleA11.fileA11',
         id="named should not import named",
     ),
     pytest.param(
@@ -103,7 +103,7 @@ test_cases = [
         .should_not()
         .import_modules_that()
         .are_sub_modules_of(A),
-        '"src.moduleB" imports a sub module of "src.moduleA".',
+        '"src.moduleB.submoduleB1.fileB2" imports "src.moduleA.submoduleA1.submoduleA11.fileA11".',
         id="named should not import submodule",
     ),
     pytest.param(
@@ -113,7 +113,7 @@ test_cases = [
         .should_not()
         .import_modules_that()
         .are_named(A),
-        'Sub modules of "src.moduleB" import "src.moduleA".',
+        '"src.moduleB.submoduleB1.fileB2" imports "src.moduleA.submoduleA1.submoduleA11.fileA11".',
         id="submodule should not import named",
     ),
     pytest.param(
@@ -123,7 +123,7 @@ test_cases = [
         .should_not()
         .import_modules_that()
         .are_sub_modules_of(A),
-        'Sub modules of "src.moduleB" import a sub module of "src.moduleA".',
+        '"src.moduleB.submoduleB1.fileB2" imports "src.moduleA.submoduleA1.submoduleA11.fileA11".',
         id="submodule should not import submodule",
     ),
     pytest.param(
@@ -173,7 +173,7 @@ test_cases = [
         .should_only()
         .import_modules_except_modules_that()
         .are_named(C),
-        '"src.moduleA" imports "src.moduleC".',
+        '"src.moduleA.submoduleA2.fileA2" imports "src.moduleC.fileC".',
         id="named should only import except named - forbidden import",
     ),
     pytest.param(
@@ -183,7 +183,7 @@ test_cases = [
         .should_only()
         .import_modules_except_modules_that()
         .are_sub_modules_of(C),
-        '"src.moduleA" imports a sub module of "src.moduleC".',
+        '"src.moduleA.submoduleA2.fileA2" imports "src.moduleC.fileC".',
         id="named should only import except submodule - forbidden import",
     ),
     pytest.param(
@@ -193,7 +193,7 @@ test_cases = [
         .should_only()
         .import_modules_except_modules_that()
         .are_named(C),
-        'Sub modules of "src.moduleA" import "src.moduleC".',
+        '"src.moduleA.submoduleA2.fileA2" imports "src.moduleC.fileC".',
         id="submodule should only import except named - forbidden import",
     ),
     pytest.param(
@@ -203,7 +203,7 @@ test_cases = [
         .should_only()
         .import_modules_except_modules_that()
         .are_sub_modules_of(C),
-        'Sub modules of "src.moduleA" import a sub module of "src.moduleC".',
+        '"src.moduleA.submoduleA2.fileA2" imports "src.moduleC.fileC".',
         id="submodule should only import except submodule - forbidden import",
     ),
     pytest.param(
@@ -373,7 +373,7 @@ test_cases = [
         .should_not()
         .be_imported_by_modules_that()
         .are_named(A),
-        '"src.moduleC" is imported by "src.moduleA".',
+        '"src.moduleC.fileC" is imported by "src.moduleA.submoduleA2.fileA2".',
         id="named should not be imported by named",
     ),
     pytest.param(
@@ -383,7 +383,7 @@ test_cases = [
         .should_not()
         .be_imported_by_modules_that()
         .are_sub_modules_of(A),
-        '"src.moduleC" is imported by a sub module of "src.moduleA".',
+        '"src.moduleC.fileC" is imported by "src.moduleA.submoduleA2.fileA2".',
         id="named should not be imported by submodule",
     ),
     pytest.param(
@@ -393,7 +393,7 @@ test_cases = [
         .should_not()
         .be_imported_by_modules_that()
         .are_named(A),
-        'Sub modules of "src.moduleC" are imported by "src.moduleA".',
+        '"src.moduleC.fileC" is imported by "src.moduleA.submoduleA2.fileA2".',
         id="submodule should not be imported by named",
     ),
     pytest.param(
@@ -403,7 +403,7 @@ test_cases = [
         .should_not()
         .be_imported_by_modules_that()
         .are_sub_modules_of(A),
-        'Sub modules of "src.moduleC" are imported by a sub module of "src.moduleA".',
+        '"src.moduleC.fileC" is imported by "src.moduleA.submoduleA2.fileA2".',
         id="submodule should not be imported by submodule",
     ),
     pytest.param(
@@ -453,7 +453,7 @@ test_cases = [
         .should_only()
         .be_imported_by_modules_except_modules_that()
         .are_named(B2),
-        '"src.moduleA.submoduleA1.submoduleA11" is imported by "src.moduleB.submoduleB1.fileB2".',
+        '"src.moduleA.submoduleA1.submoduleA11.fileA11" is imported by "src.moduleB.submoduleB1.fileB2".',
         id="named should only be imported by except named - forbidden import",
     ),
     pytest.param(
@@ -463,7 +463,7 @@ test_cases = [
         .should_only()
         .be_imported_by_modules_except_modules_that()
         .are_sub_modules_of(B2),
-        '"src.moduleA.submoduleA1.submoduleA11" is imported by a sub module of "src.moduleB.submoduleB1.fileB2".',
+        '"src.moduleA.submoduleA1.submoduleA11.fileA11" is imported by "src.moduleB.submoduleB1.fileB2".',
         id="named should only be imported by except submodule - forbidden import",
     ),
     pytest.param(
@@ -473,7 +473,7 @@ test_cases = [
         .should_only()
         .be_imported_by_modules_except_modules_that()
         .are_named(B2),
-        'Sub modules of "src.moduleA.submoduleA1.submoduleA11" are imported by "src.moduleB.submoduleB1.fileB2".',
+        '"src.moduleA.submoduleA1.submoduleA11.fileA11" is imported by "src.moduleB.submoduleB1.fileB2".',
         id="submodule should only be imported by except named - forbidden import",
     ),
     pytest.param(
@@ -483,7 +483,7 @@ test_cases = [
         .should_only()
         .be_imported_by_modules_except_modules_that()
         .are_sub_modules_of(B2),
-        'Sub modules of "src.moduleA.submoduleA1.submoduleA11" are imported by a sub module of "src.moduleB.submoduleB1.fileB2".',
+        '"src.moduleA.submoduleA1.submoduleA11.fileA11" is imported by "src.moduleB.submoduleB1.fileB2".',
         id="submodule should only be imported by except submodule - forbidden import",
     ),
     pytest.param(

@@ -237,7 +237,7 @@ class Rule(
         method_name = f'{"should" if self._should else "should only" if self._should_only else "should not"}'
 
         return (
-            f"{self._create_rule_subject_for_rule_violation_message()} "
+            f"{self._add_rule_subject_plural_marker_if_needed(self._get_module_name(self._module_to_check))} "
             f"{method_name} "
             f'{"import" if self._import else "be imported by"} '
             f'{"modules except " if self._except_present else ""}'
@@ -282,20 +282,46 @@ class Rule(
         return f"a {clz.__name__}" if empty else ""
 
     def _create_rule_violation_message(self, rule_violations: RuleViolations) -> str:
-        rule_subject = self._create_rule_subject_for_rule_violation_message()
+        rule_subject = self._create_rule_subject_for_rule_violation_message(
+            rule_violations
+        )
         verb = self._create_verb_for_rule_violation_message(rule_violations)
         rule_object = self._create_rule_object_for_rule_violation_message(
             rule_violations
         )
         return f"{rule_subject} {verb}{rule_object}."
 
-    def _create_rule_subject_for_rule_violation_message(self) -> str:
+    def _create_rule_subject_for_rule_violation_message(
+        self, rule_violations: RuleViolations
+    ) -> str:
         module_name = self._get_module_name(self._module_to_check)
 
+        if self._forbidden_import(rule_violations):
+            if rule_violations.strict_dependency is not None:
+                module_name = self._get_subject_of_strict_dependency(rule_violations)
+
+                # no plural marker needed, as module is always singular
+                return f'"{module_name}"'
+
+        return self._add_rule_subject_plural_marker_if_needed(module_name)
+
+    def _get_subject_of_strict_dependency(self, rule_violations: RuleViolations) -> str:
+        # strict dependency is always reported in format (importer, importee)
+        # if rule is of format A ... imports B, the dependency will be (A, B)
+        idx = int(not self._import)
+        return rule_violations.strict_dependency[idx]
+
+    def _get_object_of_strict_dependency(self, rule_violations: RuleViolations) -> str:
+        # strict dependency is always reported in format (importer, importee)
+        # if rule is of format A ... be imported by B, the dependency will be (B, A)
+        # but in our rule, B is the object
+        idx = int(self._import)
+        return rule_violations.strict_dependency[idx]
+
+    def _add_rule_subject_plural_marker_if_needed(self, module_name: str) -> str:
         prefix = ""
         if not self._rule_subject_singular:
             prefix = "Sub modules of "
-
         return f'{prefix}"{module_name}"'
 
     def _create_verb_for_rule_violation_message(
@@ -321,16 +347,31 @@ class Rule(
             or rule_violations.should_not_except_violated
         ):
 
-            if self._import and self._rule_subject_singular:
+            if self._import and (
+                self._rule_subject_singular or (self._forbidden_import(rule_violations))
+            ):
                 suffix = "s "
 
             negated = False
         else:
             raise Exception("Unknown rule violation detected.")
 
-        prefix = PREFIX_MAPPING[(self._import, negated, self._rule_subject_singular)]
+        prefix = PREFIX_MAPPING[
+            (
+                self._import,
+                negated,
+                self._rule_subject_singular
+                or (self._forbidden_import(rule_violations)),
+            )
+        ]
 
         return f"{prefix}{base_verb}{suffix}"
+
+    def _forbidden_import(self, rule_violations: RuleViolations) -> bool:
+        return (
+            rule_violations.should_not_violated
+            or rule_violations.should_only_except_violated_by_forbidden_import
+        )
 
     @property
     def _rule_subject_singular(self) -> bool:
@@ -343,24 +384,26 @@ class Rule(
     def _create_rule_object_for_rule_violation_message(
         self, rule_violations: RuleViolations
     ) -> str:
+        object_name = self._get_module_name(self._module_to_check_against)
+        module_qualifier = "" if self._rule_object_singular else "a sub module of "
+
         if (
             rule_violations.should_except_violated
             or rule_violations.should_only_except_violated_by_no_import
         ):
             module_qualifier = f"any module that is not {'' if self._rule_object_singular else 'a sub module of '}"
-        else:
-            module_qualifier = "" if self._rule_object_singular else "a sub module of "
+        elif self._forbidden_import(rule_violations):
+            module_qualifier = ""
 
-        base_object = f"{module_qualifier}"
-
-        object_name = self._get_module_name(self._module_to_check_against)
+            if rule_violations.strict_dependency is not None:
+                object_name = self._get_object_of_strict_dependency(rule_violations)
 
         if (
             rule_violations.should_not_except_violated
             or rule_violations.should_only_violated
         ):
             object_name = ", ".join(
-                (module.name for module in rule_violations.dependencies_found)
+                (module.name for module in rule_violations.lax_dependencies_found)
             )
 
-        return f'{base_object}"{object_name}"'
+        return f'{module_qualifier}"{object_name}"'

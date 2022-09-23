@@ -1,9 +1,8 @@
 """Encapsulation of networkx graph functionality."""
-from typing import List, Set, Any, Iterable, Tuple, Optional
+from typing import List, Any, Optional
 
 import networkx as nx
-from networkx import has_path, all_simple_paths, draw_networkx, spring_layout
-from networkx.utils import pairwise
+from networkx import has_path, draw_networkx, spring_layout
 
 from pytestarch.importer.import_types import Import
 
@@ -155,7 +154,7 @@ class Graph:
     def nodes(self) -> List[Node]:
         return list(self._graph.nodes)
 
-    def direct_predecessor_nodes(self, node: Node) -> Set[Node]:
+    def direct_predecessor_nodes(self, node: Node) -> List[Node]:
         """Returns all nodes that have a directed edge towards the given node.
 
         Args:
@@ -164,9 +163,9 @@ class Graph:
         Returns:
             all predecessor nodes
         """
-        return set(self._graph.predecessors(node))
+        return sorted(self._graph.predecessors(node))
 
-    def direct_successor_nodes(self, node: Node) -> Set[Node]:
+    def direct_successor_nodes(self, node: Node) -> List[Node]:
         """Returns all nodes that the given node has a directed edge towards.
 
         Args:
@@ -175,7 +174,7 @@ class Graph:
         Returns:
             all successor nodes
         """
-        return set(self._graph.successors(node))
+        return sorted(self._graph.successors(node))
 
     def parent_child_relationship(
         self, supposed_parent_node: Node, supposed_child_node: Node
@@ -192,21 +191,6 @@ class Graph:
         edge_data = self._graph.get_edge_data(supposed_parent_node, supposed_child_node)
 
         return edge_data["inherits"]
-
-    def all_paths_between(
-        self, start_node: Node, end_node: Node
-    ) -> Iterable[Tuple[Node, Node]]:
-        """Returns all paths between the start node and the end node.
-
-        Args:
-            start_node:
-            end_node:
-
-        Returns:
-            all paths from start_node to end_node
-        """
-        simple_paths = all_simple_paths(self._graph, start_node, end_node)
-        return map(pairwise, simple_paths)
 
     def draw(self, **kwargs: Any) -> None:
         """Creates a matplotlib plot representing the graph."""
