@@ -3,15 +3,26 @@ name = "PyTestArch"
 version = "0.1.0-alpha.3"
 description = "Test framework for software architecture based on imports between modules"
 authors = ["zyskarch <zyskarch@gmail.com>"]
+maintainers = ["zyskarch <zyskarch@gmail.com>"]
 readme = "README.md"
 license = "Apache-2.0"
+documentation = "https://zyskarch.github.io/pytestarch/"
+repository = "https://github.com/zyskarch/pytestarch"
+
+keywords = ["architecture", "test"]
 classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.8",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: Testing :: Unit",
 ]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/zyskarch/pytestarch/issues"
 
 [tool.poetry.dependencies]
 python = "^3.8"
