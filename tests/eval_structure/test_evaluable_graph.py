@@ -147,99 +147,99 @@ def test_a_depends_on_non_b(evaluable: Evaluable) -> None:
 
 
 def test_non_a_depends_on_b(evaluable: Evaluable) -> None:
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_1), Module(name=MODULE_2)
     )
-    assert not evaluable.any_dependency_to_other_module_than(
+    assert not evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_1), Module(name=MODULE_3)
     )
-    assert not evaluable.any_dependency_to_other_module_than(
+    assert not evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_1), Module(name=MODULE_4)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_1), Module(name=SUB_MODULE_OF_2)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_1), Module(name=MODULE_6)
     )
 
-    assert not evaluable.any_dependency_to_other_module_than(
+    assert not evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_2), Module(name=MODULE_1)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_2), Module(name=MODULE_3)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_2), Module(name=MODULE_4)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_2), Module(name=SUB_MODULE_OF_2)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_2), Module(name=MODULE_6)
     )
 
-    assert not evaluable.any_dependency_to_other_module_than(
+    assert not evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_3), Module(name=MODULE_1)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_3), Module(name=MODULE_2)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_3), Module(name=MODULE_4)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_3), Module(name=SUB_MODULE_OF_2)
     )
-    assert not evaluable.any_dependency_to_other_module_than(
+    assert not evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_3), Module(name=MODULE_6)
     )
 
-    assert not evaluable.any_dependency_to_other_module_than(
+    assert not evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_4), Module(name=MODULE_1)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_4), Module(name=MODULE_2)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_4), Module(name=MODULE_3)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert not evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_4), Module(name=SUB_MODULE_OF_2)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_4), Module(name=MODULE_6)
     )
 
-    assert not evaluable.any_dependency_to_other_module_than(
+    assert not evaluable.any_other_dependency_to_module_than(
         Module(name=SUB_MODULE_OF_2), Module(name=MODULE_1)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=SUB_MODULE_OF_2), Module(name=MODULE_2)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=SUB_MODULE_OF_2), Module(name=MODULE_3)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=SUB_MODULE_OF_2), Module(name=MODULE_4)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=SUB_MODULE_OF_2), Module(name=MODULE_6)
     )
 
-    assert not evaluable.any_dependency_to_other_module_than(
+    assert not evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_6), Module(name=MODULE_1)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_6), Module(name=MODULE_2)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_6), Module(name=MODULE_3)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_6), Module(name=MODULE_4)
     )
-    assert evaluable.any_dependency_to_other_module_than(
+    assert evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_6), Module(name=SUB_MODULE_OF_2)
     )
 
@@ -248,13 +248,17 @@ def test_depends_on(evaluable: Evaluable) -> None:
     assert evaluable.is_dependent(Module(name=MODULE_1), Module(name=MODULE_2))
     assert evaluable.is_dependent(Module(name=MODULE_1), Module(name=MODULE_3))
     assert evaluable.is_dependent(Module(name=MODULE_1), Module(name=MODULE_4))
-    assert evaluable.is_dependent(Module(name=MODULE_1), Module(name=SUB_MODULE_OF_2))
-    assert evaluable.is_dependent(Module(name=MODULE_1), Module(name=MODULE_6))
+    assert not evaluable.is_dependent(
+        Module(name=MODULE_1), Module(name=SUB_MODULE_OF_2)
+    )
+    assert not evaluable.is_dependent(Module(name=MODULE_1), Module(name=MODULE_6))
 
     assert not evaluable.is_dependent(Module(name=MODULE_2), Module(name=MODULE_1))
     assert not evaluable.is_dependent(Module(name=MODULE_2), Module(name=MODULE_3))
     assert not evaluable.is_dependent(Module(name=MODULE_2), Module(name=MODULE_4))
-    assert evaluable.is_dependent(Module(name=MODULE_2), Module(name=SUB_MODULE_OF_2))
+    assert not evaluable.is_dependent(
+        Module(name=MODULE_2), Module(name=SUB_MODULE_OF_2)
+    )
     assert not evaluable.is_dependent(Module(name=MODULE_2), Module(name=MODULE_6))
 
     assert not evaluable.is_dependent(Module(name=MODULE_3), Module(name=MODULE_1))

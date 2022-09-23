@@ -38,7 +38,7 @@ class Evaluable(Protocol):
         """
         raise NotImplementedError()
 
-    def any_dependency_to_other_module_than(
+    def any_other_dependency_to_module_than(
         self, dependent: Module, dependent_upon: Module
     ) -> Set[Module]:
         """Returns True if any module other than the dependent
