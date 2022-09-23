@@ -206,7 +206,7 @@ class DefaultRuleMatcher(RuleMatcher):
             if not self._module_requirement.left_hand_module_has_specifier:
                 dependency_check_method = evaluable.any_dependency_to_module_other_than
             else:
-                dependency_check_method = evaluable.any_dependency_to_other_module_than
+                dependency_check_method = evaluable.any_other_dependency_to_module_than
 
             lax_dependencies = dependency_check_method(
                 left_hand_module,

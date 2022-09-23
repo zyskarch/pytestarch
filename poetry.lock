@@ -124,6 +124,17 @@ docs = ["sphinx-rtd-theme", "sphinx", "docutils (<0.18)"]
 bokeh = ["selenium", "bokeh"]
 
 [[package]]
+name = "coverage"
+version = "6.4.4"
+description = "Code coverage measurement for Python"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+toml = ["tomli"]
+
+[[package]]
 name = "cycler"
 version = "0.11.0"
 description = "Composable style cycles"
@@ -785,7 +796,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "e47b0266a26abf1daa0ef71edbd524148dd012d155510628acece3d4d78b0be3"
+content-hash = "1ac3d9616c0067765f007ffbba54a63b764e252691afdea60bb922aba68630eb"
 
 [metadata.files]
 argcomplete = []
@@ -798,6 +809,7 @@ click = []
 colorama = []
 colorlog = []
 contourpy = []
+coverage = []
 cycler = []
 distlib = []
 filelock = []
