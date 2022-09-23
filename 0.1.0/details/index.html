@@ -1,0 +1,897 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.5.3">
+    
+    
+      
+        <title>Details - PyTestArch</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.7a952b86.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#details" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="PyTestArch" class="md-header__button md-logo" aria-label="PyTestArch" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PyTestArch
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Details
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/zyskarch/pytestarch" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="PyTestArch" class="md-nav__button md-logo" aria-label="PyTestArch" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    PyTestArch
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/zyskarch/pytestarch" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Welcome to PyTestArch
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Details
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Details
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#general-concept" class="md-nav__link">
+    General Concept
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simple-example" class="md-nav__link">
+    Simple Example
+  </a>
+  
+    <nav class="md-nav" aria-label="Simple Example">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parsing-all-files" class="md-nav__link">
+    Parsing all files
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#excluding-some-files" class="md-nav__link">
+    Excluding some files
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#more-complex-example" class="md-nav__link">
+    More complex example
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#query-language" class="md-nav__link">
+    Query Language
+  </a>
+  
+    <nav class="md-nav" aria-label="Query Language">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general-structure" class="md-nav__link">
+    General Structure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    Features
+  </a>
+  
+    <nav class="md-nav" aria-label="Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rule_subject" class="md-nav__link">
+    RULE_SUBJECT
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rule_object" class="md-nav__link">
+    RULE_OBJECT
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verb_marker_1" class="md-nav__link">
+    VERB_MARKER_1
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#import_type-verb_marker_2" class="md-nav__link">
+    IMPORT_TYPE + VERB_MARKER_2
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        Changelog
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4">
+          Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../general/" class="md-nav__link">
+        General
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../eval_structure/" class="md-nav__link">
+        Evaluation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parsing/" class="md-nav__link">
+        Parsing
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../query_language/" class="md-nav__link">
+        Query Language
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#general-concept" class="md-nav__link">
+    General Concept
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simple-example" class="md-nav__link">
+    Simple Example
+  </a>
+  
+    <nav class="md-nav" aria-label="Simple Example">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parsing-all-files" class="md-nav__link">
+    Parsing all files
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#excluding-some-files" class="md-nav__link">
+    Excluding some files
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#more-complex-example" class="md-nav__link">
+    More complex example
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#query-language" class="md-nav__link">
+    Query Language
+  </a>
+  
+    <nav class="md-nav" aria-label="Query Language">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general-structure" class="md-nav__link">
+    General Structure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    Features
+  </a>
+  
+    <nav class="md-nav" aria-label="Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rule_subject" class="md-nav__link">
+    RULE_SUBJECT
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rule_object" class="md-nav__link">
+    RULE_OBJECT
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verb_marker_1" class="md-nav__link">
+    VERB_MARKER_1
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#import_type-verb_marker_2" class="md-nav__link">
+    IMPORT_TYPE + VERB_MARKER_2
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  <a href="https://github.com/zyskarch/pytestarch/edit/master/docs/details.md" title="Edit this page" class="md-content__button md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+<h1 id="details">Details</h1>
+<h2 id="general-concept">General Concept</h2>
+<p>PyTestArch creates an Abstract Syntax Tree for each Python file it scans. It then extracts only the information about 
+module imports from the AST and converts them to an internal representation. This is currently a graph supplied by the 
+<a href="https://networkx.org/">NetworkX</a> library.</p>
+<p>When the user defines a rule and evaluates the internal representation against it, the rule is converted into a set of
+graph operations that are then carried out on the previously generated graph.</p>
+<h2 id="simple-example">Simple Example</h2>
+<h3 id="parsing-all-files">Parsing all files</h3>
+<p>Consider the following project structure:</p>
+<pre><code>my_project/
+    src/
+        main.py
+        util.py
+        util_test.py
+</code></pre>
+<p>Both <code>main.py</code> and <code>util_test.py</code> are importing a util function defined in <code>util.py</code>; no other imports exist.</p>
+<p>With "my_project" as the project's root folder and "src" as the folder to evaluate, this will create the following graph:</p>
+<p><img alt="Simple Example Graph" src="../resources/docu_simple_example.png" /></p>
+<p>Each module has a direct path to all submodules, in this case: "src" is connected to all three modules it contains, 
+"src.main", "src.util", and "src.util_test".</p>
+<p>In addition, a module that imports another module has an directed edge linking it to this module. For example, "src.main"
+imports "src.util" and therefore the graph has an edge connecting these modules, with the arrow head pointing at the imported
+module, in this case "src.util".</p>
+<h3 id="excluding-some-files">Excluding some files</h3>
+<p>In the example above, the <code>util_test.py</code> file is included in the graph and will be considered when evaluating the architecture.
+If certain files should be excluded from the analysis, this can be done by specifying an exclusion pattern. In our example,
+if we want to exclude <code>util_test.py</code>, we could use:</p>
+<pre><code>from pytestarch.pytestarch import get_evaluable
+
+evaluable = get_evaluable(&quot;/home/my_project&quot;, &quot;/home/my_project/src&quot;, (&quot;*_test.py&quot;))
+</code></pre>
+<p>This will exclude all files with names ending in "_test.py". It is also possible to exclude directories.</p>
+<h2 id="more-complex-example">More complex example</h2>
+<p>As a basis for describing the query language, let's consider a more complex example:</p>
+<pre><code>/test_project
+    /src
+       __init__.py
+       /A
+            __init__.py
+            fileA.py
+            /A1
+                __init__.py
+                fileA1.py
+                fileA1_b.py
+                /A11
+                    __init__.py
+                    fileA11.py
+            /A2
+                __init__.py
+                fileA2.py
+       /B
+            __init__.py
+            fileB.py
+            /B1
+                __init__.py
+                fileB1.py
+                fileB2.py
+       /C 
+            __init__.py
+            fileC.py
+</code></pre>
+<p>With the following list of imports:</p>
+<ul>
+    <li>fileA imports fileC</li>
+    <li>fileA11 imports fileB1</li>
+    <li>fileA2 imports fileC</li>
+    <li>fileB imports fileA11</li>
+    <li>fileB2 imports fileA11</li>
+    <li>fileC imports the built-in os module</li>
+</ul>
+
+<p>This creates the following graph (excluding all <code>__init__.py</code>):</p>
+<p><img alt="Complex Example" src="../resources/docu_complex_example.png" /></p>
+<p>Note that the module names in the diagram have been abbreviated: For example, the node "fileA" is actually named "src.A.fileA".</p>
+<p>Most of the edges in this graph are due to parent-child relationships between the modules. However, five of the six import
+relationships defined above are present in the graph - only fileC has no connection to an "os" node; in fact, there is no
+node names "os" at all.</p>
+<p>This has been achieved by setting the <code>exclude_external_libraries</code> flag in the <code>get_evaluable</code> function. All modules that 
+not located hierarchically below the root path, in this case "test_project", will be excluded from the graph.</p>
+<h2 id="query-language">Query Language</h2>
+<h3 id="general-structure">General Structure</h3>
+<p>The query language that can be used to define architectural rules follows this structure: </p>
+<p>RULE_SUBJECT - VERB_MARKER_1 - IMPORT_TYPE - VERB_MARKER_2 - RULE_OBJECT</p>
+<p>The meaning of these structural markers is described in the table below.</p>
+<table>
+<thead>
+<tr>
+<th>Marker</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RULE_SUBJECT</td>
+<td>module(s) to be checked</td>
+<td>modules that are named 'B'</td>
+</tr>
+<tr>
+<td>RULE_OBJECT</td>
+<td>module(s) to check against</td>
+<td>modules that are submodules of 'A'</td>
+</tr>
+<tr>
+<td>IMPORT_TYPE</td>
+<td>expected type of import relationship</td>
+<td>be imported by</td>
+</tr>
+<tr>
+<td>VERB_MARKER_1</td>
+<td>defines the expected behavior, part I</td>
+<td>should not</td>
+</tr>
+<tr>
+<td>VERB_MARKER_2</td>
+<td>defines the expected behavior, part II</td>
+<td>except</td>
+</tr>
+</tbody>
+</table>
+<p>The examples given in the table above combined form the rule <code>modules that are named 'B' (RULE_SUBJECT) should not (VERB_MARKER_1) be imported by (IMPORT_TYPE) modules except (VERB_MARKER_2) modules that are submodules of "A" (RULE_OBJECT)</code>.</p>
+<p>Looking at the diagram in the section Complex Example, we can see that this rule holds - the only module importing 
+from the "B" module is "fileA11", which is a submodule of "A".</p>
+<h3 id="features">Features</h3>
+<p>Currently, the following markers are supported by PyTestArch:</p>
+<h4 id="rule_subject">RULE_SUBJECT</h4>
+<ul>
+<li>are_named("X"): applies to module named "X"</li>
+<li>are_submodules_of("Y"): applies to submodules of module named "Y"</li>
+</ul>
+<h4 id="rule_object">RULE_OBJECT</h4>
+<p>same as RULE_SUBJECT</p>
+<h4 id="verb_marker_1">VERB_MARKER_1</h4>
+<ul>
+<li>should()</li>
+<li>should_only()</li>
+<li>should_not()</li>
+</ul>
+<h4 id="import_type-verb_marker_2">IMPORT_TYPE + VERB_MARKER_2</h4>
+<ul>
+<li>import_modules_that()</li>
+<li>import_modules_except_modules_that()</li>
+<li>be_imported_by_modules_that()</li>
+<li>be_imported_by_modules_except_modules_that()</li>
+</ul>
+<p>VERB_MARKER_2 and IMPORT_TYPE have been conflated into one expression to improve readability.</p>
+<p>Markers from each category can be combined freely with all markers of all other categories. Example rules could be <br>
+<code>modules_that()
+    .are_sub_modules_of("A")
+    .should_only()
+    .be_imported_by_modules_that()
+    .are_sub_modules_of("B")</code> (True in the above example).</p>
+<p>or <br>
+<code>modules_that()
+    .are_named("C")
+    .should_only()
+    .be_imported_by_modules_that()
+    .are_named("A2")</code> (False, also imported by module "A").</p>
+<p>Most rules are so close to the English language that a detailed explanation seems unnecessary. An exception might be the
+VERB_MARKER_2 "except". A combination of this VERB_MARKER_2 and every type of VERB_MARKER_1 and IMPORT_TYPE is given below
+as reference (M1, M2 are used as RULE_SUBJECT and RULE_OBJECT respectively; pseudo code for brevity):</p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M1 should import except M2</td>
+<td>M1 should import at least one module that isn't M2, but can also import M2</td>
+</tr>
+<tr>
+<td>M1 should only import except M2</td>
+<td>M1 should import at least one module that isn't M2 and should not import M2</td>
+</tr>
+<tr>
+<td>M1 should not import except M2</td>
+<td>M1 should not import any module other than M2, but does not have to import M2</td>
+</tr>
+<tr>
+<td>M1 should be imported except by M2</td>
+<td>at least one module that isn't M2 should import M1 (M2 can import M1 as well)</td>
+</tr>
+<tr>
+<td>M1 should only be imported except by M2</td>
+<td>at least one module that isn't M2 should import M1, and M2 cannot import M1</td>
+</tr>
+<tr>
+<td>M1 should not be imported except by M2</td>
+<td>no module other than M2 should import M1, but M2 does not have to import M1</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href=".." class="md-footer__link md-footer__link--prev" aria-label="Previous: Welcome to PyTestArch" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Welcome to PyTestArch
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../changelog/" class="md-footer__link md-footer__link--next" aria-label="Next: Changelog" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Changelog
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.5bf1dace.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.37e9125f.min.js"></script>
+      
+    
+  </body>
+</html>
