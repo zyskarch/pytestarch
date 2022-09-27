@@ -3,7 +3,7 @@ import pytest
 # from matplotlib import pyplot as plt
 # from matplotlib.pyplot import figure
 
-from pytestarch.eval_structure.eval_structure_types import Evaluable
+from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture
 from pytestarch.query_language.base_language import Rule
 
 rules_to_test = [
@@ -128,7 +128,7 @@ def test_architecture_based_on_string_modules(
     rule: Rule,
     expected_result: bool,
     skip_with_level_limit: bool,
-    graph_based_on_string_module_names: Evaluable,
+    graph_based_on_string_module_names: EvaluableArchitecture,
 ) -> None:
     if expected_result:
         rule.assert_applies(graph_based_on_string_module_names)
@@ -142,7 +142,7 @@ def test_architecture_based_on_module_objects(
     rule: Rule,
     expected_result: bool,
     skip_with_level_limit: bool,
-    graph_based_on_string_module_names: Evaluable,
+    graph_based_on_string_module_names: EvaluableArchitecture,
 ) -> None:
     if expected_result:
         rule.assert_applies(graph_based_on_string_module_names)
@@ -152,7 +152,7 @@ def test_architecture_based_on_module_objects(
 
 
 def test_depending_on_module_does_not_imply_depending_on_submodule(
-    graph_including_tests: Evaluable,
+    graph_including_tests: EvaluableArchitecture,
 ) -> None:
     rule_1 = (
         Rule()
@@ -180,7 +180,7 @@ def test_identical_source_and_module_path_do_not_lead_to_errors(
     rule: Rule,
     expected_result: bool,
     skip_with_level_limit: bool,
-    graph_with_identical_source_and_module_path: Evaluable,
+    graph_with_identical_source_and_module_path: EvaluableArchitecture,
 ) -> None:
     if expected_result:
         rule.assert_applies(graph_with_identical_source_and_module_path)
@@ -194,7 +194,7 @@ def test_level_limit_flattens_dependencies_correctly(
     rule: Rule,
     expected_result: bool,
     skip_with_level_limit: bool,
-    graph_with_level_limit_1: Evaluable,
+    graph_with_level_limit_1: EvaluableArchitecture,
 ) -> None:
     if skip_with_level_limit:
         return
@@ -207,7 +207,7 @@ def test_level_limit_flattens_dependencies_correctly(
 
 
 # def test_exporting_as_image_does_not_raise_error(
-#     graph_based_on_string_module_names: Evaluable,
+#     graph_based_on_string_module_names: EvaluableArchitecture,
 # ) -> None:
 #     figure(figsize=(12, 6), dpi=80)
 #

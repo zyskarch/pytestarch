@@ -1,14 +1,14 @@
 import pytest
 
 import resources
-from pytestarch.eval_structure.eval_structure_types import Evaluable
-from pytestarch.pytestarch import get_evaluable_for_module_objects
+from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture
+from pytestarch.pytestarch import get_evaluable_architecture_for_module_objects
 from resources import importer
 
 
 @pytest.fixture(scope="session")
-def simple_graph_level_1() -> Evaluable:
-    return get_evaluable_for_module_objects(
+def simple_graph_level_1() -> EvaluableArchitecture:
+    return get_evaluable_architecture_for_module_objects(
         resources,
         importer,
         ("*__pycache__", "*__init__.py"),
@@ -17,7 +17,7 @@ def simple_graph_level_1() -> Evaluable:
     )
 
 
-def test_nodes_as_expected(simple_graph_level_1: Evaluable) -> None:
+def test_nodes_as_expected(simple_graph_level_1: EvaluableArchitecture) -> None:
     graph = simple_graph_level_1._graph
 
     assert "importer" in graph
@@ -37,14 +37,14 @@ def test_nodes_as_expected(simple_graph_level_1: Evaluable) -> None:
 
 
 def test_edges_between_parent_and_child_modules_as_expected(
-    simple_graph_level_1: Evaluable,
+    simple_graph_level_1: EvaluableArchitecture,
 ) -> None:
     graph = simple_graph_level_1._graph
     assert ("importer", "importer.level0") in graph
 
 
 def test_edges_between_importers_and_importees_as_expected(
-    simple_graph_level_1: Evaluable,
+    simple_graph_level_1: EvaluableArchitecture,
 ) -> None:
     graph = simple_graph_level_1._graph
     assert ("importer.level0", "itertools") in graph

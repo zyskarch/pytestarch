@@ -1,7 +1,7 @@
 import pytest
 
-from pytestarch.eval_structure.eval_structure_types import Evaluable, Module
-from pytestarch.eval_structure.evaluable_graph import EvaluableGraph
+from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture, Module
+from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.graph import Graph
 from pytestarch.importer.import_types import AbsoluteImport
 
@@ -22,7 +22,7 @@ MODULE_F = "E.F"  # submodule of E
 
 
 @pytest.fixture(scope="module")
-def evaluable() -> Evaluable:
+def evaluable() -> EvaluableArchitecture:
     all_modules = [MODULE_1, MODULE_2, MODULE_3, MODULE_4, SUB_MODULE_OF_2, MODULE_6]
     imports = [
         AbsoluteImport(MODULE_1, MODULE_2),
@@ -33,11 +33,11 @@ def evaluable() -> Evaluable:
         AbsoluteImport(MODULE_3, MODULE_6),
     ]
 
-    return EvaluableGraph(Graph(all_modules, imports))
+    return EvaluableArchitectureGraph(Graph(all_modules, imports))
 
 
 @pytest.fixture(scope="module")
-def submodule_evaluable() -> Evaluable:
+def submodule_evaluable() -> EvaluableArchitecture:
     all_modules = [MODULE_A, MODULE_B, MODULE_C, MODULE_D, MODULE_E, MODULE_F]
     imports = [
         AbsoluteImport(MODULE_F, MODULE_C),
@@ -45,10 +45,10 @@ def submodule_evaluable() -> Evaluable:
         AbsoluteImport(MODULE_C, MODULE_B),
     ]
 
-    return EvaluableGraph(Graph(all_modules, imports))
+    return EvaluableArchitectureGraph(Graph(all_modules, imports))
 
 
-def test_a_depends_on_non_b(evaluable: Evaluable) -> None:
+def test_a_depends_on_non_b(evaluable: EvaluableArchitecture) -> None:
     assert evaluable.any_dependency_to_module_other_than(
         Module(name=MODULE_1), Module(name=MODULE_2)
     )
@@ -146,7 +146,7 @@ def test_a_depends_on_non_b(evaluable: Evaluable) -> None:
     )
 
 
-def test_non_a_depends_on_b(evaluable: Evaluable) -> None:
+def test_non_a_depends_on_b(evaluable: EvaluableArchitecture) -> None:
     assert evaluable.any_other_dependency_to_module_than(
         Module(name=MODULE_1), Module(name=MODULE_2)
     )
@@ -244,7 +244,7 @@ def test_non_a_depends_on_b(evaluable: Evaluable) -> None:
     )
 
 
-def test_depends_on(evaluable: Evaluable) -> None:
+def test_depends_on(evaluable: EvaluableArchitecture) -> None:
     assert evaluable.is_dependent(Module(name=MODULE_1), Module(name=MODULE_2))
     assert evaluable.is_dependent(Module(name=MODULE_1), Module(name=MODULE_3))
     assert evaluable.is_dependent(Module(name=MODULE_1), Module(name=MODULE_4))
@@ -300,7 +300,7 @@ def test_depends_on(evaluable: Evaluable) -> None:
     )
 
 
-def test_submodule_calculation(submodule_evaluable: EvaluableGraph) -> None:
+def test_submodule_calculation(submodule_evaluable: EvaluableArchitectureGraph) -> None:
     assert submodule_evaluable._get_all_submodules_of(Module(name=MODULE_A)) == {
         MODULE_A,
         MODULE_B,

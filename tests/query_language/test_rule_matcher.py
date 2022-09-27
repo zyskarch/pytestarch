@@ -1,6 +1,6 @@
 import pytest
 
-from pytestarch.eval_structure.eval_structure_types import Evaluable
+from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture
 from pytestarch.query_language.base_language import Rule
 
 C = "src.moduleC"
@@ -573,7 +573,7 @@ test_cases = [
 def test_rule_violated_raises_proper_error_message(
     rule: Rule,
     expected_error_message: str,
-    graph_based_on_string_module_names: Evaluable,
+    graph_based_on_string_module_names: EvaluableArchitecture,
 ) -> None:
     with pytest.raises(AssertionError, match=expected_error_message):
         rule.assert_applies(graph_based_on_string_module_names)

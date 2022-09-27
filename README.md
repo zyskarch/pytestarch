@@ -12,9 +12,9 @@ Three steps are required to test an architectural rule:
 1) Create an evaluable representation of the source code you want to test
 
 ```
-from pytestarch.pytestarch import get_evaluable
+from pytestarch.pytestarch import get_evaluable_architecture
 
-evaluable = get_evaluable("/home/dummy/project", "/home/dummy/project/src")
+evaluable = get_evaluable_architecture("/home/dummy/project", "/home/dummy/project/src")
 ```
 This will scan all python files under /home/dummy/project/src for imports and build an internal representation that can
 later be queried. The first parameter /home/dummy/project helps PyTestArch to differentiate between internal and external 

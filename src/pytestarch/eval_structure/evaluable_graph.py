@@ -3,11 +3,11 @@ and edges to its subclasses in a template pattern.
 """
 from typing import Set, Any, Optional, Tuple, List
 
-from pytestarch.eval_structure.eval_structure_types import Evaluable, Module
+from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture, Module
 from pytestarch.eval_structure.graph import Graph, Node
 
 
-class EvaluableGraph(Evaluable):
+class EvaluableArchitectureGraph(EvaluableArchitecture):
     """Abstract implementation of an evaluable object that is based on a graph structure."""
 
     def __init__(self, graph: Graph) -> None:

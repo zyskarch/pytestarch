@@ -7,7 +7,7 @@ from typing import Protocol, Optional, Any, Tuple, List
 from pytestarch.eval_structure.graph import Node
 
 
-class Evaluable(Protocol):
+class EvaluableArchitecture(Protocol):
     def is_dependent(
         self, dependent: Module, dependent_upon: Module
     ) -> Optional[Tuple[str, str]]:

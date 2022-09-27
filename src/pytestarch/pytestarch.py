@@ -8,8 +8,8 @@ from types import ModuleType
 from typing import Tuple, Optional
 
 from pytestarch.config.config import Config
-from pytestarch.eval_structure.eval_structure_types import Evaluable
-from pytestarch.eval_structure.evaluable_graph import EvaluableGraph
+from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture
+from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.graph import Graph
 from pytestarch.importer.converter import ImportConverter
 from pytestarch.importer.file_filter import FileFilter
@@ -21,13 +21,13 @@ from pytestarch.importer.parser import Parser
 DEFAULT_EXCLUSIONS = ("*__pycache__",)
 
 
-def get_evaluable(
+def get_evaluable_architecture(
     root_path: str,
     module_path: str,
     exclusions: Tuple[str, ...] = DEFAULT_EXCLUSIONS,
     exclude_external_libraries: bool = True,
     level_limit: Optional[int] = None,
-) -> Evaluable:
+) -> EvaluableArchitecture:
     """Constructs an evaluable object based on the given module.
 
     Args:
@@ -68,22 +68,22 @@ def get_evaluable(
             imports,
             all_modules,
         )
-    return EvaluableGraph(Graph(all_modules, imports, level_limit))
+    return EvaluableArchitectureGraph(Graph(all_modules, imports, level_limit))
 
 
-def get_evaluable_for_module_objects(
+def get_evaluable_architecture_for_module_objects(
     root_module: ModuleType,
     module: ModuleType,
     exclusions: Tuple[str, ...] = DEFAULT_EXCLUSIONS,
     exclude_external_libraries: bool = True,
     level_limit: Optional[int] = None,
-) -> Evaluable:
-    """Same functionality as get_evaluable, but root module and module to evaluate are passed in as module objects
+) -> EvaluableArchitecture:
+    """Same functionality as get_evaluable_architecture, but root module and module to evaluate are passed in as module objects
     instead of the absolute paths to them.
     """
     root_path = os.path.dirname(root_module.__file__)
     module_path = os.path.dirname(module.__file__)
 
-    return get_evaluable(
+    return get_evaluable_architecture(
         root_path, module_path, exclusions, exclude_external_libraries, level_limit
     )

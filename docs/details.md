@@ -40,9 +40,9 @@ In the example above, the `util_test.py` file is included in the graph and will 
 If certain files should be excluded from the analysis, this can be done by specifying an exclusion pattern. In our example,
 if we want to exclude `util_test.py`, we could use:
 ```
-from pytestarch.pytestarch import get_evaluable
+from pytestarch.pytestarch import get_evaluable_architecture
 
-evaluable = get_evaluable("/home/my_project", "/home/my_project/src", ("*_test.py"))
+evaluable = get_evaluable_architecture("/home/my_project", "/home/my_project/src", ("*_test.py"))
 ```
 This will exclude all files with names ending in "_test.py". It is also possible to exclude directories.
 
@@ -98,7 +98,7 @@ Most of the edges in this graph are due to parent-child relationships between th
 relationships defined above are present in the graph - only fileC has no connection to an "os" node; in fact, there is no
 node names "os" at all.
 
-This has been achieved by setting the `exclude_external_libraries` flag in the `get_evaluable` function. All modules that 
+This has been achieved by setting the `exclude_external_libraries` flag in the `get_evaluable_architecture` function. All modules that 
 not located hierarchically below the root path, in this case "test_project", will be excluded from the graph.
 
 

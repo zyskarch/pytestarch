@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, fields
 from typing import Set, List, Optional, Tuple
 
-from pytestarch.eval_structure.eval_structure_types import Module, Evaluable
+from pytestarch.eval_structure.eval_structure_types import Module, EvaluableArchitecture
 from pytestarch.query_language.exceptions import ImproperlyConfigured
 
 
@@ -171,9 +171,9 @@ class RuleMatcher(ABC):
         self._behavior_requirement = behavior_requirement
 
     @abstractmethod
-    def match(self, evaluable: Evaluable) -> RuleViolations:
+    def match(self, evaluable: EvaluableArchitecture) -> RuleViolations:
         """
-        Checks whether an expected behavior is exhibited by the Evaluable.
+        Checks whether an expected behavior is exhibited by the EvaluableArchitecture.
 
         Args:
             evaluable: object to check
@@ -184,7 +184,7 @@ class RuleMatcher(ABC):
 
 
 class DefaultRuleMatcher(RuleMatcher):
-    def match(self, evaluable: Evaluable) -> RuleViolations:
+    def match(self, evaluable: EvaluableArchitecture) -> RuleViolations:
         strict_dependency_required = (
             self._behavior_requirement.strict_dependency_required
         )
