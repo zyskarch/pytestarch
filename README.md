@@ -34,11 +34,11 @@ rule = Rule()
 ```
 
 This rule represents the architectural requirements that a module named "src.moduleB" should not be imported by any module
-that is a submodule of "src.moduleA", including "src.moduleA" itself.
+that is a submodule of "src.moduleA", excluding "src.moduleA" itself.
 
 3) Evaluate your code against this rule
 
 ```
-assert rule.assert_applies(evaluable)
+rule.assert_applies(evaluable)
 ```
 That's it!

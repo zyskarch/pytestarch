@@ -30,7 +30,7 @@ With "my_project" as the project's root folder and "src" as the folder to evalua
 Each module has a direct path to all submodules, in this case: "src" is connected to all three modules it contains, 
 "src.main", "src.util", and "src.util_test".
 
-In addition, a module that imports another module has an directed edge linking it to this module. For example, "src.main"
+In addition, a module that imports another module has a directed edge linking it to this module. For example, "src.main"
 imports "src.util" and therefore the graph has an edge connecting these modules, with the arrow head pointing at the imported
 module, in this case "src.util".
 
@@ -132,8 +132,8 @@ from the "B" module is "fileA11", which is a submodule of "A".
 Currently, the following markers are supported by PyTestArch:
 
 #### RULE_SUBJECT
-* are_named("X"): applies to module named "X"
-* are_submodules_of("Y"): applies to submodules of module named "Y"
+* are_named("X"): applies to module named "X" (and also to its submodules)
+* are_submodules_of("Y"): applies to submodules of module named "Y", but not "Y" itself
 
 #### RULE_OBJECT
 same as RULE_SUBJECT

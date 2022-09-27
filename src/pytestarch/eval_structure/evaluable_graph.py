@@ -13,11 +13,13 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
     def __init__(self, graph: Graph) -> None:
         self._graph = graph
 
-    def is_dependent(
+    def get_dependency(
         self, dependent: Module, dependent_upon: Module
     ) -> Optional[Tuple[str, str]]:
         dependent_node = self._get_node(dependent)
         dependent_upon_nodes = self._get_all_submodules_of(dependent_upon)
+
+        nodes_to_exclude = self._get_excluded_nodes([dependent, dependent_upon])
 
         nodes_to_check = [dependent_node]
         checked_nodes = set()
@@ -36,7 +38,11 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
                 if self._graph.parent_child_relationship(node, child):
                     nodes_to_check.append(child)
 
-                elif child in dependent_upon_nodes:
+                elif (
+                    child in dependent_upon_nodes
+                    and node not in nodes_to_exclude
+                    and child not in nodes_to_exclude
+                ):
                     return node, child
 
         return None
@@ -47,10 +53,22 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
     def any_dependency_to_module_other_than(
         self, dependent: Module, dependent_upon: Module
     ) -> List[Module]:
+        # submodules of the dependent upon module do not count as an import that is not the dependent upon module
         nodes_to_exclude = self._get_all_submodules_of(dependent_upon)
 
         nodes_fulfilling_criteria = []
+        # should submodules of the dependent module import each other, this does not count as a dependency
         nodes_that_do_not_fulfill_criterion = self._get_all_submodules_of(dependent)
+
+        if dependent.parent_module is not None:
+            # if the parent module is set and has a dependency other than dependent upon, it should not count as only
+            # true submodules should be considered
+            nodes_to_exclude.add(dependent.parent_module)
+
+        if dependent_upon.parent_module is not None:
+            # if there is a dependency to the parent module of dependent upon, this counts, as only dependencies to
+            # the true submodules are excluded
+            nodes_to_exclude.remove(dependent_upon.parent_module)
 
         nodes_to_check = list(nodes_that_do_not_fulfill_criterion)
         checked_nodes = set()
@@ -87,14 +105,28 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
     def any_other_dependency_to_module_than(
         self, dependent: Module, dependent_upon: Module
     ) -> List[Module]:
+        # submodules of and including the dependent do not count as allowed imports
         nodes_to_exclude = self._get_all_submodules_of(dependent)
 
         nodes_fulfilling_criteria = []
+        # submodules of the dependent upon do not count as allowed imports if they should import each other
         nodes_that_count_as_not_fulfilling_criterion = self._get_all_submodules_of(
             dependent_upon
         )
 
+        if dependent_upon.parent_module is not None:
+            # if the dependent upon module is defined via a parent module, this is not included in the list of modules
+            # that do not fulfill the criteria - only its true submodules
+            nodes_that_count_as_not_fulfilling_criterion.remove(
+                dependent_upon.parent_module
+            )
+
         nodes_to_check = list(nodes_that_count_as_not_fulfilling_criterion)
+
+        if dependent.parent_module is not None:
+            # if the dependent module is defined via a parent module, this parent module counts as an allowed import
+            nodes_to_exclude.remove(dependent.parent_module)
+
         checked_nodes = set()
 
         while nodes_to_check:
@@ -105,19 +137,19 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
 
             checked_nodes.add(node)
 
-            children = self._graph.direct_predecessor_nodes(node)
+            parents = self._graph.direct_predecessor_nodes(node)
 
-            for child in children:
+            for parent in parents:
 
-                if not self._graph.parent_child_relationship(child, node):
+                if not self._graph.parent_child_relationship(parent, node):
                     if (
-                        child not in nodes_to_exclude
-                        and child not in nodes_that_count_as_not_fulfilling_criterion
+                        parent not in nodes_to_exclude
+                        and parent not in nodes_that_count_as_not_fulfilling_criterion
                     ):
-                        nodes_fulfilling_criteria.append(child)
+                        nodes_fulfilling_criteria.append(parent)
 
-                    if child not in nodes_to_exclude:
-                        nodes_to_check.append(child)
+                    if parent not in nodes_to_exclude:
+                        nodes_to_check.append(parent)
 
         return self._to_modules(nodes_fulfilling_criteria)
 
@@ -159,3 +191,7 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
 
     def visualize(self, **kwargs: Any) -> None:
         self._graph.draw(**kwargs)
+
+    def _get_excluded_nodes(self, modules: List[Module]) -> List[Node]:
+        result = [module.parent_module for module in modules]
+        return [node for node in result if node is not None]

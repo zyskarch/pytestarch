@@ -8,12 +8,14 @@ from pytestarch.eval_structure.graph import Node
 
 
 class EvaluableArchitecture(Protocol):
-    def is_dependent(
+    def get_dependency(
         self, dependent: Module, dependent_upon: Module
     ) -> Optional[Tuple[str, str]]:
         """Returns True if the dependent module is indeed
         depending on the dependent_upon module.
         Submodules of dependent towards are taken into account, but submodules of dependent_upon are not.
+        If one or both of the modules are defined by their parent module, this parent module is excluded from possible
+        matches.
 
         Args:
             dependent: Module
@@ -30,6 +32,8 @@ class EvaluableArchitecture(Protocol):
         """Returns True if the dependent module has any
         dependency to a module other than the dependent_upon module
         or any of its submodules.
+        If the dependent module is defined via a parent module, this parent module is not taken into account.
+        If the dependent upon module is defined via a parent module, this parent module counts as an 'other' dependency.
 
         Args:
             dependent: Module
@@ -46,6 +50,10 @@ class EvaluableArchitecture(Protocol):
         """Returns True if any module other than the dependent
         module and its submodules has any dependency to the
         dependent_upon module.
+        If the dependent module is defined via a parent module, this parent module is taken into account. This means
+        that if the dependent module's parent module has a dependency to the dependent upon module, this will be contained
+        in the returned list.
+        If the dependent upon module is defined via a parent module, this parent module is not taken into account.
 
         Args:
             dependent: Module
