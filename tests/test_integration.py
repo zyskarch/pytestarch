@@ -56,7 +56,7 @@ rules_to_test = [
         .should()
         .import_modules_that()
         .are_sub_modules_of("src.moduleB"),
-        True,
+        False,  # there are no true sub modules left
         False,
     ),
     (
@@ -77,7 +77,7 @@ rules_to_test = [
         .be_imported_by_modules_except_modules_that()
         .are_sub_modules_of("src.moduleA"),
         True,
-        False,
+        True,
     ),
     (
         Rule()
@@ -107,8 +107,8 @@ rules_to_test = [
         .should_only()
         .be_imported_by_modules_that()
         .are_sub_modules_of("src.moduleB"),
-        True,
         False,
+        False,  # there are no true sub modules left
     ),
     (
         Rule()

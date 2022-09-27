@@ -4,6 +4,12 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 
 
 ## [Unreleased]
+
+## [1.0.1] -- 2022-09-27
+### Fixed
+- Module no longer considered if rule asked only for submodules of a given module
+
+## [1.0.0] -- 2022-09-27
 ### Changed
 - Rename entry point methods for clarity
 

@@ -1,3 +1,5 @@
+from typing import List
+
 import pytest
 
 from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture, Module
@@ -12,6 +14,7 @@ MODULE_3 = "Module3"
 MODULE_4 = "Module4"
 MODULE_6 = "Module6"
 SUB_MODULE_OF_2 = "Module2.SubModule1"
+SUB_MODULE_OF_1 = "Module1.SubModule1"
 
 MODULE_A = "E.A"  # submodule of E
 MODULE_B = "E.A.B"  # submodule of A
@@ -245,57 +248,57 @@ def test_non_a_depends_on_b(evaluable: EvaluableArchitecture) -> None:
 
 
 def test_depends_on(evaluable: EvaluableArchitecture) -> None:
-    assert evaluable.is_dependent(Module(name=MODULE_1), Module(name=MODULE_2))
-    assert evaluable.is_dependent(Module(name=MODULE_1), Module(name=MODULE_3))
-    assert evaluable.is_dependent(Module(name=MODULE_1), Module(name=MODULE_4))
-    assert not evaluable.is_dependent(
+    assert evaluable.get_dependency(Module(name=MODULE_1), Module(name=MODULE_2))
+    assert evaluable.get_dependency(Module(name=MODULE_1), Module(name=MODULE_3))
+    assert evaluable.get_dependency(Module(name=MODULE_1), Module(name=MODULE_4))
+    assert not evaluable.get_dependency(
         Module(name=MODULE_1), Module(name=SUB_MODULE_OF_2)
     )
-    assert not evaluable.is_dependent(Module(name=MODULE_1), Module(name=MODULE_6))
+    assert not evaluable.get_dependency(Module(name=MODULE_1), Module(name=MODULE_6))
 
-    assert not evaluable.is_dependent(Module(name=MODULE_2), Module(name=MODULE_1))
-    assert not evaluable.is_dependent(Module(name=MODULE_2), Module(name=MODULE_3))
-    assert not evaluable.is_dependent(Module(name=MODULE_2), Module(name=MODULE_4))
-    assert not evaluable.is_dependent(
+    assert not evaluable.get_dependency(Module(name=MODULE_2), Module(name=MODULE_1))
+    assert not evaluable.get_dependency(Module(name=MODULE_2), Module(name=MODULE_3))
+    assert not evaluable.get_dependency(Module(name=MODULE_2), Module(name=MODULE_4))
+    assert not evaluable.get_dependency(
         Module(name=MODULE_2), Module(name=SUB_MODULE_OF_2)
     )
-    assert not evaluable.is_dependent(Module(name=MODULE_2), Module(name=MODULE_6))
+    assert not evaluable.get_dependency(Module(name=MODULE_2), Module(name=MODULE_6))
 
-    assert not evaluable.is_dependent(Module(name=MODULE_3), Module(name=MODULE_1))
-    assert evaluable.is_dependent(Module(name=MODULE_3), Module(name=MODULE_2))
-    assert not evaluable.is_dependent(Module(name=MODULE_3), Module(name=MODULE_4))
-    assert not evaluable.is_dependent(
+    assert not evaluable.get_dependency(Module(name=MODULE_3), Module(name=MODULE_1))
+    assert evaluable.get_dependency(Module(name=MODULE_3), Module(name=MODULE_2))
+    assert not evaluable.get_dependency(Module(name=MODULE_3), Module(name=MODULE_4))
+    assert not evaluable.get_dependency(
         Module(name=MODULE_3), Module(name=SUB_MODULE_OF_2)
     )
-    assert evaluable.is_dependent(Module(name=MODULE_3), Module(name=MODULE_6))
+    assert evaluable.get_dependency(Module(name=MODULE_3), Module(name=MODULE_6))
 
-    assert not evaluable.is_dependent(Module(name=MODULE_4), Module(name=MODULE_1))
-    assert evaluable.is_dependent(Module(name=MODULE_4), Module(name=MODULE_2))
-    assert not evaluable.is_dependent(Module(name=MODULE_4), Module(name=MODULE_3))
-    assert evaluable.is_dependent(Module(name=MODULE_4), Module(name=SUB_MODULE_OF_2))
-    assert not evaluable.is_dependent(Module(name=MODULE_4), Module(name=MODULE_6))
+    assert not evaluable.get_dependency(Module(name=MODULE_4), Module(name=MODULE_1))
+    assert evaluable.get_dependency(Module(name=MODULE_4), Module(name=MODULE_2))
+    assert not evaluable.get_dependency(Module(name=MODULE_4), Module(name=MODULE_3))
+    assert evaluable.get_dependency(Module(name=MODULE_4), Module(name=SUB_MODULE_OF_2))
+    assert not evaluable.get_dependency(Module(name=MODULE_4), Module(name=MODULE_6))
 
-    assert not evaluable.is_dependent(
+    assert not evaluable.get_dependency(
         Module(name=SUB_MODULE_OF_2), Module(name=MODULE_1)
     )
-    assert not evaluable.is_dependent(
+    assert not evaluable.get_dependency(
         Module(name=SUB_MODULE_OF_2), Module(name=MODULE_2)
     )
-    assert not evaluable.is_dependent(
+    assert not evaluable.get_dependency(
         Module(name=SUB_MODULE_OF_2), Module(name=MODULE_3)
     )
-    assert not evaluable.is_dependent(
+    assert not evaluable.get_dependency(
         Module(name=SUB_MODULE_OF_2), Module(name=MODULE_4)
     )
-    assert not evaluable.is_dependent(
+    assert not evaluable.get_dependency(
         Module(name=SUB_MODULE_OF_2), Module(name=MODULE_6)
     )
 
-    assert not evaluable.is_dependent(Module(name=MODULE_6), Module(name=MODULE_1))
-    assert not evaluable.is_dependent(Module(name=MODULE_6), Module(name=MODULE_2))
-    assert not evaluable.is_dependent(Module(name=MODULE_6), Module(name=MODULE_3))
-    assert not evaluable.is_dependent(Module(name=MODULE_6), Module(name=MODULE_4))
-    assert not evaluable.is_dependent(
+    assert not evaluable.get_dependency(Module(name=MODULE_6), Module(name=MODULE_1))
+    assert not evaluable.get_dependency(Module(name=MODULE_6), Module(name=MODULE_2))
+    assert not evaluable.get_dependency(Module(name=MODULE_6), Module(name=MODULE_3))
+    assert not evaluable.get_dependency(Module(name=MODULE_6), Module(name=MODULE_4))
+    assert not evaluable.get_dependency(
         Module(name=MODULE_6), Module(name=SUB_MODULE_OF_2)
     )
 
@@ -323,3 +326,467 @@ def test_submodule_calculation(submodule_evaluable: EvaluableArchitectureGraph) 
     assert submodule_evaluable._get_all_submodules_of(Module(name=MODULE_F)) == {
         MODULE_F
     }
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(MODULE_1, MODULE_2)],
+        [AbsoluteImport(MODULE_1, SUB_MODULE_OF_2)],
+        [AbsoluteImport(SUB_MODULE_OF_1, SUB_MODULE_OF_2)],
+        [AbsoluteImport(SUB_MODULE_OF_1, MODULE_2)],
+    ],
+)
+def test_is_dependent_between_named_modules(imports: List[AbsoluteImport]) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert architecture.get_dependency(Module(name=MODULE_1), Module(name=MODULE_2))
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(MODULE_1, SUB_MODULE_OF_2)],
+        [AbsoluteImport(SUB_MODULE_OF_1, SUB_MODULE_OF_2)],
+    ],
+)
+def test_is_dependent_between_named_and_submodule_modules(
+    imports: List[AbsoluteImport],
+) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert architecture.get_dependency(
+        Module(name=MODULE_1), Module(parent_module=MODULE_2)
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(SUB_MODULE_OF_1, MODULE_2)],
+        [AbsoluteImport(SUB_MODULE_OF_1, SUB_MODULE_OF_2)],
+    ],
+)
+def test_is_dependent_between_submodule_and_named_modules(
+    imports: List[AbsoluteImport],
+) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert architecture.get_dependency(
+        Module(parent_module=MODULE_1), Module(name=MODULE_2)
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(SUB_MODULE_OF_1, SUB_MODULE_OF_2)],
+    ],
+)
+def test_is_dependent_between_submodule_modules(imports: List[AbsoluteImport]) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert architecture.get_dependency(
+        Module(parent_module=MODULE_1), Module(parent_module=MODULE_2)
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(SUB_MODULE_OF_1, MODULE_1)],
+        [AbsoluteImport(SUB_MODULE_OF_2, SUB_MODULE_OF_2)],
+    ],
+)
+def test_is_not_dependent_between_named_modules(imports: List[AbsoluteImport]) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert (
+        architecture.get_dependency(Module(name=MODULE_1), Module(name=MODULE_2))
+        is None
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(MODULE_1, MODULE_2)],
+        [AbsoluteImport(SUB_MODULE_OF_1, MODULE_2)],
+    ],
+)
+def test_is_not_dependent_between_named_and_submodule_modules(
+    imports: List[AbsoluteImport],
+) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert (
+        architecture.get_dependency(
+            Module(name=MODULE_1), Module(parent_module=MODULE_2)
+        )
+        is None
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(MODULE_1, MODULE_2)],
+        [AbsoluteImport(MODULE_1, SUB_MODULE_OF_2)],
+    ],
+)
+def test_is_not_dependent_between_submodule_and_named_modules(
+    imports: List[AbsoluteImport],
+) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert (
+        architecture.get_dependency(
+            Module(parent_module=MODULE_1), Module(name=MODULE_2)
+        )
+        is None
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(MODULE_1, MODULE_2)],
+        [AbsoluteImport(MODULE_1, SUB_MODULE_OF_2)],
+        [AbsoluteImport(SUB_MODULE_OF_1, MODULE_2)],
+    ],
+)
+def test_is_not_dependent_between_submodule_modules(
+    imports: List[AbsoluteImport],
+) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert (
+        architecture.get_dependency(
+            Module(parent_module=MODULE_1), Module(parent_module=MODULE_2)
+        )
+        is None
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(MODULE_1, MODULE_3)],
+        [AbsoluteImport(SUB_MODULE_OF_1, MODULE_3)],
+    ],
+)
+def test_any_to_other_between_named_modules(imports: List[AbsoluteImport]) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert architecture.any_dependency_to_module_other_than(
+        Module(name=MODULE_1), Module(name=MODULE_2)
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(MODULE_1, MODULE_3)],
+        [AbsoluteImport(SUB_MODULE_OF_1, MODULE_3)],
+        [AbsoluteImport(MODULE_1, MODULE_2)],
+        [AbsoluteImport(SUB_MODULE_OF_1, MODULE_2)],
+    ],
+)
+def test_any_to_other_between_named_and_submodule_modules(
+    imports: List[AbsoluteImport],
+) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert architecture.any_dependency_to_module_other_than(
+        Module(name=MODULE_1), Module(parent_module=MODULE_2)
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(SUB_MODULE_OF_1, MODULE_3)],
+    ],
+)
+def test_any_to_other_between_submodule_and_named_modules(
+    imports: List[AbsoluteImport],
+) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert architecture.any_dependency_to_module_other_than(
+        Module(parent_module=MODULE_1), Module(name=MODULE_2)
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(SUB_MODULE_OF_1, MODULE_3)],
+        [AbsoluteImport(SUB_MODULE_OF_1, MODULE_2)],
+    ],
+)
+def test_any_to_other_between_submodule_modules(imports: List[AbsoluteImport]) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert architecture.any_dependency_to_module_other_than(
+        Module(parent_module=MODULE_1), Module(parent_module=MODULE_2)
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(MODULE_1, MODULE_2)],
+        [AbsoluteImport(MODULE_1, SUB_MODULE_OF_2)],
+        [AbsoluteImport(SUB_MODULE_OF_1, MODULE_2)],
+        [AbsoluteImport(SUB_MODULE_OF_1, SUB_MODULE_OF_2)],
+    ],
+)
+def test_not_any_to_other_between_named_modules(imports: List[AbsoluteImport]) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert (
+        architecture.any_dependency_to_module_other_than(
+            Module(name=MODULE_1), Module(name=MODULE_2)
+        )
+        == []
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(MODULE_1, SUB_MODULE_OF_2)],
+        [AbsoluteImport(SUB_MODULE_OF_1, SUB_MODULE_OF_2)],
+    ],
+)
+def test_not_any_to_other_between_named_and_submodule_modules(
+    imports: List[AbsoluteImport],
+) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert (
+        architecture.any_dependency_to_module_other_than(
+            Module(name=MODULE_1), Module(parent_module=MODULE_2)
+        )
+        == []
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(MODULE_1, MODULE_3)],
+        [AbsoluteImport(SUB_MODULE_OF_1, MODULE_2)],
+        [AbsoluteImport(SUB_MODULE_OF_1, SUB_MODULE_OF_2)],
+    ],
+)
+def test_not_any_to_other_between_submodule_and_named_modules(
+    imports: List[AbsoluteImport],
+) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert (
+        architecture.any_dependency_to_module_other_than(
+            Module(parent_module=MODULE_1), Module(name=MODULE_2)
+        )
+        == []
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(MODULE_1, MODULE_3)],
+        [AbsoluteImport(SUB_MODULE_OF_1, SUB_MODULE_OF_2)],
+    ],
+)
+def test_not_any_to_other_between_submodule_modules(
+    imports: List[AbsoluteImport],
+) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert (
+        architecture.any_dependency_to_module_other_than(
+            Module(parent_module=MODULE_1), Module(parent_module=MODULE_2)
+        )
+        == []
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(MODULE_3, MODULE_2)],
+        [AbsoluteImport(MODULE_3, SUB_MODULE_OF_2)],
+    ],
+)
+def test_other_to_module_than_between_named_modules(
+    imports: List[AbsoluteImport],
+) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert architecture.any_other_dependency_to_module_than(
+        Module(name=MODULE_1), Module(name=MODULE_2)
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(MODULE_3, SUB_MODULE_OF_2)],
+    ],
+)
+def test_other_to_module_than_between_named_and_submodule_modules(
+    imports: List[AbsoluteImport],
+) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert architecture.any_other_dependency_to_module_than(
+        Module(name=MODULE_1), Module(parent_module=MODULE_2)
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(MODULE_1, MODULE_2)],
+        [AbsoluteImport(MODULE_1, SUB_MODULE_OF_2)],
+        [AbsoluteImport(MODULE_3, MODULE_2)],
+        [AbsoluteImport(MODULE_3, SUB_MODULE_OF_2)],
+    ],
+)
+def test_other_to_module_than_between_submodule_and_named_modules(
+    imports: List[AbsoluteImport],
+) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert architecture.any_other_dependency_to_module_than(
+        Module(parent_module=MODULE_1), Module(name=MODULE_2)
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(MODULE_1, SUB_MODULE_OF_2)],
+        [AbsoluteImport(MODULE_3, SUB_MODULE_OF_2)],
+    ],
+)
+def test_other_to_module_than_between_submodule_modules(
+    imports: List[AbsoluteImport],
+) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert architecture.any_other_dependency_to_module_than(
+        Module(parent_module=MODULE_1), Module(parent_module=MODULE_2)
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(MODULE_1, MODULE_2)],
+        [AbsoluteImport(MODULE_1, SUB_MODULE_OF_2)],
+        [AbsoluteImport(SUB_MODULE_OF_1, MODULE_2)],
+        [AbsoluteImport(SUB_MODULE_OF_1, SUB_MODULE_OF_2)],
+    ],
+)
+def test_not_other_to_module_than_between_named_modules(
+    imports: List[AbsoluteImport],
+) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert (
+        architecture.any_other_dependency_to_module_than(
+            Module(name=MODULE_1), Module(name=MODULE_2)
+        )
+        == []
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        # [AbsoluteImport(MODULE_1, SUB_MODULE_OF_2)],
+        # [AbsoluteImport(SUB_MODULE_OF_1, SUB_MODULE_OF_2)],
+        [AbsoluteImport(MODULE_3, MODULE_2)],
+    ],
+)
+def test_not_other_to_module_than_between_named_and_submodule_modules(
+    imports: List[AbsoluteImport],
+) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert (
+        architecture.any_other_dependency_to_module_than(
+            Module(name=MODULE_1), Module(parent_module=MODULE_2)
+        )
+        == []
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(SUB_MODULE_OF_1, MODULE_2)],
+        [AbsoluteImport(SUB_MODULE_OF_1, SUB_MODULE_OF_2)],
+    ],
+)
+def test_not_other_to_module_than_between_submodule_and_named_modules(
+    imports: List[AbsoluteImport],
+) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert (
+        architecture.any_other_dependency_to_module_than(
+            Module(parent_module=MODULE_1), Module(name=MODULE_2)
+        )
+        == []
+    )
+
+
+@pytest.mark.parametrize(
+    "imports",
+    [
+        [AbsoluteImport(MODULE_1, MODULE_2)],
+        [AbsoluteImport(SUB_MODULE_OF_1, MODULE_2)],
+        [AbsoluteImport(SUB_MODULE_OF_1, SUB_MODULE_OF_2)],
+        [AbsoluteImport(MODULE_3, MODULE_2)],
+    ],
+)
+def test_not_other_to_module_than_between_submodule_modules(
+    imports: List[AbsoluteImport],
+) -> None:
+    all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
+    architecture = EvaluableArchitectureGraph(Graph(all_modules, imports))
+
+    assert (
+        architecture.any_other_dependency_to_module_than(
+            Module(parent_module=MODULE_1), Module(parent_module=MODULE_2)
+        )
+        == []
+    )

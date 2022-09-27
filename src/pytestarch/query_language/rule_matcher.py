@@ -203,7 +203,7 @@ class DefaultRuleMatcher(RuleMatcher):
         lax_dependencies = None
 
         if strict_dependency_required or no_strict_dependency_allowed:
-            strict_dependency = evaluable.is_dependent(
+            strict_dependency = evaluable.get_dependency(
                 left_hand_module, right_hand_module
             )
 
