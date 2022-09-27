@@ -5,6 +5,9 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 
 ## [Unreleased]
 
+### Fixed
+- Reference to outdated code in documentation
+
 ## [0.1.0] -- 2022-09-23
 ### Added
 - More detailed error message for violations of rules checking for absence of imports
