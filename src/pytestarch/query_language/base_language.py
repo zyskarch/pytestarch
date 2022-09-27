@@ -4,7 +4,7 @@ from abc import abstractmethod, ABC
 from collections import defaultdict
 from typing import Optional, Type, Generic, TypeVar
 
-from pytestarch.eval_structure.eval_structure_types import Evaluable, Module
+from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture, Module
 from pytestarch.eval_structure.graph import Node
 from pytestarch.query_language.exceptions import ImproperlyConfigured
 from pytestarch.query_language.rule_matcher import (
@@ -31,9 +31,9 @@ PREFIX_MAPPING.update(
 
 class RuleApplier(ABC):
     @abstractmethod
-    def assert_applies(self, evaluable: Evaluable) -> None:
+    def assert_applies(self, evaluable: EvaluableArchitecture) -> None:
         """
-        Calculates whether it (the rule) applies to a given Evaluable.
+        Calculates whether it (the rule) applies to a given EvaluableArchitecture.
         This means calculating which behavior is wanted and then
         checking this to the state the Evaluable represents.
 
@@ -213,7 +213,7 @@ class Rule(
         self._modules_to_check_to_be_specified_next = False
         return self
 
-    def assert_applies(self, evaluable: Evaluable) -> None:
+    def assert_applies(self, evaluable: EvaluableArchitecture) -> None:
         self._assert_required_configuration_present()
 
         module_requirement = ModuleRequirement(

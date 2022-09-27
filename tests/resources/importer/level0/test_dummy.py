@@ -1,7 +1,7 @@
 from pathlib import Path
 import pytest  # noqa: F401 E401
 
-from pytestarch.pytestarch import get_evaluable
+from pytestarch.pytestarch import get_evaluable_architecture
 import typing, sys  # noqa: F401 E401
 import io as io_import  # noqa: F401
 from os import path as p, read  # noqa: F401
@@ -19,7 +19,7 @@ MODULE_PATH_STR: typing.Final[str] = str(ROOT_PATH / "tests/resources")
 
 
 def dummy_test() -> None:
-    get_evaluable(ROOT_PATH_STR, MODULE_PATH_STR)
+    get_evaluable_architecture(ROOT_PATH_STR, MODULE_PATH_STR)
     import itertools  # noqa: F401
 
     assert True

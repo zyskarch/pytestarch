@@ -4,6 +4,8 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 
 
 ## [Unreleased]
+### Changed
+- Rename entry point methods for clarity
 
 ### Fixed
 - Reference to outdated code in documentation

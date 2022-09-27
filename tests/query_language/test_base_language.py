@@ -1,7 +1,7 @@
 import pytest
 
-from pytestarch.eval_structure.eval_structure_types import Evaluable
-from pytestarch.eval_structure.evaluable_graph import EvaluableGraph
+from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture
+from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.graph import Graph
 from pytestarch.importer.import_types import AbsoluteImport
 from pytestarch.query_language.base_language import Rule
@@ -51,7 +51,7 @@ def test_module_name_identification() -> None:
 
 
 @pytest.fixture(scope="module")
-def evaluable1() -> Evaluable:
+def evaluable1() -> EvaluableArchitecture:
     all_modules = [
         MODULE_1,
         MODULE_2,
@@ -71,10 +71,12 @@ def evaluable1() -> Evaluable:
         AbsoluteImport(MODULE_6, MODULE_3),
     ]
 
-    return EvaluableGraph(Graph(all_modules, imports))
+    return EvaluableArchitectureGraph(Graph(all_modules, imports))
 
 
-def test_partially_configured_rule_raises_error(evaluable1: Evaluable) -> None:
+def test_partially_configured_rule_raises_error(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     with pytest.raises(
@@ -125,16 +127,18 @@ def test_partially_configured_rule_raises_error(evaluable1: Evaluable) -> None:
     assert True
 
 
-def assert_rule_applies(rule: Rule, evaluable: Evaluable) -> None:
+def assert_rule_applies(rule: Rule, evaluable: EvaluableArchitecture) -> None:
     rule.assert_applies(evaluable)
 
 
-def assert_not_rule_does_not_apply(rule: Rule, evaluable: Evaluable) -> None:
+def assert_not_rule_does_not_apply(
+    rule: Rule, evaluable: EvaluableArchitecture
+) -> None:
     with pytest.raises(AssertionError):
         rule.assert_applies(evaluable)
 
 
-def test_should_import_named_named_positive(evaluable1: Evaluable) -> None:
+def test_should_import_named_named_positive(evaluable1: EvaluableArchitecture) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(MODULE_1).should().import_modules_that().are_named(
@@ -144,7 +148,9 @@ def test_should_import_named_named_positive(evaluable1: Evaluable) -> None:
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_import_named_submodule_positive(evaluable1: Evaluable) -> None:
+def test_should_import_named_submodule_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -154,7 +160,9 @@ def test_should_import_named_submodule_positive(evaluable1: Evaluable) -> None:
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_import_submodule_named_positive(evaluable1: Evaluable) -> None:
+def test_should_import_submodule_named_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_sub_modules_of(
@@ -164,7 +172,9 @@ def test_should_import_submodule_named_positive(evaluable1: Evaluable) -> None:
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_import_submodule_submodule_positive(evaluable1: Evaluable) -> None:
+def test_should_import_submodule_submodule_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_sub_modules_of(
@@ -174,7 +184,7 @@ def test_should_import_submodule_submodule_positive(evaluable1: Evaluable) -> No
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_import_named_named_negative(evaluable1: Evaluable) -> None:
+def test_should_import_named_named_negative(evaluable1: EvaluableArchitecture) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -184,7 +194,9 @@ def test_should_import_named_named_negative(evaluable1: Evaluable) -> None:
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_import_named_submodule_negative(evaluable1: Evaluable) -> None:
+def test_should_import_named_submodule_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -194,7 +206,9 @@ def test_should_import_named_submodule_negative(evaluable1: Evaluable) -> None:
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_import_submodule_named_negative(evaluable1: Evaluable) -> None:
+def test_should_import_submodule_named_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_sub_modules_of(
@@ -204,7 +218,9 @@ def test_should_import_submodule_named_negative(evaluable1: Evaluable) -> None:
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_import_submodule_submodule_negative(evaluable1: Evaluable) -> None:
+def test_should_import_submodule_submodule_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_sub_modules_of(
@@ -214,7 +230,9 @@ def test_should_import_submodule_submodule_negative(evaluable1: Evaluable) -> No
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_only_import_named_named_positive(evaluable1: Evaluable) -> None:
+def test_should_only_import_named_named_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -224,7 +242,9 @@ def test_should_only_import_named_named_positive(evaluable1: Evaluable) -> None:
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_only_import_named_submodule_positive(evaluable1: Evaluable) -> None:
+def test_should_only_import_named_submodule_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -234,7 +254,9 @@ def test_should_only_import_named_submodule_positive(evaluable1: Evaluable) -> N
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_only_import_submodule_named_positive(evaluable1: Evaluable) -> None:
+def test_should_only_import_submodule_named_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_sub_modules_of(
@@ -244,7 +266,9 @@ def test_should_only_import_submodule_named_positive(evaluable1: Evaluable) -> N
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_only_import_submodule_submodule_positive(evaluable1: Evaluable) -> None:
+def test_should_only_import_submodule_submodule_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_sub_modules_of(
@@ -254,7 +278,9 @@ def test_should_only_import_submodule_submodule_positive(evaluable1: Evaluable) 
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_only_import_named_named_negative(evaluable1: Evaluable) -> None:
+def test_should_only_import_named_named_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -264,7 +290,9 @@ def test_should_only_import_named_named_negative(evaluable1: Evaluable) -> None:
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_only_import_named_submodule_negative(evaluable1: Evaluable) -> None:
+def test_should_only_import_named_submodule_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -274,7 +302,9 @@ def test_should_only_import_named_submodule_negative(evaluable1: Evaluable) -> N
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_only_import_submodule_named_negative(evaluable1: Evaluable) -> None:
+def test_should_only_import_submodule_named_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_sub_modules_of(
@@ -284,7 +314,9 @@ def test_should_only_import_submodule_named_negative(evaluable1: Evaluable) -> N
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_only_import_submodule_submodule_negative(evaluable1: Evaluable) -> None:
+def test_should_only_import_submodule_submodule_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_sub_modules_of(
@@ -294,7 +326,9 @@ def test_should_only_import_submodule_submodule_negative(evaluable1: Evaluable) 
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_not_import_named_named_positive(evaluable1: Evaluable) -> None:
+def test_should_not_import_named_named_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -304,7 +338,9 @@ def test_should_not_import_named_named_positive(evaluable1: Evaluable) -> None:
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_not_import_named_submodule_positive(evaluable1: Evaluable) -> None:
+def test_should_not_import_named_submodule_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -314,7 +350,9 @@ def test_should_not_import_named_submodule_positive(evaluable1: Evaluable) -> No
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_not_import_submodule_named_positive(evaluable1: Evaluable) -> None:
+def test_should_not_import_submodule_named_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_sub_modules_of(
@@ -324,7 +362,9 @@ def test_should_not_import_submodule_named_positive(evaluable1: Evaluable) -> No
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_not_import_submodule_submodule_positive(evaluable1: Evaluable) -> None:
+def test_should_not_import_submodule_submodule_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_sub_modules_of(
@@ -334,7 +374,9 @@ def test_should_not_import_submodule_submodule_positive(evaluable1: Evaluable) -
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_not_import_named_named_negative(evaluable1: Evaluable) -> None:
+def test_should_not_import_named_named_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -344,7 +386,9 @@ def test_should_not_import_named_named_negative(evaluable1: Evaluable) -> None:
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_not_import_named_submodule_negative(evaluable1: Evaluable) -> None:
+def test_should_not_import_named_submodule_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -354,7 +398,9 @@ def test_should_not_import_named_submodule_negative(evaluable1: Evaluable) -> No
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_not_import_submodule_named_negative(evaluable1: Evaluable) -> None:
+def test_should_not_import_submodule_named_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_sub_modules_of(
@@ -364,7 +410,9 @@ def test_should_not_import_submodule_named_negative(evaluable1: Evaluable) -> No
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_not_import_submodule_submodule_negative(evaluable1: Evaluable) -> None:
+def test_should_not_import_submodule_submodule_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_sub_modules_of(
@@ -374,7 +422,9 @@ def test_should_not_import_submodule_submodule_negative(evaluable1: Evaluable) -
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_import_except_named_named_positive(evaluable1: Evaluable) -> None:
+def test_should_import_except_named_named_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -384,7 +434,9 @@ def test_should_import_except_named_named_positive(evaluable1: Evaluable) -> Non
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_import_except_named_submodule_positive(evaluable1: Evaluable) -> None:
+def test_should_import_except_named_submodule_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -394,7 +446,9 @@ def test_should_import_except_named_submodule_positive(evaluable1: Evaluable) ->
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_import_except_submodule_named_positive(evaluable1: Evaluable) -> None:
+def test_should_import_except_submodule_named_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_sub_modules_of(
@@ -405,7 +459,7 @@ def test_should_import_except_submodule_named_positive(evaluable1: Evaluable) ->
 
 
 def test_should_import_except_submodule_submodule_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -416,7 +470,9 @@ def test_should_import_except_submodule_submodule_positive(
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_import_except_named_named_negative(evaluable1: Evaluable) -> None:
+def test_should_import_except_named_named_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -426,7 +482,9 @@ def test_should_import_except_named_named_negative(evaluable1: Evaluable) -> Non
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_import_except_named_submodule_negative(evaluable1: Evaluable) -> None:
+def test_should_import_except_named_submodule_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -436,7 +494,9 @@ def test_should_import_except_named_submodule_negative(evaluable1: Evaluable) ->
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_import_except_submodule_named_negative(evaluable1: Evaluable) -> None:
+def test_should_import_except_submodule_named_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_sub_modules_of(
@@ -447,7 +507,7 @@ def test_should_import_except_submodule_named_negative(evaluable1: Evaluable) ->
 
 
 def test_should_import_except_submodule_submodule_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -458,7 +518,9 @@ def test_should_import_except_submodule_submodule_negative(
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_only_import_except_named_named_positive(evaluable1: Evaluable) -> None:
+def test_should_only_import_except_named_named_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -469,7 +531,7 @@ def test_should_only_import_except_named_named_positive(evaluable1: Evaluable) -
 
 
 def test_should_only_import_except_named_submodule_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -481,7 +543,7 @@ def test_should_only_import_except_named_submodule_positive(
 
 
 def test_should_only_import_except_submodule_named_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -493,7 +555,7 @@ def test_should_only_import_except_submodule_named_positive(
 
 
 def test_should_only_import_except_submodule_submodule_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -504,7 +566,9 @@ def test_should_only_import_except_submodule_submodule_positive(
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_only_import_except_named_named_negative(evaluable1: Evaluable) -> None:
+def test_should_only_import_except_named_named_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -515,7 +579,7 @@ def test_should_only_import_except_named_named_negative(evaluable1: Evaluable) -
 
 
 def test_should_only_import_except_named_submodule_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -527,7 +591,7 @@ def test_should_only_import_except_named_submodule_negative(
 
 
 def test_should_only_import_except_submodule_named_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -539,7 +603,7 @@ def test_should_only_import_except_submodule_named_negative(
 
 
 def test_should_only_import_except_submodule_submodule_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -550,7 +614,9 @@ def test_should_only_import_except_submodule_submodule_negative(
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_not_import_except_named_named_positive(evaluable1: Evaluable) -> None:
+def test_should_not_import_except_named_named_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -561,7 +627,7 @@ def test_should_not_import_except_named_named_positive(evaluable1: Evaluable) ->
 
 
 def test_should_not_import_except_named_submodule_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -573,7 +639,7 @@ def test_should_not_import_except_named_submodule_positive(
 
 
 def test_should_not_import_except_submodule_named_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -585,7 +651,7 @@ def test_should_not_import_except_submodule_named_positive(
 
 
 def test_should_not_import_except_submodule_submodule_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -596,7 +662,9 @@ def test_should_not_import_except_submodule_submodule_positive(
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_not_import_except_named_named_negative(evaluable1: Evaluable) -> None:
+def test_should_not_import_except_named_named_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -607,7 +675,7 @@ def test_should_not_import_except_named_named_negative(evaluable1: Evaluable) ->
 
 
 def test_should_not_import_except_named_submodule_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -619,7 +687,7 @@ def test_should_not_import_except_named_submodule_negative(
 
 
 def test_should_not_import_except_submodule_named_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -631,7 +699,7 @@ def test_should_not_import_except_submodule_named_negative(
 
 
 def test_should_not_import_except_submodule_submodule_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -642,7 +710,9 @@ def test_should_not_import_except_submodule_submodule_negative(
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_be_imported_named_named_positive(evaluable1: Evaluable) -> None:
+def test_should_be_imported_named_named_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -652,7 +722,9 @@ def test_should_be_imported_named_named_positive(evaluable1: Evaluable) -> None:
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_be_imported_named_submodule_positive(evaluable1: Evaluable) -> None:
+def test_should_be_imported_named_submodule_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -662,7 +734,9 @@ def test_should_be_imported_named_submodule_positive(evaluable1: Evaluable) -> N
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_be_imported_submodule_named_positive(evaluable1: Evaluable) -> None:
+def test_should_be_imported_submodule_named_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_sub_modules_of(
@@ -672,7 +746,9 @@ def test_should_be_imported_submodule_named_positive(evaluable1: Evaluable) -> N
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_be_imported_submodule_submodule_positive(evaluable1: Evaluable) -> None:
+def test_should_be_imported_submodule_submodule_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_sub_modules_of(
@@ -682,7 +758,9 @@ def test_should_be_imported_submodule_submodule_positive(evaluable1: Evaluable) 
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_be_imported_named_named_negative(evaluable1: Evaluable) -> None:
+def test_should_be_imported_named_named_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -692,7 +770,9 @@ def test_should_be_imported_named_named_negative(evaluable1: Evaluable) -> None:
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_be_imported_named_submodule_negative(evaluable1: Evaluable) -> None:
+def test_should_be_imported_named_submodule_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -702,7 +782,9 @@ def test_should_be_imported_named_submodule_negative(evaluable1: Evaluable) -> N
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_be_imported_submodule_named_negative(evaluable1: Evaluable) -> None:
+def test_should_be_imported_submodule_named_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_sub_modules_of(
@@ -712,7 +794,9 @@ def test_should_be_imported_submodule_named_negative(evaluable1: Evaluable) -> N
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_be_imported_submodule_submodule_negative(evaluable1: Evaluable) -> None:
+def test_should_be_imported_submodule_submodule_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_sub_modules_of(
@@ -722,7 +806,9 @@ def test_should_be_imported_submodule_submodule_negative(evaluable1: Evaluable) 
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_only_be_imported_named_named_positive(evaluable1: Evaluable) -> None:
+def test_should_only_be_imported_named_named_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -733,7 +819,7 @@ def test_should_only_be_imported_named_named_positive(evaluable1: Evaluable) -> 
 
 
 def test_should_only_be_imported_named_submodule_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -745,7 +831,7 @@ def test_should_only_be_imported_named_submodule_positive(
 
 
 def test_should_only_be_imported_submodule_named_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -757,7 +843,7 @@ def test_should_only_be_imported_submodule_named_positive(
 
 
 def test_should_only_be_imported_submodule_submodule_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -768,7 +854,9 @@ def test_should_only_be_imported_submodule_submodule_positive(
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_only_be_imported_named_named_negative(evaluable1: Evaluable) -> None:
+def test_should_only_be_imported_named_named_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -779,7 +867,7 @@ def test_should_only_be_imported_named_named_negative(evaluable1: Evaluable) -> 
 
 
 def test_should_only_be_imported_named_submodule_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -791,7 +879,7 @@ def test_should_only_be_imported_named_submodule_negative(
 
 
 def test_should_only_be_imported_submodule_named_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -803,7 +891,7 @@ def test_should_only_be_imported_submodule_named_negative(
 
 
 def test_should_only_be_imported_submodule_submodule_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -814,7 +902,9 @@ def test_should_only_be_imported_submodule_submodule_negative(
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_not_be_imported_named_named_positive(evaluable1: Evaluable) -> None:
+def test_should_not_be_imported_named_named_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -824,7 +914,9 @@ def test_should_not_be_imported_named_named_positive(evaluable1: Evaluable) -> N
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_not_be_imported_named_submodule_positive(evaluable1: Evaluable) -> None:
+def test_should_not_be_imported_named_submodule_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -834,7 +926,9 @@ def test_should_not_be_imported_named_submodule_positive(evaluable1: Evaluable) 
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_not_be_imported_submodule_named_positive(evaluable1: Evaluable) -> None:
+def test_should_not_be_imported_submodule_named_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_sub_modules_of(
@@ -845,7 +939,7 @@ def test_should_not_be_imported_submodule_named_positive(evaluable1: Evaluable) 
 
 
 def test_should_not_be_imported_submodule_submodule_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -856,7 +950,9 @@ def test_should_not_be_imported_submodule_submodule_positive(
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_not_be_imported_named_named_negative(evaluable1: Evaluable) -> None:
+def test_should_not_be_imported_named_named_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -866,7 +962,9 @@ def test_should_not_be_imported_named_named_negative(evaluable1: Evaluable) -> N
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_not_be_imported_named_submodule_negative(evaluable1: Evaluable) -> None:
+def test_should_not_be_imported_named_submodule_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -876,7 +974,9 @@ def test_should_not_be_imported_named_submodule_negative(evaluable1: Evaluable) 
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_not_be_imported_submodule_named_negative(evaluable1: Evaluable) -> None:
+def test_should_not_be_imported_submodule_named_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_sub_modules_of(
@@ -887,7 +987,7 @@ def test_should_not_be_imported_submodule_named_negative(evaluable1: Evaluable) 
 
 
 def test_should_not_be_imported_submodule_submodule_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -898,7 +998,9 @@ def test_should_not_be_imported_submodule_submodule_negative(
     assert_not_rule_does_not_apply(rule, evaluable1)
 
 
-def test_should_be_imported_except_named_named_positive(evaluable1: Evaluable) -> None:
+def test_should_be_imported_except_named_named_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -909,7 +1011,7 @@ def test_should_be_imported_except_named_named_positive(evaluable1: Evaluable) -
 
 
 def test_should_be_imported_except_named_submodule_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -921,7 +1023,7 @@ def test_should_be_imported_except_named_submodule_positive(
 
 
 def test_should_be_imported_except_submodule_named_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -933,7 +1035,7 @@ def test_should_be_imported_except_submodule_named_positive(
 
 
 def test_should_be_imported_except_submodule_submodule_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -944,7 +1046,9 @@ def test_should_be_imported_except_submodule_submodule_positive(
     assert_rule_applies(rule, evaluable1)
 
 
-def test_should_be_imported_except_named_named_negative(evaluable1: Evaluable) -> None:
+def test_should_be_imported_except_named_named_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
     rule = Rule()
 
     rule.modules_that().are_named(
@@ -955,7 +1059,7 @@ def test_should_be_imported_except_named_named_negative(evaluable1: Evaluable) -
 
 
 def test_should_be_imported_except_named_submodule_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -967,7 +1071,7 @@ def test_should_be_imported_except_named_submodule_negative(
 
 
 def test_should_be_imported_except_submodule_named_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -979,7 +1083,7 @@ def test_should_be_imported_except_submodule_named_negative(
 
 
 def test_should_be_imported_except_submodule_submodule_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -991,7 +1095,7 @@ def test_should_be_imported_except_submodule_submodule_negative(
 
 
 def test_should_only_be_imported_except_named_named_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -1003,7 +1107,7 @@ def test_should_only_be_imported_except_named_named_positive(
 
 
 def test_should_only_be_imported_except_named_submodule_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -1017,7 +1121,7 @@ def test_should_only_be_imported_except_named_submodule_positive(
 
 
 def test_should_only_be_imported_except_submodule_named_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -1029,7 +1133,7 @@ def test_should_only_be_imported_except_submodule_named_positive(
 
 
 def test_should_only_be_imported_except_submodule_submodule_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -1043,7 +1147,7 @@ def test_should_only_be_imported_except_submodule_submodule_positive(
 
 
 def test_should_only_be_imported_except_named_named_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -1055,7 +1159,7 @@ def test_should_only_be_imported_except_named_named_negative(
 
 
 def test_should_only_be_imported_except_named_submodule_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -1069,7 +1173,7 @@ def test_should_only_be_imported_except_named_submodule_negative(
 
 
 def test_should_only_be_imported_except_submodule_named_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -1081,7 +1185,7 @@ def test_should_only_be_imported_except_submodule_named_negative(
 
 
 def test_should_only_be_imported_except_submodule_submodule_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -1095,7 +1199,7 @@ def test_should_only_be_imported_except_submodule_submodule_negative(
 
 
 def test_should_not_be_imported_except_named_named_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -1107,7 +1211,7 @@ def test_should_not_be_imported_except_named_named_positive(
 
 
 def test_should_not_be_imported_except_named_submodule_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -1121,7 +1225,7 @@ def test_should_not_be_imported_except_named_submodule_positive(
 
 
 def test_should_not_be_imported_except_submodule_named_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -1133,7 +1237,7 @@ def test_should_not_be_imported_except_submodule_named_positive(
 
 
 def test_should_not_be_imported_except_submodule_submodule_positive(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -1147,7 +1251,7 @@ def test_should_not_be_imported_except_submodule_submodule_positive(
 
 
 def test_should_not_be_imported_except_named_named_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -1159,7 +1263,7 @@ def test_should_not_be_imported_except_named_named_negative(
 
 
 def test_should_not_be_imported_except_named_submodule_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -1173,7 +1277,7 @@ def test_should_not_be_imported_except_named_submodule_negative(
 
 
 def test_should_not_be_imported_except_submodule_named_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
@@ -1185,7 +1289,7 @@ def test_should_not_be_imported_except_submodule_named_negative(
 
 
 def test_should_not_be_imported_except_submodule_submodule_negative(
-    evaluable1: Evaluable,
+    evaluable1: EvaluableArchitecture,
 ) -> None:
     rule = Rule()
 
