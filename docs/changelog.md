@@ -4,6 +4,8 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 
 
 ## [Unreleased]
+### Changed
+- Simplified calculation of whether imports are within the project
 
 ## [1.0.2] -- 2022-09-28
 ### Fixed

@@ -1,8 +1,8 @@
 import ast
 from _ast import Import
-from typing import Optional, List
+from typing import List, Optional
 
-from pytestarch.importer.import_types import NamedModule, AbsoluteImport, RelativeImport
+from pytestarch.importer.import_types import AbsoluteImport, NamedModule, RelativeImport
 
 
 class ImportConverter:

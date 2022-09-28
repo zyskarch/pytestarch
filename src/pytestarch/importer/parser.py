@@ -1,7 +1,7 @@
 import ast
 import os
 from pathlib import Path
-from typing import Optional, Tuple, List
+from typing import List, Optional, Tuple
 
 from pytestarch.importer.file_filter import FileFilter
 from pytestarch.importer.import_types import NamedModule
@@ -12,17 +12,9 @@ PYTHON_FILE_SUFFIX = ".py"
 class Parser:
     """Parses all files that match given criteria starting at a source path."""
 
-    def __init__(
-        self,
-        source_root: Path,
-        filter: FileFilter,
-        root_and_module_path_identical: bool,
-    ) -> None:
-        self._source_root = source_root
+    def __init__(self, filter: FileFilter, source_root: Path) -> None:
         self._filter = filter
-
-        self._path_prefix = str(source_root.name)
-        self._root_path_is_root_module_path = root_and_module_path_identical
+        self._source_root = source_root
 
     def parse(self, path: Path) -> Tuple[List[str], List[NamedModule]]:
         """Reads all python files in the given path and returns list of ast
@@ -34,8 +26,6 @@ class Parser:
             list of python modules, one per python file
         """
         self._all_modules = []
-
-        self._root_path_is_root_module_path = path == self._source_root
 
         paths = [path]
         modules = []
@@ -75,14 +65,13 @@ class Parser:
         """Determine full name of module, such as A.B.C"""
         module_path = path.relative_to(self._source_root)
 
-        if self._root_path_is_root_module_path:
-            if str(module_path) == ".":
-                module_path = Path(self._path_prefix)
-            else:
-                module_path = self._path_prefix / module_path
+        if str(module_path) == ".":
+            return self._source_root.name
 
         module_without_file_suffix = module_path.with_suffix("")
-        return str(module_without_file_suffix).replace(os.sep, ".")
+        module_in_dot_notation = str(module_without_file_suffix).replace(os.sep, ".")
+
+        return f"{self._source_root.name}.{module_in_dot_notation}"
 
     def _file_should_be_parsed(self, path: Path) -> bool:
         """Returns True if path represents a python file that does not match any exclusion filters."""

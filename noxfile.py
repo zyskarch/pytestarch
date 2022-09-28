@@ -19,6 +19,13 @@ def lint(session):
 
 
 @nox.session(python="3.8")
+def isort(session):
+    session.run("poetry", "shell")
+    session.run("poetry", "install", external=True)
+    session.run("poetry", "run", "isort", ".")
+
+
+@nox.session(python="3.8")
 def black(session):
     session.run("poetry", "shell")
     session.run("poetry", "install", external=True)

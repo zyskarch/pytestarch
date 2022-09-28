@@ -1,7 +1,7 @@
 import ast
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Optional, List
+from typing import List, Optional
 
 from pytestarch.query_language.exceptions import ImproperlyConfigured
 
@@ -87,20 +87,6 @@ class Import(ABC):
 
         return parent_modules
 
-    def update_import_prefixes(self, prefix: str, top_level_module_name: str) -> None:
-        """Adds the given prefix to the import modules' path.
-        This ensures that importers and importees have the same module path structure. For example, if the importees
-        have a structure like src.A.x, but the module path has been restricted to src.A, the importers will all have
-        a structure like A.x. This causes no edges in the resulting graph, as no matching nodes are found for the edges.
-        The prefix will only be appended to modules that are submodules of the top level module.
-
-        Args:
-            prefix: to append to all internal module names
-            top_level_module_name: name of the top level module. Used to differentiate between internal and external
-                dependencies.
-        """
-        pass
-
     def _append_prefix(self, value: str, prefix: str) -> str:
         return f"{prefix}.{value}"
 
@@ -119,14 +105,6 @@ class AbsoluteImport(Import):
     def importee_parent_modules(self) -> List[str]:
         return self._importee_module_hierarchy
 
-    def update_import_prefixes(self, prefix: str, top_level_module_name: str) -> None:
-        if self._module_name.startswith(top_level_module_name):
-            self._module_name = self._append_prefix(self._module_name, prefix)
-            self._importee_module_hierarchy = [
-                self._append_prefix(name, prefix)
-                for name in self._importer_module_hierarchy
-            ]
-
 
 class RelativeImport(Import):
     """Represents a relative import."""
@@ -139,8 +117,7 @@ class RelativeImport(Import):
         level: int,
     ) -> None:
         super().__init__(importer)
-        self._module_name = module_name
-        self._import_name = import_name
+        self._module_name = module_name or import_name
         self._level = level
 
         if module_name is None and import_name is None:
@@ -150,9 +127,7 @@ class RelativeImport(Import):
 
         self._importee = self._calculate_importee()
 
-        self._importee_module_hierarchy = self._get_parent_modules(
-            self._module_name or self._import_name
-        )
+        self._importee_module_hierarchy = self._get_parent_modules(self._module_name)
 
     def importee(self) -> str:
         return self._importee
@@ -161,14 +136,4 @@ class RelativeImport(Import):
         return self._importee_module_hierarchy
 
     def _calculate_importee(self) -> str:
-        module_name = self._module_name or self._import_name
-
-        return self._importer_module_hierarchy[-self._level] + "." + module_name
-
-    def update_import_prefixes(self, prefix: str, top_level_module_name: str) -> None:
-        if self._module_name.startswith(top_level_module_name):
-            self._module_name = self._append_prefix(self._module_name, prefix)
-            self._importee_module_hierarchy = [
-                self._append_prefix(name, prefix)
-                for name in self._importer_module_hierarchy
-            ]
+        return self._importer_module_hierarchy[-self._level] + "." + self._module_name

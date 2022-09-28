@@ -1,15 +1,16 @@
 from pathlib import Path
 
+from util import MockFileFilter
+
 from pytestarch.importer.converter import ImportConverter
 from pytestarch.importer.parser import Parser
-from util import MockFileFilter
 
 SOURCE_ROOT = Path(__file__).parent.parent
 RESOURCES_DIR = SOURCE_ROOT / "resources/importer/level0"
 
 
 def test_converter_retains_all_non_empty_modules() -> None:
-    parser = Parser(SOURCE_ROOT, MockFileFilter(), False)
+    parser = Parser(MockFileFilter(), SOURCE_ROOT)
     all_modules, asts = parser.parse(RESOURCES_DIR)
 
     converter = ImportConverter()
@@ -24,10 +25,10 @@ def test_converter_retains_all_non_empty_modules() -> None:
         "ast",
         "itertools",
         "pathlib",
-        "resources.importer.level0.test_dummy_2",
-        "resources.importer.level0.test_dummy_3",
+        "tests.resources.importer.level0.test_dummy_2",
+        "tests.resources.importer.level0.test_dummy_3",
         "pytest",
-        "resources.importer.level0.test_dummy",
+        "tests.resources.importer.level0.test_dummy",
         "urllib",
     }
 

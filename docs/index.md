@@ -43,10 +43,3 @@ that is a submodule of "src.moduleA", excluding "src.moduleA" itself.
 rule.assert_applies(evaluable)
 ```
 That's it!
-
-
-
-
-
-
-

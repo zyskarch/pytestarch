@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol, Optional, Any, Tuple, List
+from typing import Any, List, Optional, Protocol, Tuple
 
 from pytestarch.eval_structure.graph import Node
 
