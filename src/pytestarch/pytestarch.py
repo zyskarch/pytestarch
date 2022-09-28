@@ -11,6 +11,7 @@ from pytestarch.config.config import Config
 from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.graph import Graph
+from pytestarch.importer.import_path_padder import ImportPathPadder
 from pytestarch.importer.converter import ImportConverter
 from pytestarch.importer.file_filter import FileFilter
 from pytestarch.importer.import_filter import ImportFilter
@@ -31,7 +32,7 @@ def get_evaluable_architecture(
     """Constructs an evaluable object based on the given module.
 
     Args:
-        root_path: root directory of the source code
+        root_path: root directory of the source code. Should not be set to a submodule of the top level module.
         module_path: path of module to generate the evaluable for. Must be a submodule of the root_path module.
         exclusions: pseudo-regex to exclude files and directories from being integrated into the evaluable, e.g. *Test.py
         exclude_external_libraries: if True, external dependencies (defined as all dependencies to module outside the
@@ -60,7 +61,11 @@ def get_evaluable_architecture(
 
     imports = converter.convert(ast)
 
-    import_filter = ImportFilter(exclude_external_libraries, module_path)
+    full_prefix = ImportPathPadder.pad(imports, root_path, module_path)
+
+    import_filter = ImportFilter(
+        exclude_external_libraries, full_prefix + module_path.name
+    )
     imports = import_filter.filter(imports)
 
     if not exclude_external_libraries:

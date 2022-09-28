@@ -87,6 +87,23 @@ class Import(ABC):
 
         return parent_modules
 
+    def update_import_prefixes(self, prefix: str, top_level_module_name: str) -> None:
+        """Adds the given prefix to the import modules' path.
+        This ensures that importers and importees have the same module path structure. For example, if the importees
+        have a structure like src.A.x, but the module path has been restricted to src.A, the importers will all have
+        a structure like A.x. This causes no edges in the resulting graph, as no matching nodes are found for the edges.
+        The prefix will only be appended to modules that are submodules of the top level module.
+
+        Args:
+            prefix: to append to all internal module names
+            top_level_module_name: name of the top level module. Used to differentiate between internal and external
+                dependencies.
+        """
+        pass
+
+    def _append_prefix(self, value: str, prefix: str) -> str:
+        return f"{prefix}.{value}"
+
 
 class AbsoluteImport(Import):
     """Represents an absolute import."""
@@ -101,6 +118,14 @@ class AbsoluteImport(Import):
 
     def importee_parent_modules(self) -> List[str]:
         return self._importee_module_hierarchy
+
+    def update_import_prefixes(self, prefix: str, top_level_module_name: str) -> None:
+        if self._module_name.startswith(top_level_module_name):
+            self._module_name = self._append_prefix(self._module_name, prefix)
+            self._importee_module_hierarchy = [
+                self._append_prefix(name, prefix)
+                for name in self._importer_module_hierarchy
+            ]
 
 
 class RelativeImport(Import):
@@ -139,3 +164,11 @@ class RelativeImport(Import):
         module_name = self._module_name or self._import_name
 
         return self._importer_module_hierarchy[-self._level] + "." + module_name
+
+    def update_import_prefixes(self, prefix: str, top_level_module_name: str) -> None:
+        if self._module_name.startswith(top_level_module_name):
+            self._module_name = self._append_prefix(self._module_name, prefix)
+            self._importee_module_hierarchy = [
+                self._append_prefix(name, prefix)
+                for name in self._importer_module_hierarchy
+            ]

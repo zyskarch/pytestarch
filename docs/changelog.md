@@ -4,6 +4,8 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 
 
 ## [Unreleased]
+### Fixed
+- All internal modules filtered out if module and root path are not identical and are a sub module of the actual root module.
 
 ## [1.0.1] -- 2022-09-27
 ### Fixed
