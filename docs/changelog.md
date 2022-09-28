@@ -4,8 +4,13 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 
 
 ## [Unreleased]
+
+## [1.0.3] -- 2022-09-28
 ### Changed
 - Simplified calculation of whether imports are within the project
+
+### Fixed
+- Excluded directories no longer searched for parseable files
 
 ## [1.0.2] -- 2022-09-28
 ### Fixed
