@@ -12,7 +12,7 @@ imports = [
 
 
 def test_import_filter_excludes_external_dependencies() -> None:
-    filter = ImportFilter(True, ROOT_PATH)
+    filter = ImportFilter(True, str(ROOT_PATH))
     filtered_imports = filter.filter(imports)
 
     assert len(filtered_imports) == 1
@@ -20,7 +20,7 @@ def test_import_filter_excludes_external_dependencies() -> None:
 
 
 def test_import_filter_includes_internal_dependencies() -> None:
-    filter = ImportFilter(False, ROOT_PATH)
+    filter = ImportFilter(False, str(ROOT_PATH))
     filtered_imports = filter.filter(imports)
 
     assert len(filtered_imports) == 2

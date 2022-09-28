@@ -1,10 +1,16 @@
+import os
+
 import pytest
 
 # from matplotlib import pyplot as plt
 # from matplotlib.pyplot import figure
 
 from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture
+from pytestarch.pytestarch import get_evaluable_architecture
 from pytestarch.query_language.base_language import Rule
+from resources import test_project
+from resources.test_project.src import moduleA
+from resources.test_project.src.moduleA import submoduleA1
 
 rules_to_test = [
     (
@@ -236,3 +242,91 @@ def test_level_limit_flattens_dependencies_correctly(
 #         },
 #     )
 #     plt.savefig("test.png")
+
+
+def test_edges_correctly_calculated_for_level_2_module_path() -> None:
+    level_2_graph = get_evaluable_architecture(
+        os.path.dirname(test_project.__file__),
+        os.path.dirname(moduleA.__file__),
+        ("*__pycache__", "*__init__.py", "*Test.py"),
+    )
+
+    assert len(level_2_graph._graph._graph.edges) == 0  # no internal dependencies left
+
+
+def test_edges_correctly_calculated_for_level_2_module_path_no_external_dependencies_modified() -> None:
+    level_2_graph = get_evaluable_architecture(
+        os.path.dirname(test_project.__file__),
+        os.path.dirname(moduleA.__file__),
+        ("*__pycache__", "*__init__.py", "*Test.py"),
+        exclude_external_libraries=False,
+    )
+
+    assert len(level_2_graph._graph._graph.edges) == 16
+
+    for edge in [
+        ("src", "src.moduleA"),
+        ("src", "src.moduleB"),  # must not be src.moduleA.src.moduleB
+        ("src", "src.moduleC"),
+        ("src.moduleA", "src.moduleA.fileA"),
+        ("src.moduleA", "src.moduleA.submoduleA1"),
+        ("src.moduleA", "src.moduleA.submoduleA2"),
+        ("src.moduleA.fileA", "src.moduleC.fileC"),
+        ("src.moduleA.submoduleA1", "src.moduleA.submoduleA1.submoduleA11"),
+        (
+            "src.moduleA.submoduleA1.submoduleA11",
+            "src.moduleA.submoduleA1.submoduleA11.fileA11",
+        ),
+        (
+            "src.moduleA.submoduleA1.submoduleA11.fileA11",
+            "os",
+        ),  # must not be src.moduleA.os!
+        (
+            "src.moduleA.submoduleA1.submoduleA11.fileA11",
+            "src.moduleB.submoduleB1.fileB1",
+        ),
+        ("src.moduleA.submoduleA2", "src.moduleA.submoduleA2.fileA2"),
+        ("src.moduleA.submoduleA2.fileA2", "src.moduleC.fileC"),
+        ("src.moduleB", "src.moduleB.submoduleB1"),
+        ("src.moduleB.submoduleB1", "src.moduleB.submoduleB1.fileB1"),
+        ("src.moduleC", "src.moduleC.fileC"),
+    ]:
+        assert edge in level_2_graph._graph
+
+
+def test_edges_correctly_calculated_for_level_3_module_path() -> None:
+    level_3_graph = get_evaluable_architecture(
+        os.path.dirname(test_project.__file__),
+        os.path.dirname(submoduleA1.__file__),
+        ("*__pycache__", "*__init__.py", "*Test.py"),
+    )
+
+    assert len(level_3_graph._graph._graph.edges) == 0  # no internal dependencies left
+
+
+def test_edges_correctly_calculated_for_level_3_module_path_no_external_dependencies_modified() -> None:
+    level_3_graph = get_evaluable_architecture(
+        os.path.dirname(test_project.__file__),
+        os.path.dirname(submoduleA1.__file__),
+        ("*__pycache__", "*__init__.py", "*Test.py"),
+        exclude_external_libraries=False,
+    )
+
+    assert len(level_3_graph._graph._graph.edges) == 7
+
+    for edge in [
+        ("src", "src.moduleB"),
+        ("src.moduleA.submoduleA1", "src.moduleA.submoduleA1.submoduleA11"),
+        (
+            "src.moduleA.submoduleA1.submoduleA11",
+            "src.moduleA.submoduleA1.submoduleA11.fileA11",
+        ),
+        ("src.moduleA.submoduleA1.submoduleA11.fileA11", "os"),
+        (
+            "src.moduleA.submoduleA1.submoduleA11.fileA11",
+            "src.moduleB.submoduleB1.fileB1",
+        ),
+        ("src.moduleB", "src.moduleB.submoduleB1"),
+        ("src.moduleB.submoduleB1", "src.moduleB.submoduleB1.fileB1"),
+    ]:
+        assert edge in level_3_graph._graph
