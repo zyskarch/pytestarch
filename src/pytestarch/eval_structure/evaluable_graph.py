@@ -1,7 +1,7 @@
 """Base class for different graph implementations of an evaluable structure. Delegates direct access to graph nodes
 and edges to its subclasses in a template pattern.
 """
-from typing import Set, Any, Optional, Tuple, List
+from typing import Any, List, Optional, Set, Tuple
 
 from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture, Module
 from pytestarch.eval_structure.graph import Graph, Node

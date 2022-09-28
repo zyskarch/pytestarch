@@ -1,16 +1,17 @@
 import os
 
 import pytest
-
-# from matplotlib import pyplot as plt
-# from matplotlib.pyplot import figure
+from resources.test_project import src
+from resources.test_project.src import moduleA
+from resources.test_project.src.moduleA import submoduleA1
 
 from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture
 from pytestarch.pytestarch import get_evaluable_architecture
 from pytestarch.query_language.base_language import Rule
-from resources import test_project
-from resources.test_project.src import moduleA
-from resources.test_project.src.moduleA import submoduleA1
+
+# from matplotlib import pyplot as plt
+# from matplotlib.pyplot import figure
+
 
 rules_to_test = [
     (
@@ -246,7 +247,7 @@ def test_level_limit_flattens_dependencies_correctly(
 
 def test_edges_correctly_calculated_for_level_2_module_path() -> None:
     level_2_graph = get_evaluable_architecture(
-        os.path.dirname(test_project.__file__),
+        os.path.dirname(src.__file__),
         os.path.dirname(moduleA.__file__),
         ("*__pycache__", "*__init__.py", "*Test.py"),
     )
@@ -256,7 +257,7 @@ def test_edges_correctly_calculated_for_level_2_module_path() -> None:
 
 def test_edges_correctly_calculated_for_level_2_module_path_no_external_dependencies_modified() -> None:
     level_2_graph = get_evaluable_architecture(
-        os.path.dirname(test_project.__file__),
+        os.path.dirname(src.__file__),
         os.path.dirname(moduleA.__file__),
         ("*__pycache__", "*__init__.py", "*Test.py"),
         exclude_external_libraries=False,
@@ -296,7 +297,7 @@ def test_edges_correctly_calculated_for_level_2_module_path_no_external_dependen
 
 def test_edges_correctly_calculated_for_level_3_module_path() -> None:
     level_3_graph = get_evaluable_architecture(
-        os.path.dirname(test_project.__file__),
+        os.path.dirname(src.__file__),
         os.path.dirname(submoduleA1.__file__),
         ("*__pycache__", "*__init__.py", "*Test.py"),
     )
@@ -306,7 +307,7 @@ def test_edges_correctly_calculated_for_level_3_module_path() -> None:
 
 def test_edges_correctly_calculated_for_level_3_module_path_no_external_dependencies_modified() -> None:
     level_3_graph = get_evaluable_architecture(
-        os.path.dirname(test_project.__file__),
+        os.path.dirname(src.__file__),
         os.path.dirname(submoduleA1.__file__),
         ("*__pycache__", "*__init__.py", "*Test.py"),
         exclude_external_libraries=False,

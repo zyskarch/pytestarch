@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from collections import defaultdict
-from typing import Optional, Type, Generic, TypeVar
+from typing import Generic, Optional, Type, TypeVar
 
 from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture, Module
 from pytestarch.eval_structure.graph import Node
 from pytestarch.query_language.exceptions import ImproperlyConfigured
 from pytestarch.query_language.rule_matcher import (
-    RuleMatcher,
-    DefaultRuleMatcher,
     BehaviorRequirement,
+    DefaultRuleMatcher,
     ModuleRequirement,
+    RuleMatcher,
     RuleViolations,
 )
 

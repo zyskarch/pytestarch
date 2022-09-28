@@ -1,8 +1,8 @@
 """Encapsulation of networkx graph functionality."""
-from typing import List, Any, Optional
+from typing import Any, List, Optional
 
 import networkx as nx
-from networkx import has_path, draw_networkx, spring_layout
+from networkx import draw_networkx, has_path, spring_layout
 
 from pytestarch.importer.import_types import Import
 

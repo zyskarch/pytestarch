@@ -7,7 +7,6 @@ from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.graph import Graph
 from pytestarch.importer.import_types import AbsoluteImport
 
-
 MODULE_1 = "Module1"
 MODULE_2 = "Module2"
 MODULE_3 = "Module3"

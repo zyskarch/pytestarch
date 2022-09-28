@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, fields
-from typing import Set, List, Optional, Tuple
+from typing import List, Optional, Set, Tuple
 
-from pytestarch.eval_structure.eval_structure_types import Module, EvaluableArchitecture
+from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture, Module
 from pytestarch.query_language.exceptions import ImproperlyConfigured
 
 

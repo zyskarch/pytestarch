@@ -6,7 +6,6 @@ import pytest
 from pytestarch.config.config import Config
 from pytestarch.importer.file_filter import FileFilter
 
-
 test_cases = [
     # ['A', 'B', 'a.main.b'],
     ["A", "B", "development.C"],

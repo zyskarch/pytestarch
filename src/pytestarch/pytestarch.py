@@ -5,19 +5,17 @@ for which the user can then define architectural rules.
 import os
 from pathlib import Path
 from types import ModuleType
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
 from pytestarch.config.config import Config
 from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.graph import Graph
-from pytestarch.importer.import_path_padder import ImportPathPadder
 from pytestarch.importer.converter import ImportConverter
 from pytestarch.importer.file_filter import FileFilter
 from pytestarch.importer.import_filter import ImportFilter
 from pytestarch.importer.importee_module_calculator import ImporteeModuleCalculator
 from pytestarch.importer.parser import Parser
-
 
 DEFAULT_EXCLUSIONS = ("*__pycache__",)
 
@@ -45,27 +43,30 @@ def get_evaluable_architecture(
     root_path = Path(root_path)
     module_path = Path(module_path)
 
-    root_and_module_path_identical = root_path == module_path
+    path_diff_between_root_and_module = str(module_path.relative_to(root_path)).replace(
+        os.sep, "."
+    )
 
-    if root_and_module_path_identical and level_limit is not None:
-        # root directory will be appended to all paths, de facto increasing the depth by 1
-        level_limit += 1
+    if level_limit is not None:
+        if path_diff_between_root_and_module != ".":
+            levels = len(path_diff_between_root_and_module.split("."))
+            level_limit += levels
 
     config = Config(exclusions)
     file_filter = FileFilter(config)
 
-    parser = Parser(root_path, file_filter, root_and_module_path_identical)
+    parser = Parser(file_filter, root_path)
     converter = ImportConverter()
 
     all_modules, ast = parser.parse(module_path)
 
     imports = converter.convert(ast)
 
-    full_prefix = ImportPathPadder.pad(imports, root_path, module_path)
+    internal_module_prefix = root_path.name + "."
+    if path_diff_between_root_and_module != ".":
+        internal_module_prefix += path_diff_between_root_and_module
 
-    import_filter = ImportFilter(
-        exclude_external_libraries, full_prefix + module_path.name
-    )
+    import_filter = ImportFilter(exclude_external_libraries, internal_module_prefix)
     imports = import_filter.filter(imports)
 
     if not exclude_external_libraries:
