@@ -38,7 +38,7 @@ class Parser:
                     module_name = self._get_module_name(path)
                     if module_name:
                         self._all_modules.append(module_name)
-                paths.extend(path.iterdir())
+                    paths.extend(path.iterdir())
             else:
                 new_module = self._parse_file(path)
                 if new_module:

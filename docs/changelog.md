@@ -7,6 +7,9 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 ### Changed
 - Simplified calculation of whether imports are within the project
 
+### Fixed
+- Excluded directories no longer searched for parseable files
+
 ## [1.0.2] -- 2022-09-28
 ### Fixed
 - All internal modules filtered out if module and root path are not identical and are a sub module of the actual root module.
