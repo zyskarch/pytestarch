@@ -183,11 +183,16 @@ as reference (M1, M2 are used as RULE_SUBJECT and RULE_OBJECT respectively; pseu
 ## Generating the evaluable architecture representation
 When scanning and processing the requested modules, PyTestArch executes the following step:
 1) Parse all files starting at the requested `module_path`. This only takes python source files into account that are not explicitly excluded.
+
 2) Convert the generated AST into custom dependency representations. In this step, it is ensured that all internal modules (either importing or imported) receive their fully 
 qualified name.
+
 3) Generate a list of all modules that were parsed. This list is used to differentiate between external and internal dependencies (external dependencies will not have been parsed).
+
 4) If not requested otherwise, external dependencies will be filtered out.
+
 5) If external dependencies should be included, they will be added to the list of modules.
+
 6) The dependency representations are converted to a graph structure.
 
 
