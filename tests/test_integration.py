@@ -1,13 +1,14 @@
 import os
 
 import pytest
+
+from pytestarch import Rule
 from resources.test_project import src
 from resources.test_project.src import moduleA
 from resources.test_project.src.moduleA import submoduleA1
 
 from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture
 from pytestarch.pytestarch import get_evaluable_architecture
-from pytestarch.query_language.base_language import Rule
 
 # from matplotlib import pyplot as plt
 # from matplotlib.pyplot import figure
