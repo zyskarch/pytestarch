@@ -138,6 +138,18 @@ Currently, the following markers are supported by PyTestArch:
 #### RULE_OBJECT
 same as RULE_SUBJECT
 
+In addition, RULE_OBJECTS can be passed in as a list. The rule is fulfilled if it applies to all rule objects.
+For example, the rule
+```
+modules_that()
+    .are_named("1")
+    .should_only()
+    .be_imported_by_modules_that()
+    .are_named(["2", "3"])
+```
+is fulfilled, it the module "1" is not imported by any module other than "2" and "3", and if both "2" and "3" do import "1".
+
+
 #### VERB_MARKER_1
 * should()
 * should_only()
@@ -152,18 +164,24 @@ same as RULE_SUBJECT
 VERB_MARKER_2 and IMPORT_TYPE have been conflated into one expression to improve readability.
 
 Markers from each category can be combined freely with all markers of all other categories. Example rules could be <br>
-```modules_that()
+```
+modules_that()
     .are_sub_modules_of("A")
     .should_only()
     .be_imported_by_modules_that()
-    .are_sub_modules_of("B")``` (True in the above example).
+    .are_sub_modules_of("B")
+```
+(True in the above example)
 
 or <br>
-```modules_that()
+```
+modules_that()
     .are_named("C")
     .should_only()
     .be_imported_by_modules_that()
-    .are_named("A2")``` (False, also imported by module "A").
+    .are_named("A2")
+```
+(False, also imported by module "A")
 
 
 Most rules are so close to the English language that a detailed explanation seems unnecessary. An exception might be the
@@ -183,11 +201,16 @@ as reference (M1, M2 are used as RULE_SUBJECT and RULE_OBJECT respectively; pseu
 ## Generating the evaluable architecture representation
 When scanning and processing the requested modules, PyTestArch executes the following step:
 1) Parse all files starting at the requested `module_path`. This only takes python source files into account that are not explicitly excluded.
+
 2) Convert the generated AST into custom dependency representations. In this step, it is ensured that all internal modules (either importing or imported) receive their fully 
 qualified name.
+
 3) Generate a list of all modules that were parsed. This list is used to differentiate between external and internal dependencies (external dependencies will not have been parsed).
+
 4) If not requested otherwise, external dependencies will be filtered out.
+
 5) If external dependencies should be included, they will be added to the list of modules.
+
 6) The dependency representations are converted to a graph structure.
 
 

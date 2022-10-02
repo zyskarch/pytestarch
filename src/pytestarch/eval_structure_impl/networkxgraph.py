@@ -1,18 +1,19 @@
 """Encapsulation of networkx graph functionality."""
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Tuple
 
 import networkx as nx
 from networkx import draw_networkx, has_path, spring_layout
 
+from pytestarch.eval_structure.evaluable_structures import AbstractGraph, AbstractNode
 from pytestarch.importer.import_types import Import
 
 EXPECTED_EDGE_AND_NODE_TYPES = "Only str and tuple of two str supported."
 
 
-Node = str
+Node = AbstractNode
 
 
-class Graph:
+class NetworkxGraph(AbstractGraph):
     """Constructs eval_structure from list of imports.
 
     Each module passed to this object will be added as a node.
@@ -153,6 +154,10 @@ class Graph:
     @property
     def nodes(self) -> List[Node]:
         return list(self._graph.nodes)
+
+    @property
+    def edges(self) -> List[Tuple[Node, Node]]:
+        return list(self._graph.edges)
 
     def direct_predecessor_nodes(self, node: Node) -> List[Node]:
         """Returns all nodes that have a directed edge towards the given node.

@@ -8,9 +8,9 @@ from types import ModuleType
 from typing import Optional, Tuple
 
 from pytestarch.config.config import Config
-from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture
+from pytestarch.eval_structure.evaluable_architecture import EvaluableArchitecture
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
-from pytestarch.eval_structure.graph import Graph
+from pytestarch.eval_structure_impl.networkxgraph import NetworkxGraph
 from pytestarch.importer.converter import ImportConverter
 from pytestarch.importer.file_filter import FileFilter
 from pytestarch.importer.import_filter import ImportFilter
@@ -74,7 +74,7 @@ def get_evaluable_architecture(
             imports,
             all_modules,
         )
-    return EvaluableArchitectureGraph(Graph(all_modules, imports, level_limit))
+    return EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports, level_limit))
 
 
 def get_evaluable_architecture_for_module_objects(

@@ -5,6 +5,13 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 
 ## [Unreleased]
 
+## [1.1.0] -- 2022-10-02
+### Added
+- Rule objects can be passed in as a list
+
+### Fixed
+- All violations not always returned
+
 ## [1.0.3] -- 2022-09-28
 ### Changed
 - Simplified calculation of whether imports are within the project

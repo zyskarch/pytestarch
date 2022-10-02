@@ -6,8 +6,6 @@
 
 ## ::: src.pytestarch.importer.import_filter
 
-## ::: src.pytestarch.importer.import_path_padder
-
 ## ::: src.pytestarch.importer.import_types
 
 ## ::: src.pytestarch.importer.importee_module_calculator

@@ -1,11 +1,11 @@
 import pytest
 
-from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture
+from pytestarch.eval_structure.evaluable_architecture import EvaluableArchitecture
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
-from pytestarch.eval_structure.graph import Graph
+from pytestarch.eval_structure_impl.networkxgraph import NetworkxGraph
+from pytestarch.exceptions import ImproperlyConfigured
 from pytestarch.importer.import_types import AbsoluteImport
 from pytestarch.query_language.base_language import Rule
-from pytestarch.query_language.exceptions import ImproperlyConfigured
 
 MODULE_1 = "Module1"
 MODULE_2 = "Module2"
@@ -77,7 +77,7 @@ def evaluable1() -> EvaluableArchitecture:
         AbsoluteImport(MODULE_7, SUB_MODULE_OF_7),
     ]
 
-    return EvaluableArchitectureGraph(Graph(all_modules, imports))
+    return EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
 
 
 def test_partially_configured_rule_raises_error(

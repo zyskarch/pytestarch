@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List, Optional
 
-from pytestarch.query_language.exceptions import ImproperlyConfigured
+from pytestarch.exceptions import ImproperlyConfigured
 
 
 @dataclass
