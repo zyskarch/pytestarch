@@ -1,59 +1,69 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, fields
-from typing import List, Optional, Set, Tuple
+from typing import List, Optional, Union
 
-from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture, Module
-from pytestarch.query_language.exceptions import ImproperlyConfigured
+from pytestarch.eval_structure.evaluable_architecture import (
+    EvaluableArchitecture,
+    LaxDependenciesByBaseModule,
+    Module,
+    StrictDependenciesByBaseModules,
+)
+from pytestarch.exceptions import ImproperlyConfigured
 
 
 class ModuleRequirement:
     """Stores information about which module is supposed to be checked against which module."""
 
     def __init__(
-        self, left_hand_module: Module, right_hand_module: Module, import_relation: bool
+        self,
+        left_hand_module: Module,
+        right_hand_modules: List[Module],
+        import_relation: bool,
     ) -> None:
-        self._left_hand_module = left_hand_module
-        self._right_hand_module = right_hand_module
+        self._left_hand_modules = left_hand_module
+        self._right_hand_modules = right_hand_modules
 
         self._right_hand_module_has_specifier = import_relation
 
         if self.left_hand_module_has_specifier:
-            self._left_hand_module, self._right_hand_module = (
-                self._right_hand_module,
-                self._left_hand_module,
+            self._left_hand_modules, self._right_hand_modules = (
+                self._right_hand_modules,
+                self._left_hand_modules,
             )
 
     @property
-    def left_hand_module(self) -> Module:
-        return self._left_hand_module
+    def left_hand_modules(self) -> Union[Module, List[Module]]:
+        return self._left_hand_modules
 
     @property
-    def right_hand_module(self) -> Module:
-        return self._right_hand_module
+    def right_hand_modules(self) -> Union[Module, List[Module]]:
+        return self._right_hand_modules
 
     @property
     def left_hand_module_has_specifier(self) -> bool:
+        # True if rule is of format "is imported by"
         return not self._right_hand_module_has_specifier
 
 
 @dataclass
 class RuleViolations:
-    lax_dependencies_found: List[Module]
-    strict_dependency: Optional[Tuple[str, str]]
+    lax_dependencies: Optional[LaxDependenciesByBaseModule]
+    strict_dependencies: Optional[StrictDependenciesByBaseModules]
 
-    should_not_except_violated: bool = False
-    should_only_except_violated_by_forbidden_import: bool = False
-    should_not_violated: bool = False
-    should_only_violated: bool = False
-    should_only_except_violated_by_no_import: bool = False
-    should_except_violated: bool = False
     should_violated: bool = False
+    should_only_violated_by_forbidden_import: bool = False
+    should_only_violated_by_no_import: bool = False
+    should_not_violated: bool = False
+    should_except_violated: bool = False
+    should_only_except_violated_by_forbidden_import: bool = False
+    should_only_except_violated_by_no_import: bool = False
+    should_not_except_violated: bool = False
 
     def __bool__(self) -> bool:
-        return any(self.__dict__[a] for a in self._bool_types())
+        return any(self.__dict__[a] for a in self._bool_field_names())
 
     @classmethod
-    def _bool_types(cls) -> List[str]:
+    def _bool_field_names(cls) -> List[str]:
         return [field.name for field in fields(cls) if field.type == bool]
 
 
@@ -114,12 +124,15 @@ class BehaviorRequirement:
 
     def generate_rule_violation(
         self,
-        strict_dependency: Optional[Tuple[str, str]],
-        lax_dependencies: Set[Module],
+        strict_dependencies: Optional[StrictDependenciesByBaseModules],
+        lax_dependencies: Optional[LaxDependenciesByBaseModule],
+        import_rule: bool,
+        left_hand_side_module: Union[Module, List[Module]],
+        right_hand_side_module: Union[Module, List[Module]],
     ) -> RuleViolations:
         """Translate from the detected types of dependencies back to which behavior and dependency requirements are violated by them.
         Args:
-            strict_dependency: dependency between the two specified modules found
+            strict_dependencies: dependency between the two specified modules found, grouped by requested modules
             lax_dependencies: other dependencies found beside the two specified modules
         Returns:
             overview of all rule violations
@@ -136,26 +149,30 @@ class BehaviorRequirement:
         should_except_expected = self._should and self._behavior_exception
         should_expected = self._should and not self._behavior_exception
 
-        lax_dependencies_present = (
-            lax_dependencies is not None and len(lax_dependencies) > 0
+        lax_dependencies_present = lax_dependencies is not None and any(
+            lax_dependency for lax_dependency in lax_dependencies.values()
         )
-        strict_dependency_present = strict_dependency is not None
+        strict_dependency_present = strict_dependencies is not None and any(
+            strict_dependency for strict_dependency in strict_dependencies.values()
+        )
 
         return RuleViolations(
             should_not_except_violated=should_not_except_expected
             and lax_dependencies_present,
             should_only_except_violated_by_forbidden_import=should_only_except_violated_by_forbidden_expected
-            and (strict_dependency_present and lax_dependencies_present),
+            and strict_dependency_present,
             should_not_violated=should_not_expected and strict_dependency_present,
-            should_only_violated=should_only_expected
-            and (not strict_dependency_present or lax_dependencies_present),
+            should_only_violated_by_no_import=should_only_expected
+            and any(dependency == [] for dependency in strict_dependencies.values()),
+            should_only_violated_by_forbidden_import=should_only_expected
+            and lax_dependencies_present,
             should_only_except_violated_by_no_import=should_only_except_violated_by_no_expected
             and not lax_dependencies_present,
             should_except_violated=should_except_expected
             and not lax_dependencies_present,
             should_violated=should_expected and not strict_dependency_present,
-            lax_dependencies_found=lax_dependencies,
-            strict_dependency=strict_dependency,
+            lax_dependencies=lax_dependencies,
+            strict_dependencies=strict_dependencies,
         )
 
 
@@ -185,39 +202,52 @@ class RuleMatcher(ABC):
 
 class DefaultRuleMatcher(RuleMatcher):
     def match(self, evaluable: EvaluableArchitecture) -> RuleViolations:
-        strict_dependency_required = (
-            self._behavior_requirement.strict_dependency_required
-        )
-        lax_dependency_required = self._behavior_requirement.lax_dependency_required
-        no_strict_dependency_allowed = (
-            self._behavior_requirement.strict_dependency_not_allowed
-        )
-        no_lax_dependency_allowed = (
-            self._behavior_requirement.lax_dependency_not_allowed
-        )
+        strict_dependencies = self._get_strict_dependencies(evaluable)
 
-        left_hand_module = self._module_requirement.left_hand_module
-        right_hand_module = self._module_requirement.right_hand_module
-
-        strict_dependency = None
-        lax_dependencies = None
-
-        if strict_dependency_required or no_strict_dependency_allowed:
-            strict_dependency = evaluable.get_dependency(
-                left_hand_module, right_hand_module
-            )
-
-        if lax_dependency_required or no_lax_dependency_allowed:
-            if not self._module_requirement.left_hand_module_has_specifier:
-                dependency_check_method = evaluable.any_dependency_to_module_other_than
-            else:
-                dependency_check_method = evaluable.any_other_dependency_to_module_than
-
-            lax_dependencies = dependency_check_method(
-                left_hand_module,
-                right_hand_module,
-            )
+        lax_dependencies = self._get_lax_dependencies(evaluable)
 
         return self._behavior_requirement.generate_rule_violation(
-            strict_dependency, lax_dependencies
+            strict_dependencies,
+            lax_dependencies,
+            not self._module_requirement.left_hand_module_has_specifier,
+            self._module_requirement.left_hand_modules,
+            self._module_requirement.right_hand_modules,
         )
+
+    def _get_lax_dependencies(
+        self, evaluable: EvaluableArchitecture
+    ) -> Optional[LaxDependenciesByBaseModule]:
+        if (
+            self._behavior_requirement.lax_dependency_required
+            or self._behavior_requirement.lax_dependency_not_allowed
+        ):
+            if not self._module_requirement.left_hand_module_has_specifier:
+                lax_dependency_check_method = (
+                    evaluable.any_dependencies_to_modules_other_than
+                )
+            else:
+                lax_dependency_check_method = (
+                    evaluable.any_other_dependencies_to_modules_than
+                )
+
+            return lax_dependency_check_method(
+                self._module_requirement.left_hand_modules,
+                self._module_requirement.right_hand_modules,
+            )
+
+        return None
+
+    def _get_strict_dependencies(
+        self,
+        evaluable: EvaluableArchitecture,
+    ) -> Optional[StrictDependenciesByBaseModules]:
+        if (
+            self._behavior_requirement.strict_dependency_required
+            or self._behavior_requirement.strict_dependency_not_allowed
+        ):
+            return evaluable.get_dependencies(
+                self._module_requirement.left_hand_modules,
+                self._module_requirement.right_hand_modules,
+            )
+
+        return None

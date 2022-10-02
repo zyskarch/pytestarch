@@ -138,6 +138,18 @@ Currently, the following markers are supported by PyTestArch:
 #### RULE_OBJECT
 same as RULE_SUBJECT
 
+In addition, RULE_OBJECTS can be passed in as a list. The rule is fulfilled if it applies to all rule objects.
+For example, the rule
+```
+modules_that()
+    .are_named("1")
+    .should_only()
+    .be_imported_by_modules_that()
+    .are_named(["2", "3"])
+```
+is fulfilled, it the module "1" is not imported by any module other than "2" and "3", and if both "2" and "3" do import "1".
+
+
 #### VERB_MARKER_1
 * should()
 * should_only()
@@ -152,18 +164,24 @@ same as RULE_SUBJECT
 VERB_MARKER_2 and IMPORT_TYPE have been conflated into one expression to improve readability.
 
 Markers from each category can be combined freely with all markers of all other categories. Example rules could be <br>
-```modules_that()
+```
+modules_that()
     .are_sub_modules_of("A")
     .should_only()
     .be_imported_by_modules_that()
-    .are_sub_modules_of("B")``` (True in the above example).
+    .are_sub_modules_of("B")
+```
+(True in the above example)
 
 or <br>
-```modules_that()
+```
+modules_that()
     .are_named("C")
     .should_only()
     .be_imported_by_modules_that()
-    .are_named("A2")``` (False, also imported by module "A").
+    .are_named("A2")
+```
+(False, also imported by module "A")
 
 
 Most rules are so close to the English language that a detailed explanation seems unnecessary. An exception might be the

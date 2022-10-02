@@ -4,7 +4,7 @@ from typing import List, Tuple
 import pytest
 
 from pytestarch.config.config import Config
-from pytestarch.eval_structure.graph import Graph
+from pytestarch.eval_structure_impl.networkxgraph import NetworkxGraph
 from pytestarch.importer.converter import ImportConverter
 from pytestarch.importer.file_filter import FileFilter
 from pytestarch.importer.import_types import Import, NamedModule
@@ -41,16 +41,16 @@ def all_modules(
 
 
 @pytest.fixture(scope="module")
-def module_graph(all_modules: List[str], imports: List[Import]) -> Graph:
-    return Graph(all_modules, imports)
+def module_graph(all_modules: List[str], imports: List[Import]) -> NetworkxGraph:
+    return NetworkxGraph(all_modules, imports)
 
 
-def test_node_edge_count_as_expected(module_graph: Graph) -> None:
+def test_node_edge_count_as_expected(module_graph: NetworkxGraph) -> None:
     assert module_graph.nodes_number == 33
     assert module_graph.edges_number == 23
 
 
-def test_expected_nodes_present(module_graph: Graph) -> None:
+def test_expected_nodes_present(module_graph: NetworkxGraph) -> None:
     assert "pytestarch.tests.resources.importer" in module_graph
     assert "pytestarch.tests.resources.importer.level0" in module_graph
     assert "pytestarch.tests.resources.importer.level0.level1" in module_graph
@@ -87,7 +87,7 @@ def test_expected_nodes_present(module_graph: Graph) -> None:
 
 
 def test_edges_between_parent_and_child_modules_as_expected(
-    module_graph: Graph,
+    module_graph: NetworkxGraph,
 ) -> None:
     assert (
         "pytestarch.tests.resources.importer",
@@ -126,7 +126,9 @@ def test_edges_between_parent_and_child_modules_as_expected(
     assert ("pytestarch", "pytestarch.pytestarch") in module_graph
 
 
-def test_edges_between_importers_and_importees_as_expected(module_graph: Graph) -> None:
+def test_edges_between_importers_and_importees_as_expected(
+    module_graph: NetworkxGraph,
+) -> None:
     assert (
         "pytestarch.tests.resources.importer.level0.level1.level2."
         "level3.level4.level5.module_level_5",
@@ -175,7 +177,7 @@ def test_edges_between_importers_and_importees_as_expected(module_graph: Graph) 
     ) in module_graph
 
 
-def test_graph_connections_as_expected(module_graph: Graph) -> None:
+def test_graph_connections_as_expected(module_graph: NetworkxGraph) -> None:
     assert (
         "pytestarch.tests.resources.importer.level0.test_dummy",
         "pytest",

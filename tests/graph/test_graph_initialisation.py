@@ -1,9 +1,9 @@
-from pytestarch.eval_structure.graph import Graph
+from pytestarch.eval_structure_impl.networkxgraph import NetworkxGraph
 from pytestarch.importer.import_types import AbsoluteImport
 
 
 def test_empty_graph_allowed() -> None:
-    Graph([], [])
+    NetworkxGraph([], [])
 
     assert True
 
@@ -14,7 +14,7 @@ def test_graph_as_expected() -> None:
         AbsoluteImport("B", "C"),
         AbsoluteImport("A", "C"),
     ]
-    graph = Graph(["A", "B", "C"], imports)
+    graph = NetworkxGraph(["A", "B", "C"], imports)
 
     assert "A" in graph
     assert "B" in graph
@@ -27,7 +27,7 @@ def test_graph_as_expected() -> None:
 
 def test_duplicate_edges_do_not_raise_error() -> None:
     imports = [AbsoluteImport("A", "B"), AbsoluteImport("A", "B")]
-    graph = Graph(["A", "B"], imports)
+    graph = NetworkxGraph(["A", "B"], imports)
 
     assert len(graph._graph.nodes) == 2
     assert len(graph._graph.edges) == 1

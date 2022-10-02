@@ -2,7 +2,7 @@ import pytest
 import resources
 from resources import importer
 
-from pytestarch.eval_structure.eval_structure_types import EvaluableArchitecture
+from pytestarch.eval_structure.evaluable_architecture import EvaluableArchitecture
 from pytestarch.pytestarch import get_evaluable_architecture_for_module_objects
 
 

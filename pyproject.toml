@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "PyTestArch"
-version = "1.0.3"
+version = "1.1.0"
 description = "Test framework for software architecture based on imports between modules"
 authors = ["zyskarch <zyskarch@gmail.com>"]
 maintainers = ["zyskarch <zyskarch@gmail.com>"]

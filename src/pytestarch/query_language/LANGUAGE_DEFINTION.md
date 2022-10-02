@@ -53,6 +53,10 @@ M1 should only be_imported_from except M2   -> any edge from non-M2 to M1, neg(e
 M1 should not be_imported_from except M2    -> neg(any edge from non-M2 to M1)
 
 
+If M2 contains multiple modules, they can be treated separately for "edge", but need to be considered jointly for 
+"any edge".
+
+
 
 Operations: 
     any edge
@@ -72,3 +76,53 @@ simplified:
     edge        should, should only
     neg edge    should not, should only except
     neg any     should not except, should only
+
+
+# Rule Violation Messages
+### One M2
+| type                                        | message                                                                                                  | note                   |
+|---------------------------------------------|----------------------------------------------------------------------------------------------------------|------------------------|
+| should import                               | M1 does not import M2                                                                                    | -                      |
+| should only import -- forbidden             | Violator1 imports Violator2. Subviolator1 imports Violator3                                              | (submodule of M1)      |
+| should only import -- no import             | M1 does not import M2                                                                                    | -                      |
+| should only import -- both                  | Violator1 imports Violator2. Subviolator1 imports Violator3. M1 does not import M2                       | (submodule of M1)      |
+| should not import                           | Violator1 imports Violator2. Subviolator1 imports Subviolator2.                                          | (submodules of M1, M2) |
+| should import except                        | M1 does not import any that is not M2                                                                    | -                      |
+| should only import except -- forbidden      | Violator1 imports Violator2. Subviolator1 imports Subviolator2.                                          | (submodules of M1, M2) |
+| should only import except -- no import      | M1 does not import any that is not M2                                                                    | -                      |
+| should only import except -- both           | Violator1 imports Violator2. Subviolator1 imports Subviolator2. M1 does not import any that is not M2    | (submodules of M1, M2) |
+| should not import except                    | Violator1 imports Violator2. Subviolator1 imports Violator3.                                             | (submodule of M1)      |
+| should be imported                          | M1 is not imported by M2                                                                                 | -                      |
+| should only be imported -- forbidden        | Violator2 imports Violator1. Violator3 imports Subviolator1                                              | (submodule of M1)      |
+| should only be imported -- no import        | M1 is not imported by M2                                                                                 | -                      |
+| should only be imported -- both             | Violator2 imports Violator1. Violator3 imports Subviolator1. M1 is not imported by M2                    | (submodule of M1)      |
+| should not be imported                      | Violator2 imports Violator1. Violator 3 imports Subviolator1.                                            | (submodules of M1, M2) |
+| should be imported except                   | M1 is not imported by any that is not M2                                                                 | -                      |
+| should only be imported except -- forbidden | Violator2 imports Violator1. Subviolator2 imports Subviolator1.                                          | (submodules of M1, M2) |
+| should only be imported except -- no import | M1 is not imported by any that is not M2                                                                 | -                      |
+| should only be imported except -- both      | Violator2 imports Violator1. Subviolator2 imports Subviolator1. M1 is not imported by any that is not M2 | (submodules of M1, M2) |
+| should not be imported except               | Violator2 imports Violator1. Violator3 imports Subviolator1.                                             | (submodule of M1)      |
+
+
+### Multiple M2s
+| type                                        | message                                                                                                                                      | note                                                | diff to One M2 |
+|---------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------|---------------|
+| should import                               | M1 does not import M2, M3                                                                                                                    | concatentation with ","                             | list all M2s  |
+| should only import -- forbidden             | Violator1 imports Violator2. Subviolator1 imports Violator3.                                                                                 | (submodule of M1)                                   | -             |
+| should only import -- no import             | M1 does not import M2(, M3)                                                                                                                  | concatentation with ","                             | -             |
+| should only import -- both                  | Violator1 imports Violator2. Subviolator1 imports Violator3. M1 does not import M2(, M3)                                                     | (submodule of M1); concatentation with ","          | -             |
+| should not import                           | Violator1 imports Violator2. Subviolator1 imports Subviolator2. Subviolator1 imports Subviolator2. Subviolator1 imports Violator3            | (submodules of M1, M2, M3); concatentation with "," | -             |
+| should import except                        | M1 does not import any that is not M2, M3                                                                                                    | concatentation with ","                             | list all M2s  |
+| should only import except -- forbidden      | Violator1 imports Violator2. Subviolator1 imports Subviolator2. Subviolator1 imports Violator3                                               | (submodules of M1, M2, M3); concatentation with "," | -             ||
+| should only import except -- no import      | M1 does not import any that is not M2, M3                                                                                                    | concatentation with ","                             | list all M2s  |
+| should only import except -- both           | Violator1 imports Violator2. Subviolator1 imports Subviolator2. Subviolator1 imports Violator3 . M1 does not import any that is not M2, M3   | (submodules of M1, M2, M3); concatentation with "," | list all M2s  |
+| should not import except                    | Violator1 imports Violator2. Subviolator1 imports Subviolator2. Subviolator1 imports Violator3                                               | (submodule of M1)                                   | -             |
+| should be imported                          | M1 is not imported by M2, M3                                                                                                                 | concatentation with ","                             | list all M2s  |
+| should only be imported -- forbidden        | Violator2 imports Violator1. Violator2 imports Subviolator1                                                                                  | (submodule of M1)                                   | -             |
+| should only be imported -- no import        | M1 is not imported by M2, M3                                                                                                                 | concatentation with ","                             | -             |
+| should not be imported                      | Violator2 imports Violator1. Violator3 imports Subviolator1.                                                                                 | (submodules of M1, M2, M3)                          | -             |
+| should be imported except                   | M1 is not imported by any that is not M2, M3                                                                                                 | concatentation with ","                             | list all M2s  |
+| should only be imported except -- forbidden | Violator2 imports Violator1. Subviolator2 imports Subviolator1. Violator3 imports Subviolator1.                                              | (submodules of M1, M2, M3)                          | -             |
+| should only be imported except -- no import | M1 is not imported by any that is not M2, M3                                                                                                 | concatentation with ","                             | list all M2s  |
+| should only be imported except -- both      | Violator2 imports Violator1. Subviolator2 imports Subviolator1. Violator3 imports Subviolator1. M1 is not imported by any that is not M2, M3 | (submodules of M1, M2, M3); concatentation with "," | list all M2s  |
+| should not be imported except               | Violator2 imports Violator1. Violator3 imports Subviolator1                                                                                  | (submodule of M1)                                   | -             |
