@@ -398,7 +398,7 @@ test_cases = [
         .import_modules_that()
         .are_sub_modules_of(B),
         '"src.moduleA.fileA" imports "src.moduleC.fileC".'
-        + os.sep
+        + "\n"
         + '"src.moduleA.submoduleA2.fileA2" imports "src.moduleC.fileC".',
         id="named should only import submodule",
     ),
@@ -420,7 +420,7 @@ test_cases = [
         .import_modules_that()
         .are_sub_modules_of(B),
         '"src.moduleA.fileA" imports "src.moduleC.fileC".'
-        + os.sep
+        + "\n"
         + '"src.moduleA.submoduleA2.fileA2" imports "src.moduleC.fileC".',
         id="submodule should only import submodule",
     ),
@@ -602,7 +602,7 @@ test_cases = [
         .import_modules_except_modules_that()
         .are_sub_modules_of(B),
         '"src.moduleA.fileA" imports "src.moduleC.fileC".'
-        + os.sep
+        + "\n"
         + '"src.moduleA.submoduleA2.fileA2" imports "src.moduleC.fileC"',
         id="named should not import except submodule",
     ),
@@ -624,7 +624,7 @@ test_cases = [
         .import_modules_except_modules_that()
         .are_sub_modules_of(B),
         '"src.moduleA.fileA" imports "src.moduleC.fileC".'
-        + os.sep
+        + "\n"
         + '"src.moduleA.submoduleA2.fileA2" imports "src.moduleC.fileC".',
         id="submodule should not import except submodule",
     ),
@@ -715,7 +715,7 @@ test_cases = [
         .should_not()
         .be_imported_by_modules_that()
         .are_named(A),
-        '"src.moduleC.fileC" is imported by "src.moduleA.submoduleA2.fileA2".',
+        '"src.moduleC.fileC" is imported by "src.moduleA.fileA".\n"src.moduleC.fileC" is imported by "src.moduleA.submoduleA2.fileA2"',
         id="named should not be imported by named",
     ),
     pytest.param(
@@ -906,7 +906,7 @@ test_cases = [
         .be_imported_by_modules_except_modules_that()
         .are_sub_modules_of(FILE_A2),
         '"src.moduleC.fileC" is imported by "src.moduleA.fileA".'
-        + os.sep
+        + "\n"
         + '"src.moduleC.fileC" is imported by "src.moduleA.submoduleA2.fileA2".',
         id="submodule should not be imported by except submodule",
     ),
@@ -982,7 +982,7 @@ multiple_rule_objects_test_cases = [
         .import_modules_that()
         .are_sub_modules_of([B, B2]),
         '"src.moduleA.fileA" imports "src.moduleC.fileC".'
-        + os.sep
+        + "\n"
         + '"src.moduleA.submoduleA2.fileA2" imports "src.moduleC.fileC".',
         id="named should only import submodule",
     ),
@@ -1004,7 +1004,7 @@ multiple_rule_objects_test_cases = [
         .import_modules_that()
         .are_sub_modules_of([B]),
         '"src.moduleA.fileA" imports "src.moduleC.fileC".'
-        + os.sep
+        + "\n"
         + '"src.moduleA.submoduleA2.fileA2" imports "src.moduleC.fileC".',
         id="submodule should only import submodule",
     ),
@@ -1186,7 +1186,7 @@ multiple_rule_objects_test_cases = [
         .import_modules_except_modules_that()
         .are_sub_modules_of([B, B2]),
         '"src.moduleA.fileA" imports "src.moduleC.fileC".'
-        + os.sep
+        + "\n"
         + '"src.moduleA.submoduleA2.fileA2" imports "src.moduleC.fileC"',
         id="named should not import except submodule",
     ),
@@ -1208,7 +1208,7 @@ multiple_rule_objects_test_cases = [
         .import_modules_except_modules_that()
         .are_sub_modules_of([B]),
         '"src.moduleA.fileA" imports "src.moduleC.fileC".'
-        + os.sep
+        + "\n"
         + '"src.moduleA.submoduleA2.fileA2" imports "src.moduleC.fileC".',
         id="submodule should not import except submodule",
     ),
@@ -1299,8 +1299,8 @@ multiple_rule_objects_test_cases = [
         .should_not()
         .be_imported_by_modules_that()
         .are_named([A, FILE_A2]),
-        '"src.moduleC.fileC" is imported by "src.moduleA.submoduleA2.fileA2".'
-        + os.sep
+        '"src.moduleC.fileC" is imported by "src.moduleA.fileA".'
+        + "\n"
         + '"src.moduleC.fileC" is imported by "src.moduleA.submoduleA2.fileA2".',
         id="named should not be imported by named",
     ),
@@ -1492,7 +1492,7 @@ multiple_rule_objects_test_cases = [
         .be_imported_by_modules_except_modules_that()
         .are_sub_modules_of([FILE_A2]),
         '"src.moduleC.fileC" is imported by "src.moduleA.fileA".'
-        + os.sep
+        + "\n"
         + '"src.moduleC.fileC" is imported by "src.moduleA.submoduleA2.fileA2".',
         id="submodule should not be imported by except submodule",
     ),

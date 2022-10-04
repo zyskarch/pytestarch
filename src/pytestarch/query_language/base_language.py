@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from abc import ABC, abstractmethod
 from typing import Callable, Generic, List, Optional, Type, TypeVar, Union
 
@@ -296,4 +295,4 @@ class Rule(
         single_violation_messages = message_generator.create_rule_violation_messages(
             rule_violations
         )
-        return os.sep.join(single_violation_messages)
+        return "\n".join(single_violation_messages)

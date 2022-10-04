@@ -77,15 +77,15 @@ class RuleViolationMessageGenerator:
             rule_violations: to convert to human-readable format
 
         Returns:
-            list of messages, each representing a rule violation
+            set of messages, each representing a rule violation
         """
-        messages = []
+        messages = set()
         for message in self._create_violation_messages(rule_violations):
-            messages.append(
+            messages.add(
                 f"{message.rule_subject} {message.rule_verb} {message.rule_object}."
             )
 
-        return sorted(messages)
+        return sorted(list(messages))
 
     def _create_violation_messages(
         self, rule_violations: RuleViolations
