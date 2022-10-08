@@ -136,7 +136,9 @@ Currently, the following markers are supported by PyTestArch:
 * are_submodules_of("Y"): applies to submodules of module named "Y", but not "Y" itself
 
 #### RULE_OBJECT
-same as RULE_SUBJECT
+same as RULE_SUBJECT, with an additional
+
+anything(): can only be used in combination with should_not()
 
 In addition, RULE_OBJECTS can be passed in as a list. The rule is fulfilled if it applies to all rule objects.
 For example, the rule
@@ -186,7 +188,7 @@ modules_that()
 
 Most rules are so close to the English language that a detailed explanation seems unnecessary. An exception might be the
 VERB_MARKER_2 "except". A combination of this VERB_MARKER_2 and every type of VERB_MARKER_1 and IMPORT_TYPE is given below
-as reference (M1, M2 are used as RULE_SUBJECT and RULE_OBJECT respectively; pseudo code for brevity):
+as reference (M1, M2 are used as RULE_SUBJECT and RULE_OBJECT respectively; pseudo-code for brevity):
 
 | Rule | Explanation |
 | ---- | ----------- |
@@ -195,7 +197,13 @@ as reference (M1, M2 are used as RULE_SUBJECT and RULE_OBJECT respectively; pseu
 | M1 should not import except M2| M1 should not import any module other than M2, but does not have to import M2 |
 | M1 should be imported except by M2 | at least one module that isn't M2 should import M1 (M2 can import M1 as well) |
 | M1 should only be imported except by M2 | at least one module that isn't M2 should import M1, and M2 cannot import M1 |
-| M1 should not be imported except by M2 | no module other than M2 should import M1, but M2 does not have to import M1
+| M1 should not be imported except by M2 | no module other than M2 should import M1, but M2 does not have to import M1 |
+
+
+There are two aliases to make rules easier:
+
+* 'M1 should not import anything' is equivalent to: 'M1 should not import anything except itself' (e.g. imports between its submodules are allowed, but no other imports)
+* 'M1 should not be imported by anything' is equivalent to: 'M1 should not be imported by anything except itself' (dito)
 
 
 ## Generating the evaluable architecture representation
@@ -226,4 +234,4 @@ a submodule of it.
 
 ### Module names
 In all rules, modules have to be referred to by their fully qualified name, meaning relative to the `root_path` - not the
-`module_path`! This helps distinguishing between internal and external modules.
+`module_path`! This helps to distinguish between internal and external modules.

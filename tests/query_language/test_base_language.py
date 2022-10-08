@@ -1,11 +1,14 @@
 import pytest
 
-from pytestarch.eval_structure.evaluable_architecture import EvaluableArchitecture
+from pytestarch.eval_structure.evaluable_architecture import (
+    EvaluableArchitecture,
+    Module,
+)
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure_impl.networkxgraph import NetworkxGraph
 from pytestarch.exceptions import ImproperlyConfigured
 from pytestarch.importer.import_types import AbsoluteImport
-from pytestarch.query_language.base_language import Rule
+from pytestarch.query_language.base_language import Rule, RuleConfiguration
 
 MODULE_1 = "Module1"
 MODULE_2 = "Module2"
@@ -17,6 +20,8 @@ SUB_MODULE_OF_7 = "Module7.SubModule1"
 MODULE_7 = "Module7"
 SUB_MODULE_OF_1 = "Module1.SubModule1"
 SUB_SUB_MODULE_OF_1 = "Module1.SubModule1.SubModule1"
+
+MODULE_A = Module(name="A")
 
 
 def test_rule_to_str_as_expected() -> None:
@@ -1306,3 +1311,130 @@ def test_should_not_be_imported_except_submodule_submodule_negative(
     )
 
     assert_not_rule_does_not_apply(rule, evaluable1)
+
+
+config_alias_test_cases = [
+    [
+        RuleConfiguration(
+            should_not=True,
+            import_=True,
+            except_present=False,
+            module_to_check=MODULE_A,
+            rule_object_anything=True,
+        ),
+        RuleConfiguration(
+            should_not=True,
+            import_=True,
+            except_present=True,
+            module_to_check=MODULE_A,
+            modules_to_check_against=[MODULE_A],
+            rule_object_anything=False,
+        ),
+    ],
+    [
+        RuleConfiguration(
+            should_not=True,
+            import_=False,
+            except_present=False,
+            module_to_check=MODULE_A,
+            rule_object_anything=True,
+        ),
+        RuleConfiguration(
+            should_not=True,
+            import_=False,
+            except_present=True,
+            module_to_check=MODULE_A,
+            modules_to_check_against=[MODULE_A],
+            rule_object_anything=False,
+        ),
+    ],
+    [
+        rule := RuleConfiguration(
+            should_not=True,
+            import_=True,
+            except_present=False,
+            module_to_check=MODULE_A,
+            rule_object_anything=False,
+        ),
+        rule,
+    ],
+    [
+        rule := RuleConfiguration(
+            should_not=True,
+            import_=False,
+            except_present=False,
+            module_to_check=MODULE_A,
+            rule_object_anything=False,
+        ),
+        rule,
+    ],
+    [
+        rule := RuleConfiguration(
+            should_not=True,
+            import_=True,
+            except_present=False,
+            module_to_check=MODULE_A,
+            rule_object_anything=False,
+        ),
+        rule,
+    ],
+    [
+        rule := RuleConfiguration(
+            should_not=True,
+            import_=False,
+            except_present=False,
+            module_to_check=MODULE_A,
+            rule_object_anything=False,
+        ),
+        rule,
+    ],
+    [
+        rule := RuleConfiguration(
+            should_only=True,
+            import_=True,
+            except_present=False,
+            module_to_check=MODULE_A,
+            rule_object_anything=False,
+        ),
+        rule,
+    ],
+    [
+        rule := RuleConfiguration(
+            should_only=True,
+            import_=False,
+            except_present=False,
+            module_to_check=MODULE_A,
+            rule_object_anything=False,
+        ),
+        rule,
+    ],
+    [
+        rule := RuleConfiguration(
+            should=True,
+            import_=True,
+            except_present=False,
+            module_to_check=MODULE_A,
+            rule_object_anything=False,
+        ),
+        rule,
+    ],
+    [
+        rule := RuleConfiguration(
+            should=True,
+            import_=False,
+            except_present=False,
+            module_to_check=MODULE_A,
+            rule_object_anything=False,
+        ),
+        rule,
+    ],
+]
+
+
+@pytest.mark.parametrize("config_with_alias, expected_config", config_alias_test_cases)
+def test_aliases_converted(
+    config_with_alias: RuleConfiguration,
+    expected_config: RuleConfiguration,
+) -> None:
+    converted_config = Rule._convert_aliases(config_with_alias)
+    assert converted_config == expected_config
