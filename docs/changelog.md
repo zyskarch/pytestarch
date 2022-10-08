@@ -4,6 +4,11 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 
 
 ## [Unreleased]
+## [1.2.1] -- 2022-10-08
+### Fixed
+- Line separator for rule violation messages
+
+
 ## [1.1.1] -- 2022-10-04
 ### Fixed
 - Line separator for rule violation messages

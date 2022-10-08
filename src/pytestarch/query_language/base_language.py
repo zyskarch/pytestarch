@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, replace
 from typing import Callable, Generic, List, Optional, Type, TypeVar, Union
 
 from pytestarch.eval_structure.evaluable_architecture import (
@@ -71,7 +72,9 @@ class ModuleSpecification(Generic[ModuleSpecificationSuccessor], ABC):
 
 
 class RuleObject(ModuleSpecification[RuleApplier], ABC):
-    pass
+    @abstractmethod
+    def anything(self) -> ModuleSpecificationSuccessor:
+        pass
 
 
 class RuleSubject(ModuleSpecification[BehaviorSpecification], ABC):
@@ -106,6 +109,18 @@ class RuleBase(ABC):
         pass
 
 
+@dataclass
+class RuleConfiguration:
+    module_to_check: Optional[Module] = None
+    modules_to_check_against: Optional[List[Module]] = None
+    should: bool = False
+    should_only: bool = False
+    should_not: bool = False
+    except_present: bool = False
+    import_: bool = None
+    rule_object_anything: bool = False
+
+
 class Rule(
     DependencySpecification,
     RuleBase,
@@ -122,23 +137,12 @@ class Rule(
         self, rule_matcher_class: Type[RuleMatcher] = DefaultRuleMatcher
     ) -> None:
         self._rule_matcher_class = rule_matcher_class
-
-        self._module_to_check: Optional[Module] = None
-        self._modules_to_check_against: Optional[List[Module]] = None
-
-        self._should = False
-        self._should_only = False
-        self._should_not = False
-
-        self._except_present = False
-
-        self._import = None
-
         self._modules_to_check_to_be_specified_next = None
+        self._configuration = RuleConfiguration()
 
     @property
     def rule_subject(self) -> Optional[Module]:
-        return self._module_to_check
+        return self._configuration.module_to_check
 
     def modules_that(self) -> RuleSubject:
         self._modules_to_check_to_be_specified_next = True
@@ -152,6 +156,12 @@ class Rule(
 
     def are_named(self, names: Union[str, List[str]]) -> BehaviorSpecification:
         self._set_modules(names, lambda name: Module(name=name))
+        return self
+
+    def anything(self) -> ModuleSpecificationSuccessor:
+        if self._modules_to_check_to_be_specified_next:
+            raise ImproperlyConfigured('"Anything" can only be used as a rule object.')
+        self._configuration.rule_object_anything = True
         return self
 
     def _set_modules(
@@ -173,47 +183,50 @@ class Rule(
             module_names = [module_names]
 
         if self._modules_to_check_to_be_specified_next:
-            self._module_to_check = create_module_fn(module_names)  # type: ignore
+            self._configuration.module_to_check = create_module_fn(module_names)  # type: ignore
         else:
-            self._modules_to_check_against = [create_module_fn(n) for n in module_names]
+            self._configuration.modules_to_check_against = [
+                create_module_fn(n) for n in module_names
+            ]
 
     def should(self) -> DependencySpecification:
-        self._should = True
+        self._configuration.should = True
         return self
 
     def should_only(self) -> DependencySpecification:
-        self._should_only = True
+        self._configuration.should_only = True
         return self
 
     def should_not(self) -> DependencySpecification:
-        self._should_not = True
+        self._configuration.should_not = True
         return self
 
     def import_modules_that(self) -> RuleObject:
-        self._import = True
+        self._configuration.import_ = True
         self._modules_to_check_to_be_specified_next = False
         return self
 
     def be_imported_by_modules_that(self) -> RuleObject:
-        self._import = False
+        self._configuration.import_ = False
         self._modules_to_check_to_be_specified_next = False
         return self
 
     def import_modules_except_modules_that(self) -> RuleObject:
-        self._import = True
-        self._except_present = True
+        self._configuration.import_ = True
+        self._configuration.except_present = True
         self._modules_to_check_to_be_specified_next = False
         return self
 
     def be_imported_by_modules_except_modules_that(self) -> RuleObject:
-        self._import = False
-        self._except_present = True
+        self._configuration.import_ = False
+        self._configuration.except_present = True
         self._modules_to_check_to_be_specified_next = False
         return self
 
     def assert_applies(self, evaluable: EvaluableArchitecture) -> None:
         self._assert_required_configuration_present()
 
+        self._configuration = self._convert_aliases(self._configuration)
         matcher = self._prepare_rule_matcher()
         rule_violations = matcher.match(evaluable)
 
@@ -222,13 +235,15 @@ class Rule(
 
     def _prepare_rule_matcher(self) -> RuleMatcher:
         module_requirement = ModuleRequirement(
-            self._module_to_check, self._modules_to_check_against, self._import
+            self._configuration.module_to_check,
+            self._configuration.modules_to_check_against,
+            self._configuration.import_,
         )
         behavior_requirement = BehaviorRequirement(
-            self._should,
-            self._should_only,
-            self._should_not,
-            self._except_present,
+            self._configuration.should,
+            self._configuration.should_only,
+            self._configuration.should_not,
+            self._configuration.except_present,
         )
 
         return self._rule_matcher_class(module_requirement, behavior_requirement)
@@ -236,28 +251,41 @@ class Rule(
     def __str__(self) -> str:
         self._assert_required_configuration_present()
 
-        method_name = f'{"should" if self._should else "should only" if self._should_only else "should not"}'
+        method_name = f'{"should" if self._configuration.should else "should only" if self._configuration.should_only else "should not"}'
 
         subject_prefix = (
-            "Sub modules of " if self._module_to_check.parent_module is not None else ""
+            "Sub modules of "
+            if self._configuration.module_to_check.parent_module is not None
+            else ""
         )
+        if self._configuration.rule_object_anything:
+            object_message = "anything "
+        else:
+            object_message = f'modules that are {"named" if self._configuration.modules_to_check_against[0].name is not None else "sub modules of"} '
+
         return (
-            f'{subject_prefix}"{self._get_module_name(self._module_to_check)}" '
+            f'{subject_prefix}"{self._get_module_name(self._configuration.module_to_check)}" '
             f"{method_name} "
-            f'{"import" if self._import else "be imported by"} '
-            f'{"modules except " if self._except_present else ""}'
-            f'modules that are {"named" if self._modules_to_check_against[0].name is not None else "sub modules of"} '
-            f'"{", ".join(map(lambda module: self._get_module_name(module), self._modules_to_check_against))}".'
+            f'{"import" if self._configuration.import_ else "be imported by"} '
+            f'{"modules except " if self._configuration.except_present else ""}'
+            f"{object_message}"
+            f'"{", ".join(map(lambda module: self._get_module_name(module), self._configuration.modules_to_check_against))}".'
         )
 
     def _get_module_name(self, module: Module) -> str:
         return module.name if module.name is not None else module.parent_module
 
     def _assert_required_configuration_present(self) -> None:
-        behavior_missing = not any([self._should, self._should_only, self._should_not])
-        dependency_missing = self._import is None
-        subject_missing = not self._module_to_check
-        object_missing = not self._modules_to_check_against
+        behavior_missing = not any(
+            [
+                self._configuration.should,
+                self._configuration.should_only,
+                self._configuration.should_not,
+            ]
+        )
+        dependency_missing = self._configuration.import_ is None
+        subject_missing = not self._configuration.module_to_check
+        object_missing = not self._configuration.modules_to_check_against
 
         if any([behavior_missing, dependency_missing, subject_missing, object_missing]):
             subject_message = self._name_or_empty(subject_missing, RuleSubject)
@@ -282,17 +310,39 @@ class Rule(
 
             raise ImproperlyConfigured(error_message)
 
+        if (
+            self._configuration.rule_object_anything
+            and not self._configuration.should_not
+        ):
+            raise ImproperlyConfigured(
+                'The "anything" rule object can only be used with "should not".'
+            )
+
     @classmethod
     def _name_or_empty(cls, empty: bool, clz: type) -> str:
         return f"a {clz.__name__}" if empty else ""
 
     def _create_rule_violation_message(self, rule_violations: RuleViolations) -> str:
         message_generator = RuleViolationMessageGenerator(
-            self._module_to_check,
-            self._modules_to_check_against,
-            self._import,
+            self._configuration.module_to_check,
+            self._configuration.modules_to_check_against,
+            self._configuration.import_,
         )
         single_violation_messages = message_generator.create_rule_violation_messages(
             rule_violations
         )
         return "\n".join(single_violation_messages)
+
+    @classmethod
+    def _convert_aliases(cls, configuration: RuleConfiguration) -> RuleConfiguration:
+        if not configuration.rule_object_anything:
+            return configuration
+
+        # should not import anything is equivalent to should not import except itself
+        # should not be imported by anything is equivalent to should not be imported by anything except itself
+        return replace(
+            configuration,
+            rule_object_anything=False,
+            modules_to_check_against=[configuration.module_to_check],
+            except_present=True,
+        )
