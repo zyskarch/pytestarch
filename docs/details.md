@@ -138,7 +138,10 @@ Currently, the following markers are supported by PyTestArch:
 #### RULE_OBJECT
 same as RULE_SUBJECT, with an additional
 
-anything(): can only be used in combination with should_not()
+anything: can only be used in combination with should_not()
+
+In order to reduce the number of possible API component combinations, this rule object has been combined with two
+verbs into: `import_anything()` and `be_imported_by_anything()`. 
 
 In addition, RULE_OBJECTS can be passed in as a list. The rule is fulfilled if it applies to all rule objects.
 For example, the rule

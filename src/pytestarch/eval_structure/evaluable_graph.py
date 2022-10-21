@@ -100,6 +100,8 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
     ) -> List[StrictDependency]:
         nodes_to_exclude = set()
         for dependent_upon in dependent_upons:
+            if dependent_upon == dependent:
+                continue
             nodes_to_exclude.update(self._get_all_submodules_of(dependent_upon))
 
         nodes_fulfilling_criteria = []
@@ -173,6 +175,8 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
         # submodules of and including the dependent do not count as allowed imports
         nodes_to_exclude = set()
         for dependent in dependents:
+            if dependent == dependent_upon:
+                continue
             nodes_to_exclude.update(self._get_all_submodules_of(dependent))
 
         nodes_fulfilling_criteria = []
