@@ -910,6 +910,16 @@ test_cases = [
         + '"src.moduleC.fileC" is imported by "src.moduleA.submoduleA2.fileA2".',
         id="submodule should not be imported by except submodule",
     ),
+    pytest.param(
+        Rule().modules_that().are_named(C).should_not().be_imported_by_anything(),
+        '"src.moduleC.fileC" is imported by "src.moduleA.submoduleA2.fileA2".',
+        id="not be imported by anything",
+    ),
+    pytest.param(
+        Rule().modules_that().are_named(A).should_not().import_anything(),
+        '"src.moduleA.fileA" imports "src.moduleC.fileC".',
+        id="not import anything",
+    ),
 ]
 
 

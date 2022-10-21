@@ -72,9 +72,7 @@ class ModuleSpecification(Generic[ModuleSpecificationSuccessor], ABC):
 
 
 class RuleObject(ModuleSpecification[RuleApplier], ABC):
-    @abstractmethod
-    def anything(self) -> ModuleSpecificationSuccessor:
-        pass
+    pass
 
 
 class RuleSubject(ModuleSpecification[BehaviorSpecification], ABC):
@@ -98,6 +96,14 @@ class DependencySpecification(ABC):
 
     @abstractmethod
     def be_imported_by_modules_except_modules_that(self) -> RuleObject:
+        pass
+
+    @abstractmethod
+    def import_anything(self) -> RuleApplier:
+        pass
+
+    @abstractmethod
+    def be_imported_by_anything(self) -> RuleApplier:
         pass
 
 
@@ -156,12 +162,6 @@ class Rule(
 
     def are_named(self, names: Union[str, List[str]]) -> BehaviorSpecification:
         self._set_modules(names, lambda name: Module(name=name))
-        return self
-
-    def anything(self) -> ModuleSpecificationSuccessor:
-        if self._modules_to_check_to_be_specified_next:
-            raise ImproperlyConfigured('"Anything" can only be used as a rule object.')
-        self._configuration.rule_object_anything = True
         return self
 
     def _set_modules(
@@ -223,10 +223,20 @@ class Rule(
         self._modules_to_check_to_be_specified_next = False
         return self
 
+    def import_anything(self) -> RuleApplier:
+        self._configuration.rule_object_anything = True
+        self.import_modules_that()
+        return self
+
+    def be_imported_by_anything(self) -> RuleApplier:
+        self._configuration.rule_object_anything = True
+        self.be_imported_by_modules_that()
+        return self
+
     def assert_applies(self, evaluable: EvaluableArchitecture) -> None:
+        self._configuration = self._convert_aliases(self._configuration)
         self._assert_required_configuration_present()
 
-        self._configuration = self._convert_aliases(self._configuration)
         matcher = self._prepare_rule_matcher()
         rule_violations = matcher.match(evaluable)
 

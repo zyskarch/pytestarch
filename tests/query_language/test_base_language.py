@@ -142,9 +142,7 @@ def assert_rule_applies(rule: Rule, evaluable: EvaluableArchitecture) -> None:
     rule.assert_applies(evaluable)
 
 
-def assert_not_rule_does_not_apply(
-    rule: Rule, evaluable: EvaluableArchitecture
-) -> None:
+def assert_rule_does_not_apply(rule: Rule, evaluable: EvaluableArchitecture) -> None:
     with pytest.raises(AssertionError):
         rule.assert_applies(evaluable)
 
@@ -202,7 +200,7 @@ def test_should_import_named_named_negative(evaluable1: EvaluableArchitecture) -
         SUB_MODULE_OF_1
     ).should().import_modules_that().are_named(MODULE_2)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_import_named_submodule_negative(
@@ -214,7 +212,7 @@ def test_should_import_named_submodule_negative(
         SUB_MODULE_OF_1
     ).should().import_modules_that().are_sub_modules_of(MODULE_2)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_import_submodule_named_negative(
@@ -226,7 +224,7 @@ def test_should_import_submodule_named_negative(
         SUB_MODULE_OF_1
     ).should().import_modules_that().are_named(MODULE_2)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_import_submodule_submodule_negative(
@@ -238,7 +236,7 @@ def test_should_import_submodule_submodule_negative(
         SUB_MODULE_OF_1
     ).should().import_modules_that().are_sub_modules_of(MODULE_2)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_only_import_named_named_positive(
@@ -298,7 +296,7 @@ def test_should_only_import_named_named_negative(
         MODULE_2
     ).should_only().import_modules_that().are_named(MODULE_3)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_only_import_named_submodule_negative(
@@ -310,7 +308,7 @@ def test_should_only_import_named_submodule_negative(
         MODULE_2
     ).should_only().import_modules_that().are_sub_modules_of(MODULE_3)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_only_import_submodule_named_negative(
@@ -322,7 +320,7 @@ def test_should_only_import_submodule_named_negative(
         MODULE_2
     ).should_only().import_modules_that().are_named(MODULE_3)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_only_import_submodule_submodule_negative(
@@ -334,7 +332,7 @@ def test_should_only_import_submodule_submodule_negative(
         MODULE_2
     ).should_only().import_modules_that().are_sub_modules_of(MODULE_3)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_not_import_named_named_positive(
@@ -394,7 +392,7 @@ def test_should_not_import_named_named_negative(
         MODULE_1
     ).should_not().import_modules_that().are_named(MODULE_2)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_not_import_named_submodule_negative(
@@ -406,7 +404,7 @@ def test_should_not_import_named_submodule_negative(
         MODULE_7
     ).should_not().import_modules_that().are_sub_modules_of(MODULE_1)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_not_import_submodule_named_negative(
@@ -418,7 +416,7 @@ def test_should_not_import_submodule_named_negative(
         MODULE_7
     ).should_not().import_modules_that().are_named(MODULE_1)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_not_import_submodule_submodule_negative(
@@ -430,7 +428,7 @@ def test_should_not_import_submodule_submodule_negative(
         MODULE_7
     ).should_not().import_modules_that().are_sub_modules_of(MODULE_1)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_import_except_named_named_positive(
@@ -490,7 +488,7 @@ def test_should_import_except_named_named_negative(
         MODULE_1
     ).should().import_modules_except_modules_that().are_named(MODULE_2)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_import_except_named_submodule_negative(
@@ -502,7 +500,7 @@ def test_should_import_except_named_submodule_negative(
         MODULE_7
     ).should().import_modules_except_modules_that().are_sub_modules_of(MODULE_1)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_import_except_submodule_named_negative(
@@ -514,7 +512,7 @@ def test_should_import_except_submodule_named_negative(
         MODULE_1
     ).should().import_modules_except_modules_that().are_named(MODULE_2)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_import_except_submodule_submodule_negative(
@@ -526,7 +524,7 @@ def test_should_import_except_submodule_submodule_negative(
         MODULE_1
     ).should().import_modules_except_modules_that().are_sub_modules_of(MODULE_2)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_only_import_except_named_named_positive(
@@ -586,7 +584,7 @@ def test_should_only_import_except_named_named_negative(
         MODULE_2
     ).should_only().import_modules_except_modules_that().are_named(MODULE_3)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_only_import_except_named_submodule_negative(
@@ -598,7 +596,7 @@ def test_should_only_import_except_named_submodule_negative(
         MODULE_7
     ).should_only().import_modules_except_modules_that().are_sub_modules_of(MODULE_1)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_only_import_except_submodule_named_negative(
@@ -610,7 +608,7 @@ def test_should_only_import_except_submodule_named_negative(
         MODULE_7
     ).should_only().import_modules_except_modules_that().are_named(MODULE_1)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_only_import_except_submodule_submodule_negative(
@@ -622,7 +620,7 @@ def test_should_only_import_except_submodule_submodule_negative(
         MODULE_7
     ).should_only().import_modules_except_modules_that().are_sub_modules_of(MODULE_1)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_not_import_except_named_named_positive(
@@ -682,7 +680,7 @@ def test_should_not_import_except_named_named_negative(
         MODULE_2
     ).should_not().import_modules_except_modules_that().are_named(MODULE_4)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_not_import_except_named_submodule_negative(
@@ -694,7 +692,7 @@ def test_should_not_import_except_named_submodule_negative(
         MODULE_2
     ).should_not().import_modules_except_modules_that().are_sub_modules_of(MODULE_4)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_not_import_except_submodule_named_negative(
@@ -706,7 +704,7 @@ def test_should_not_import_except_submodule_named_negative(
         MODULE_7
     ).should_not().import_modules_except_modules_that().are_named(MODULE_4)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_not_import_except_submodule_submodule_negative(
@@ -718,7 +716,7 @@ def test_should_not_import_except_submodule_submodule_negative(
         MODULE_7
     ).should_not().import_modules_except_modules_that().are_sub_modules_of(MODULE_5)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_be_imported_named_named_positive(
@@ -778,7 +776,7 @@ def test_should_be_imported_named_named_negative(
         MODULE_6
     ).should().be_imported_by_modules_that().are_named(MODULE_1)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_be_imported_named_submodule_negative(
@@ -790,7 +788,7 @@ def test_should_be_imported_named_submodule_negative(
         MODULE_6
     ).should().be_imported_by_modules_that().are_sub_modules_of(MODULE_1)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_be_imported_submodule_named_negative(
@@ -802,7 +800,7 @@ def test_should_be_imported_submodule_named_negative(
         MODULE_6
     ).should().be_imported_by_modules_that().are_named(MODULE_1)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_be_imported_submodule_submodule_negative(
@@ -814,7 +812,7 @@ def test_should_be_imported_submodule_submodule_negative(
         MODULE_6
     ).should().be_imported_by_modules_that().are_sub_modules_of(MODULE_1)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_only_be_imported_named_named_positive(
@@ -874,7 +872,7 @@ def test_should_only_be_imported_named_named_negative(
         MODULE_2
     ).should_only().be_imported_by_modules_that().are_named(MODULE_1)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_only_be_imported_named_submodule_negative(
@@ -886,7 +884,7 @@ def test_should_only_be_imported_named_submodule_negative(
         MODULE_2
     ).should_only().be_imported_by_modules_that().are_sub_modules_of(MODULE_1)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_only_be_imported_submodule_named_negative(
@@ -898,7 +896,7 @@ def test_should_only_be_imported_submodule_named_negative(
         MODULE_2
     ).should_only().be_imported_by_modules_that().are_named(MODULE_1)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_only_be_imported_submodule_submodule_negative(
@@ -910,7 +908,7 @@ def test_should_only_be_imported_submodule_submodule_negative(
         MODULE_2
     ).should_only().be_imported_by_modules_that().are_sub_modules_of(MODULE_1)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_not_be_imported_named_named_positive(
@@ -970,7 +968,7 @@ def test_should_not_be_imported_named_named_negative(
         MODULE_5
     ).should_not().be_imported_by_modules_that().are_named(MODULE_3)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_not_be_imported_named_submodule_negative(
@@ -982,7 +980,7 @@ def test_should_not_be_imported_named_submodule_negative(
         MODULE_1
     ).should_not().be_imported_by_modules_that().are_sub_modules_of(MODULE_7)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_not_be_imported_submodule_named_negative(
@@ -994,7 +992,7 @@ def test_should_not_be_imported_submodule_named_negative(
         MODULE_1
     ).should_not().be_imported_by_modules_that().are_named(MODULE_7)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_not_be_imported_submodule_submodule_negative(
@@ -1006,7 +1004,7 @@ def test_should_not_be_imported_submodule_submodule_negative(
         MODULE_1
     ).should_not().be_imported_by_modules_that().are_sub_modules_of(MODULE_7)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_be_imported_except_named_named_positive(
@@ -1066,7 +1064,7 @@ def test_should_be_imported_except_named_named_negative(
         MODULE_4
     ).should().be_imported_by_modules_except_modules_that().are_named(MODULE_2)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_be_imported_except_named_submodule_negative(
@@ -1078,7 +1076,7 @@ def test_should_be_imported_except_named_submodule_negative(
         MODULE_7
     ).should().be_imported_by_modules_except_modules_that().are_sub_modules_of(MODULE_2)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_be_imported_except_submodule_named_negative(
@@ -1090,7 +1088,7 @@ def test_should_be_imported_except_submodule_named_negative(
         MODULE_4
     ).should().be_imported_by_modules_except_modules_that().are_named(MODULE_2)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_be_imported_except_submodule_submodule_negative(
@@ -1102,7 +1100,7 @@ def test_should_be_imported_except_submodule_submodule_negative(
         MODULE_4
     ).should().be_imported_by_modules_except_modules_that().are_sub_modules_of(MODULE_2)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_only_be_imported_except_named_named_positive(
@@ -1166,7 +1164,7 @@ def test_should_only_be_imported_except_named_named_negative(
         MODULE_3
     ).should_only().be_imported_by_modules_except_modules_that().are_named(MODULE_2)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_only_be_imported_except_named_submodule_negative(
@@ -1180,7 +1178,7 @@ def test_should_only_be_imported_except_named_submodule_negative(
         MODULE_7
     )
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_only_be_imported_except_submodule_named_negative(
@@ -1192,7 +1190,7 @@ def test_should_only_be_imported_except_submodule_named_negative(
         MODULE_1
     ).should_only().be_imported_by_modules_except_modules_that().are_named(MODULE_7)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_only_be_imported_except_submodule_submodule_negative(
@@ -1206,7 +1204,7 @@ def test_should_only_be_imported_except_submodule_submodule_negative(
         MODULE_7
     )
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_not_be_imported_except_named_named_positive(
@@ -1270,7 +1268,7 @@ def test_should_not_be_imported_except_named_named_negative(
         MODULE_3
     ).should_not().be_imported_by_modules_except_modules_that().are_named(MODULE_6)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_not_be_imported_except_named_submodule_negative(
@@ -1284,7 +1282,7 @@ def test_should_not_be_imported_except_named_submodule_negative(
         MODULE_6
     )
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_not_be_imported_except_submodule_named_negative(
@@ -1296,7 +1294,7 @@ def test_should_not_be_imported_except_submodule_named_negative(
         MODULE_1
     ).should_not().be_imported_by_modules_except_modules_that().are_named(MODULE_2)
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 def test_should_not_be_imported_except_submodule_submodule_negative(
@@ -1310,7 +1308,47 @@ def test_should_not_be_imported_except_submodule_submodule_negative(
         MODULE_2
     )
 
-    assert_not_rule_does_not_apply(rule, evaluable1)
+    assert_rule_does_not_apply(rule, evaluable1)
+
+
+def test_should_not_import_anything_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
+    rule = Rule()
+
+    rule.modules_that().are_named(MODULE_5).should_not().import_anything()
+
+    assert_rule_applies(rule, evaluable1)
+
+
+def test_should_not_import_anything_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
+    rule = Rule()
+
+    rule.modules_that().are_named(MODULE_7).should_not().import_anything()
+
+    assert_rule_does_not_apply(rule, evaluable1)
+
+
+def test_should_not_be_imported_by_anything_positive(
+    evaluable1: EvaluableArchitecture,
+) -> None:
+    rule = Rule()
+
+    rule.modules_that().are_named(MODULE_7).should_not().be_imported_by_anything()
+
+    assert_rule_applies(rule, evaluable1)
+
+
+def test_should_not_be_imported_by_anything_negative(
+    evaluable1: EvaluableArchitecture,
+) -> None:
+    rule = Rule()
+
+    rule.modules_that().are_named(MODULE_5).should_not().be_imported_by_anything()
+
+    assert_rule_does_not_apply(rule, evaluable1)
 
 
 config_alias_test_cases = [
