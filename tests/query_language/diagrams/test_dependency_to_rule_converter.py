@@ -3,7 +3,6 @@ from pytestarch.query_language.diagrams.dependency_to_rule_converter import (
     DependencyToRuleConverter,
 )
 
-
 M1 = "M1"
 M2 = "M2"
 M3 = "M3"

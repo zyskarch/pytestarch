@@ -1,25 +1,25 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from typing import Optional, List, Type, Union, Callable
+from typing import Callable, List, Optional, Type, Union
 
 from pytestarch import EvaluableArchitecture
 from pytestarch.eval_structure.evaluable_architecture import Module
 from pytestarch.exceptions import ImproperlyConfigured
 from pytestarch.query_language.base_language import (
-    DependencySpecification,
-    RuleBase,
     BehaviorSpecification,
+    DependencySpecification,
+    RuleApplier,
+    RuleBase,
     RuleObject,
     RuleSubject,
-    RuleApplier,
 )
 from pytestarch.query_language.message_generator import RuleViolationMessageGenerator
 from pytestarch.query_language.rule_matcher import (
-    RuleMatcher,
+    BehaviorRequirement,
     DefaultRuleMatcher,
     ModuleRequirement,
-    BehaviorRequirement,
+    RuleMatcher,
     RuleViolations,
 )
 

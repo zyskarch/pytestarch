@@ -6,9 +6,9 @@ from pytestarch.diagram_import.diagram_parser import PumlParser
 from pytestarch.diagram_import.parsed_dependencies import ParsedDependencies
 from pytestarch.exceptions import ImproperlyConfigured
 from pytestarch.query_language.base_language import (
-    RuleApplier,
-    FileRule,
     BaseModuleSpecifier,
+    FileRule,
+    RuleApplier,
 )
 from pytestarch.query_language.diagrams.dependency_to_rule_converter import (
     DependencyToRuleConverter,

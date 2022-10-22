@@ -1,6 +1,6 @@
 import pytest
-
 from conftest import ROOT_DIR
+
 from pytestarch import DiagramRule, EvaluableArchitecture
 from pytestarch.diagram_import.parsed_dependencies import ParsedDependencies
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph

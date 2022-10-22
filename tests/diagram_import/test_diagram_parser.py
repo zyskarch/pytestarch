@@ -1,8 +1,8 @@
 import pytest
+from conftest import ROOT_DIR
 
 from pytestarch.diagram_import.diagram_parser import PumlParser
 from pytestarch.exceptions import PumlParsingError
-from tests.conftest import ROOT_DIR
 
 
 def test_error_raised_when_no_puml_start_tag_found() -> None:
