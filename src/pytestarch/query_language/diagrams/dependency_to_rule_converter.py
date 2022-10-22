@@ -4,8 +4,10 @@ from pytestarch.query_language.base_language import RuleApplier
 
 
 class DependencyToRuleConverter:
-    @classmethod
-    def convert(cls, dependencies: ParsedDependencies) -> list[RuleApplier]:
+    def __init__(self, should_only_rule: bool) -> None:
+        self._should_only_rule = should_only_rule
+
+    def convert(self, dependencies: ParsedDependencies) -> list[RuleApplier]:
         """Converts a parsed dependency object to a list of RuleAppliers.
         All explicit dependencies in the given object are converted to should (only) rules.
         All missing, but possible dependencies between the given modules are converted to 'should not' rules.
@@ -15,23 +17,27 @@ class DependencyToRuleConverter:
         Returns:
             list of RuleAppliers that can be applied to an evaluable
         """
-        should_rules = cls._convert_should_rules(dependencies)
-        should_not_rules = cls._convert_should_not_rules(dependencies)
+        should_rules = self._convert_should_rules(dependencies)
+        should_not_rules = self._convert_should_not_rules(dependencies)
         return should_rules + should_not_rules
 
-    @classmethod
     def _convert_should_rules(
-        cls, dependencies: ParsedDependencies
+        self, dependencies: ParsedDependencies
     ) -> list[RuleApplier]:
         return [
-            Rule()
-            .modules_that()
-            .are_named(importer)
-            .should_only()
-            .import_modules_that()
-            .are_named(list(importees))
+            self._generate_rule(importer, importees)
             for importer, importees in dependencies.dependencies.items()
         ]
+
+    def _generate_rule(self, importer: str, importees: set[str]) -> RuleApplier:
+        rule_subject = Rule().modules_that().are_named(importer)
+
+        if self._should_only_rule:
+            verb = rule_subject.should_only()
+        else:
+            verb = rule_subject.should()
+
+        return verb.import_modules_that().are_named(list(importees))
 
     @classmethod
     def _convert_should_not_rules(

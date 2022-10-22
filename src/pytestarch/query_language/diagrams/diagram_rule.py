@@ -45,13 +45,20 @@ class DiagramRule(FileRule, BaseModuleSpecifier, RuleApplier):
     """Represents a set of architectural rules as defined in a diagram file.
     Reads the specified file, generates architectural rules, and returns an aggregated test result.
 
-    By default, "should only" rules will be generated for modules that the diagram shows as connected.
-    "Should not" rules will be generated for modules that are not connected in the diagram.
+    By default, "should only import" rules will be generated for modules that the diagram shows as connected.
+    "Should not import" rules will be generated for modules that are not connected in the diagram.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, should_only_rule: bool = True) -> None:
+        """
+
+        Args:
+             should_only_rule: if True, edges between components will be converted into 'should only import' rules.
+             If False, 'should import' rules will be generated instead.
+        """
         self._file_path: Optional[Path] = None
         self._name_relative_to_root: Optional[str] = None
+        self._should_only_rule = should_only_rule
 
     def from_file(self, file_path: Path) -> BaseModuleSpecifier:
         self._file_path = file_path
@@ -84,9 +91,8 @@ class DiagramRule(FileRule, BaseModuleSpecifier, RuleApplier):
     ) -> ParsedDependencies:
         return ModulePrefixer(self._name_relative_to_root).prefix(parsed_dependencies)
 
-    @classmethod
-    def _convert_to_rules(cls, dependencies: ParsedDependencies) -> list[RuleApplier]:
-        return DependencyToRuleConverter.convert(dependencies)
+    def _convert_to_rules(self, dependencies: ParsedDependencies) -> list[RuleApplier]:
+        return DependencyToRuleConverter(self._should_only_rule).convert(dependencies)
 
     @classmethod
     def _apply_rules(

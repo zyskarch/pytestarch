@@ -103,9 +103,6 @@ def test_puml_diagram_integration_multiple_components_rules_violated(
         rule.assert_applies(flat_project_2)
 
 
-# TODO should only or should not configurable
-
-
 def test_base_module_names_prefixed() -> None:
     dependencies = ParsedDependencies(
         {MODULE_1, MODULE_2}, {MODULE_1: {MODULE_1, MODULE_2}}
