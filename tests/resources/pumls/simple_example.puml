@@ -1,0 +1,20 @@
+@startuml
+
+[M_A]
+[Module B] as M_B
+component M_C
+component M_D [
+This component
+has a long comment
+on several lines
+]
+
+[M_A] -down-> M_B
+M_B --> M_C
+M_C <- M_D
+[M_B] -> M_D
+
+
+
+@enduml
+

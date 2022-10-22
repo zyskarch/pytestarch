@@ -1,0 +1,16 @@
+@startuml
+
+[M_A]
+[Module B] as M_B
+
+[M_A] -down-> M_B
+
+package "Some Group" {
+  [M_C] -> [M_D]
+  [M_C] <-- [M_A]
+}
+
+
+
+@enduml
+
