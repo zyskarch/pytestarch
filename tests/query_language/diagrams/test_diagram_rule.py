@@ -29,6 +29,7 @@ def evaluable() -> EvaluableArchitecture:
     all_modules = [MODULE_1, MODULE_2, MODULE_3]
     imports = [
         AbsoluteImport(MODULE_3, MODULE_2),
+        AbsoluteImport(MODULE_2, MODULE_3),
     ]
 
     return EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
@@ -39,6 +40,7 @@ def evaluable2() -> EvaluableArchitecture:
     all_modules = [MODULE_1, MODULE_2, MODULE_3]
     imports = [
         AbsoluteImport(MODULE_2, MODULE_1),
+        AbsoluteImport(MODULE_2, MODULE_3),
     ]
 
     return EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
