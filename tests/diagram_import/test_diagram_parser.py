@@ -54,7 +54,7 @@ def test_diagram_with_mro_file() -> None:
         "simulation",
         "util",
     }
-    expected_dependenies = {
+    expected_dependencies = {
         "runtime": {"persistence", "orchestration", "services", "logging_util", "util"},
         "services": {"persistence", "model", "util", "importer"},
         "orchestration": {
@@ -73,4 +73,4 @@ def test_diagram_with_mro_file() -> None:
     }
 
     assert parsed_dependencies.all_modules == expected_modules
-    assert parsed_dependencies.dependencies == expected_dependenies
+    assert parsed_dependencies.dependencies == expected_dependencies
