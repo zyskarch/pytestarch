@@ -69,7 +69,7 @@ def test_dependencies_parsed_correctly_from_puml() -> None:
     assert parsed_dependencies.dependencies == {"M_C": {"M_B"}, "M_B": {"M_C"}}
 
 
-def test_diagram_with_mro_file() -> None:
+def test_diagram_with_multiple_components_file() -> None:
     path = (
         ROOT_DIR / "tests/resources/pumls/multiple_component_example_with_brackets.puml"
     )
