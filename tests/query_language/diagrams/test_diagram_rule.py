@@ -104,7 +104,6 @@ def test_puml_diagram_integration_multiple_components_rules_violated(
 
 
 # TODO should only or should not configurable
-# TODO: high level documentation
 
 
 def test_base_module_names_prefixed() -> None:

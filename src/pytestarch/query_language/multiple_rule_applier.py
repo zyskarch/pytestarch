@@ -7,6 +7,13 @@ class MultipleRuleApplier(RuleApplier):
         self._rule_appliers = rule_appliers
 
     def assert_applies(self, evaluable: EvaluableArchitecture) -> None:
+        """Checks a number of rules against the given evaluable and returns an aggregated error message if at least
+        one tests fails.
+
+        Args:
+            evaluable:
+
+        """
         error_messages = []
 
         for rule_applier in self._rule_appliers:

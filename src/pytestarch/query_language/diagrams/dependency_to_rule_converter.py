@@ -6,6 +6,15 @@ from pytestarch.query_language.base_language import RuleApplier
 class DependencyToRuleConverter:
     @classmethod
     def convert(cls, dependencies: ParsedDependencies) -> list[RuleApplier]:
+        """Converts a parsed dependency object to a list of RuleAppliers.
+        All explicit dependencies in the given object are converted to should (only) rules.
+        All missing, but possible dependencies between the given modules are converted to 'should not' rules.
+        Args:
+            dependencies: parsed modules and dependencies between modules
+
+        Returns:
+            list of RuleAppliers that can be applied to an evaluable
+        """
         should_rules = cls._convert_should_rules(dependencies)
         should_not_rules = cls._convert_should_not_rules(dependencies)
         return should_rules + should_not_rules
