@@ -1,12 +1,21 @@
+import os
+
 import pytest
 from conftest import ROOT_DIR
 
-from pytestarch import DiagramRule, EvaluableArchitecture
+from pytestarch import DiagramRule, EvaluableArchitecture, get_evaluable_architecture
 from pytestarch.diagram_import.parsed_dependencies import ParsedDependencies
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure_impl.networkxgraph import NetworkxGraph
 from pytestarch.importer.import_types import AbsoluteImport
 from pytestarch.query_language.diagrams.diagram_rule import ModulePrefixer
+from resources import flat_test_project_1, flat_test_project_2
+
+MULTIPLE_COMPONENTS_FILE_PATH = (
+    ROOT_DIR / "tests/resources/pumls/multiple_component_example_with_brackets.puml"
+)
+SINGLE_COMPONENT_FILE_PATH = ROOT_DIR / "tests/resources/pumls/very_simple_example.puml"
+
 
 MODULE_1 = "M_A"
 MODULE_2 = "M_B"
@@ -32,10 +41,28 @@ def evaluable2() -> EvaluableArchitecture:
     return EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
 
 
+@pytest.fixture(scope="module")
+def flat_project_1() -> EvaluableArchitecture:
+    return get_evaluable_architecture(
+        os.path.dirname(flat_test_project_1.__file__),
+        os.path.dirname(flat_test_project_1.__file__),
+        ("*__pycache__", "*__init__.py", "*Test.py"),
+    )
+
+
+@pytest.fixture(scope="module")
+def flat_project_2() -> EvaluableArchitecture:
+    return get_evaluable_architecture(
+        os.path.dirname(flat_test_project_2.__file__),
+        os.path.dirname(flat_test_project_2.__file__),
+        ("*__pycache__", "*__init__.py", "*Test.py"),
+    )
+
+
 def test_puml_diagram_integration_rules_fulfilled(
     evaluable: EvaluableArchitecture,
 ) -> None:
-    path = ROOT_DIR / "tests/resources/pumls/very_simple_example.puml"
+    path = SINGLE_COMPONENT_FILE_PATH
 
     rule = DiagramRule().from_file(path).base_module_included_in_module_names()
 
@@ -45,7 +72,7 @@ def test_puml_diagram_integration_rules_fulfilled(
 def test_puml_diagram_integration_rules_violated(
     evaluable2: EvaluableArchitecture,
 ) -> None:
-    path = ROOT_DIR / "tests/resources/pumls/very_simple_example.puml"
+    path = SINGLE_COMPONENT_FILE_PATH
 
     rule = DiagramRule().from_file(path).base_module_included_in_module_names()
 
@@ -53,7 +80,29 @@ def test_puml_diagram_integration_rules_violated(
         rule.assert_applies(evaluable2)
 
 
-# TODO: integration test with actual code (with base module and and without)
+def test_puml_diagram_integration_multiple_components_rules_fulfilled(
+    flat_project_1: EvaluableArchitecture,
+) -> None:
+    path = MULTIPLE_COMPONENTS_FILE_PATH
+
+    rule = DiagramRule().from_file(path).with_base_module("flat_test_project_1")
+
+    rule.assert_applies(flat_project_1)
+
+
+def test_puml_diagram_integration_multiple_components_rules_violated(
+    flat_project_2: EvaluableArchitecture,
+) -> None:
+    path = MULTIPLE_COMPONENTS_FILE_PATH
+
+    rule = DiagramRule().from_file(path).with_base_module("flat_test_project_2")
+
+    with pytest.raises(
+        AssertionError, match='"flat_test_project_2.exporter" does not import'
+    ):
+        rule.assert_applies(flat_project_2)
+
+
 # TODO should only or should not configurable
 # TODO: high level documentation
 

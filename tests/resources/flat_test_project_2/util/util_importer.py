@@ -1,0 +1,2 @@
+def u():
+    pass
