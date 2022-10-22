@@ -5,4 +5,3 @@ from dataclasses import dataclass
 class ParsedDependencies:
     all_modules: set[str]
     dependencies: dict[str, set[str]]
-
