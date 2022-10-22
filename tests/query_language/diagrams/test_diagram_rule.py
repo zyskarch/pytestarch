@@ -1,7 +1,6 @@
-from pathlib import Path
-
 import pytest
 
+from conftest import ROOT_DIR
 from pytestarch import DiagramRule, EvaluableArchitecture
 from pytestarch.diagram_import.parsed_dependencies import ParsedDependencies
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
@@ -9,8 +8,8 @@ from pytestarch.eval_structure_impl.networkxgraph import NetworkxGraph
 from pytestarch.importer.import_types import AbsoluteImport
 from pytestarch.query_language.diagrams.diagram_rule import ModulePrefixer
 
-MODULE_1 = "A"
-MODULE_2 = "B"
+MODULE_1 = "M_A"
+MODULE_2 = "M_B"
 
 
 @pytest.fixture(scope="module")
@@ -23,10 +22,35 @@ def evaluable() -> EvaluableArchitecture:
     return EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
 
 
-def test_puml_diagram_integration(evaluable: EvaluableArchitecture) -> None:
-    rule = DiagramRule().from_file(Path("DUMMY")).base_module_included_in_module_names()
+@pytest.fixture(scope="module")
+def evaluable2() -> EvaluableArchitecture:
+    all_modules = [MODULE_1, MODULE_2]
+    imports = [
+        AbsoluteImport(MODULE_2, MODULE_1),
+    ]
+
+    return EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
+
+
+def test_puml_diagram_integration_rules_fulfilled(
+    evaluable: EvaluableArchitecture,
+) -> None:
+    path = ROOT_DIR / "tests/resources/pumls/very_simple_example.puml"
+
+    rule = DiagramRule().from_file(path).base_module_included_in_module_names()
 
     rule.assert_applies(evaluable)
+
+
+def test_puml_diagram_integration_rules_violated(
+    evaluable2: EvaluableArchitecture,
+) -> None:
+    path = ROOT_DIR / "tests/resources/pumls/very_simple_example.puml"
+
+    rule = DiagramRule().from_file(path).base_module_included_in_module_names()
+
+    with pytest.raises(AssertionError, match='"M_B" imports "M_A".'):
+        rule.assert_applies(evaluable2)
 
 
 # TODO: integration test with actual code (with base module and and without)

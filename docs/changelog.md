@@ -4,6 +4,9 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 
 
 ## [Unreleased]
+### Added
+- Tests generated from PUML component diagrams
+
 ## [1.2.1] -- 2022-10-21
 ### Fixed
 - Queries with "except itself" excluded too many modules from consideration
