@@ -22,7 +22,7 @@ def test_modules_parsed_correctly_from_puml() -> None:
 
     parsed_dependencies = parser.parse(path)
 
-    assert parsed_dependencies.all_modules == {"M_A", "M_B"}
+    assert parsed_dependencies.all_modules == {"M_A", "M_B", "M_C"}
 
 
 def test_dependencies_parsed_correctly_from_puml() -> None:
@@ -31,7 +31,7 @@ def test_dependencies_parsed_correctly_from_puml() -> None:
 
     parsed_dependencies = parser.parse(path)
 
-    assert parsed_dependencies.dependencies == {"M_A": {"M_B"}}
+    assert parsed_dependencies.dependencies == {"M_C": {"M_B"}}
 
 
 def test_diagram_with_mro_file() -> None:

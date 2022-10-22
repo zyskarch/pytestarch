@@ -63,13 +63,19 @@ class PumlParser(DiagramParser):
 
     def _retrieve_modules(self, lines: list[str]) -> set[str]:
         modules = set()
+        pre_defined_modules = set()
         for line in lines:
             if line.isspace() or MODULE_START_CHARACTER not in line:
                 continue
 
-            arrow_removed = line.split(ARROW_RIGHT)
-            modules |= set(self._extract_names(arrow_removed))
+            split_content = line.split()
+            if ARROW_RIGHT in split_content:
+                arrow_removed = line.split(ARROW_RIGHT)
+                modules |= set(self._extract_names(arrow_removed))
+            else:
+                pre_defined_modules.add(self._extract_name(split_content[0]))
 
+        modules |= pre_defined_modules
         return modules
 
     def _retrieve_dependencies(self, lines: list[str]) -> dict[str, set[str]]:
@@ -78,19 +84,16 @@ class PumlParser(DiagramParser):
             if line.isspace() or MODULE_START_CHARACTER not in line:
                 continue
 
-            arrow_removed = line.split(ARROW_RIGHT)
-            dependor, dependee = self._extract_names(arrow_removed)
-            dependencies[dependor].add(dependee)
+            split_content = line.split()
+            if ARROW_RIGHT in split_content:
+                arrow_removed = line.split(ARROW_RIGHT)
+                dependor, dependee = self._extract_names(arrow_removed)
+                dependencies[dependor].add(dependee)
 
         return dict(dependencies)
 
     def _extract_names(self, arrow_removed: list[str]) -> tuple[str, str]:
-        names = [
-            name.strip()
-            .replace(MODULE_START_CHARACTER, "")
-            .replace(MODULE_END_CHARACTER, "")
-            for name in arrow_removed
-        ]
+        names = [self._extract_name(name) for name in arrow_removed]
 
         if len(names) != 2:
             raise PumlParsingError(
@@ -98,3 +101,10 @@ class PumlParser(DiagramParser):
             )
 
         return names[0], names[1]
+
+    def _extract_name(self, str_in: str) -> str:
+        return (
+            str_in.strip()
+            .replace(MODULE_START_CHARACTER, "")
+            .replace(MODULE_END_CHARACTER, "")
+        )
