@@ -8,7 +8,8 @@ from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure_impl.networkxgraph import NetworkxGraph
 from pytestarch.exceptions import ImproperlyConfigured
 from pytestarch.importer.import_types import AbsoluteImport
-from pytestarch.query_language.base_language import Rule, RuleConfiguration
+from pytestarch import Rule
+from pytestarch.query_language.rule import RuleConfiguration
 
 MODULE_1 = "Module1"
 MODULE_2 = "Module2"
