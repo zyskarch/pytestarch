@@ -14,7 +14,6 @@ class DiagramParser(ABC):
 
 PUML_START_TAG = "@startuml"
 PUML_END_TAG = "@enduml"
-NEW_LINE_CHARACTER = "\n"
 
 ARROW_RIGHT = "-->"
 MODULE_START_CHARACTER = "["
@@ -31,8 +30,8 @@ class PumlParser(DiagramParser):
         Args:
             file_path: .puml file to parse
             Syntactical requirements for .puml files:
-            - * start of dependencies needs to be tagged with @startuml and a new line character
-              * end of dependencies needs to be tagged with @enduml and a new line character
+            - * start of dependencies needs to be tagged with @startuml
+              * end of dependencies needs to be tagged with @enduml
               * dependencies must be specified as [A] --> [B], so inline with brackets and an arrow from left to right.
               To the left of the arrow is the dependor and to the right the dependee, e.g. when A imports B then the
               depemdency must be written as [A] --> [B]
@@ -42,7 +41,7 @@ class PumlParser(DiagramParser):
 
         """
         with open(file_path) as puml_file:
-            lines = puml_file.readlines()
+            lines = puml_file.read().splitlines()
             relevant_lines = self._remove_content_outside_start_and_end_tags(lines)
             modules = self._retrieve_modules(relevant_lines)
             dependencies = self._retrieve_dependencies(relevant_lines)
@@ -51,8 +50,8 @@ class PumlParser(DiagramParser):
 
     def _remove_content_outside_start_and_end_tags(self, lines: list[str]) -> list[str]:
         try:
-            start_idx = lines.index(PUML_START_TAG + NEW_LINE_CHARACTER)
-            end_idx = lines.index(PUML_END_TAG + NEW_LINE_CHARACTER)
+            start_idx = lines.index(PUML_START_TAG)
+            end_idx = lines.index(PUML_END_TAG)
 
         except ValueError as e:
             raise PumlParsingError("PUML file needs a start and an end tag.") from e
@@ -80,7 +79,7 @@ class PumlParser(DiagramParser):
                 continue
 
             arrow_removed = line.split(ARROW_RIGHT)
-            dependor, dependee = self._extract_names(arrow_removed)  # todo: docstring
+            dependor, dependee = self._extract_names(arrow_removed)
             dependencies[dependor].add(dependee)
 
         return dict(dependencies)
