@@ -2,6 +2,7 @@ import os
 
 import pytest
 from conftest import ROOT_DIR
+from resources import flat_test_project_1, flat_test_project_2
 
 from pytestarch import DiagramRule, EvaluableArchitecture, get_evaluable_architecture
 from pytestarch.diagram_import.parsed_dependencies import ParsedDependencies
@@ -9,7 +10,6 @@ from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure_impl.networkxgraph import NetworkxGraph
 from pytestarch.importer.import_types import AbsoluteImport
 from pytestarch.query_language.diagrams.diagram_rule import ModulePrefixer
-from resources import flat_test_project_1, flat_test_project_2
 
 MULTIPLE_COMPONENTS_FILE_PATH = (
     ROOT_DIR / "tests/resources/pumls/multiple_component_example_with_brackets.puml"

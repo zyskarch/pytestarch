@@ -22,7 +22,25 @@ MODULE_END_CHARACTER = "]"
 
 
 class PumlParser(DiagramParser):
+    """
+    Parses .puml files to a dependencies object that can be used to generate architecture rules.
+    """
+
     def parse(self, file_path: Path) -> ParsedDependencies:
+        """
+        Args:
+            file_path: .puml file to parse
+            Syntactical requirements for .puml files:
+            - * start of dependencies needs to be tagged with @startuml and a new line character
+              * end of dependencies needs to be tagged with @enduml and a new line character
+              * dependencies must be specified as [A] --> [B], so inline with brackets and an arrow from left to right.
+              To the left of the arrow is the dependor and to the right the dependee, e.g. when A imports B then the
+              depemdency must be written as [A] --> [B]
+
+        Returns:
+            dependencies object that can be used to generate architecture rules.
+
+        """
         with open(file_path) as puml_file:
             lines = puml_file.readlines()
             relevant_lines = self._remove_content_outside_start_and_end_tags(lines)
