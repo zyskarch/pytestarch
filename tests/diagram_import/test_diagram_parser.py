@@ -32,3 +32,45 @@ def test_dependencies_parsed_correctly_from_puml() -> None:
     parsed_dependencies = parser.parse(path)
 
     assert parsed_dependencies.dependencies == {"M_A": {"M_B"}}
+
+
+def test_diagram_with_mro_file() -> None:
+    path = (
+        ROOT_DIR / "tests/resources/pumls/multiple_component_example_with_brackets.puml"
+    )
+    parser = PumlParser()
+
+    parsed_dependencies = parser.parse(path)
+
+    expected_modules = {
+        "exporter",
+        "importer",
+        "logging_util",
+        "model",
+        "orchestration",
+        "persistence",
+        "runtime",
+        "services",
+        "simulation",
+        "util",
+    }
+    expected_dependenies = {
+        "runtime": {"persistence", "orchestration", "services", "logging_util", "util"},
+        "services": {"persistence", "model", "util", "importer"},
+        "orchestration": {
+            "exporter",
+            "simulation",
+            "model",
+            "logging_util",
+            "util",
+            "importer",
+        },
+        "importer": {"model", "util"},
+        "logging_util": {"util"},
+        "simulation": {"model", "util", "logging_util"},
+        "persistence": {"model", "util"},
+        "exporter": {"model", "util", "logging_util"},
+    }
+
+    assert parsed_dependencies.all_modules == expected_modules
+    assert parsed_dependencies.dependencies == expected_dependenies
