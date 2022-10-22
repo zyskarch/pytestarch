@@ -22,3 +22,4 @@ When opening a PR, make sure the following requirements are fulfilled:
 5. Update existing doc strings and documentation.
 6. Add doc strings for newly added public functions and methods.
 7. Add doc strings for complicated "private" functions and methods.
+8. Add high level documentation for new features.
