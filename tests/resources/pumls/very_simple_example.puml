@@ -2,7 +2,7 @@
 
 [M_A]
 [M_C] --> [M_B]
-
+M_A --> M_C
 
 @enduml
 
