@@ -27,14 +27,17 @@ class PumlParser(DiagramParser):
 
     def parse(self, file_path: Path) -> ParsedDependencies:
         """
+        Syntactical requirements for .puml files:Syntactical requirements for .puml files:
+            * start of dependency definition needs to be tagged with @startuml
+            * end of dependency definition needs to be tagged with @enduml
+            * all text outside these tags is ignored
+            * components must be declared the first time they occur by wrapping them in brackets, e.g. [A]
+            * dependencies must be specified with an arrow to the right with two dashes and surrounded by whitespace,
+            e.g. A --> [B].
+            To the left of the arrow is the dependor and to the right the dependee, e.g. when A imports B then the
+            dependency must be written as A --> [B] (if A was declared before)
         Args:
             file_path: .puml file to parse
-            Syntactical requirements for .puml files:
-            - * start of dependencies needs to be tagged with @startuml
-              * end of dependencies needs to be tagged with @enduml
-              * dependencies must be specified as [A] --> [B], so inline with brackets and an arrow from left to right.
-              To the left of the arrow is the dependor and to the right the dependee, e.g. when A imports B then the
-              depemdency must be written as [A] --> [B]
 
         Returns:
             dependencies object that can be used to generate architecture rules.
