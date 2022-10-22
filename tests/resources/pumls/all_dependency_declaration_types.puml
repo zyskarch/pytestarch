@@ -1,0 +1,11 @@
+@startuml
+[M_A] -> [M_B]
+[M_B] --> [M_A]
+
+[M_D] <- [M_C]
+[M_C] <-- [M_D]
+
+[M_E] -up-> [M_F]
+[M_E] <-down- [M_F]
+@enduml
+

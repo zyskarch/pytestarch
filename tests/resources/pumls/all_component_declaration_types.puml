@@ -1,0 +1,10 @@
+@startuml
+[M_A]
+[M_C] as MC
+component [M_B]
+component M_E
+component [M_D] as MD
+
+[M_A] --> MC
+@enduml
+
