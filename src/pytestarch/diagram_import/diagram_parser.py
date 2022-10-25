@@ -16,8 +16,8 @@ class DiagramParser(ABC):
 
 
 @dataclass(frozen=True)
-class ModuleAlias:
-    module: str
+class Module:
+    name: str
     alias: Optional[str]
 
 
@@ -88,7 +88,9 @@ class PumlParser(DiagramParser):
         if match:
             return match.group(1)
         else:
-            raise PumlParsingError("PUML file needs a start and an end tag.")
+            raise PumlParsingError(
+                "No diagram specification found. Check that the file meets the requirements for .puml files."
+            )
 
     @classmethod
     def _named_group(cls, name: str, content: str) -> str:
@@ -97,7 +99,7 @@ class PumlParser(DiagramParser):
     @classmethod
     def _retrieve_modules_declared_outside_dependencies(
         cls, content: str
-    ) -> set[ModuleAlias]:
+    ) -> set[Module]:
         module_group_1 = "m1"
         module_group_2 = "m2"
         alias_group = "alias"
@@ -119,7 +121,7 @@ class PumlParser(DiagramParser):
         for match in re.finditer(pattern, content):
             module = match.group(module_group_1) or match.group(module_group_2)
             alias = match.group(alias_group)
-            result.add(ModuleAlias(module=module, alias=alias))
+            result.add(Module(name=module, alias=alias))
 
         return result
 
@@ -164,7 +166,7 @@ class PumlParser(DiagramParser):
 
     def _unify(
         self,
-        modules: set[ModuleAlias],
+        modules: set[Module],
         dependencies: dict[str, set[str]],
     ) -> tuple[set[str], dict[str, set[str]]]:
         unified_dependencies = {}
@@ -186,10 +188,10 @@ class PumlParser(DiagramParser):
     @classmethod
     def _get_unified_modules(
         cls,
-        modules: set[ModuleAlias],
+        modules: set[Module],
         unified_dependencies: dict[str, set[str]],
     ) -> set[str]:
-        all_modules = {m.module for m in modules}
+        all_modules = {m.name for m in modules}
 
         all_modules.update(set(unified_dependencies.keys()))
 
@@ -199,17 +201,11 @@ class PumlParser(DiagramParser):
         return all_modules
 
     @classmethod
-    def _get_modules_by_alias(cls, modules: set[ModuleAlias]) -> dict[str, str]:
+    def _get_modules_by_alias(cls, modules: set[Module]) -> dict[str, str]:
         return {
-            module.alias: module.module
-            for module in modules
-            if module.alias is not None
+            module.alias: module.name for module in modules if module.alias is not None
         }
 
     @classmethod
-    def _unify_module(
-        cls,
-        module: str,
-        all_aliases: dict[str, str],
-    ) -> str:
+    def _unify_module(cls, module: str, all_aliases: dict[str, str]) -> str:
         return all_aliases.get(module, module)

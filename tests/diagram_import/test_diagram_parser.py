@@ -11,7 +11,7 @@ def test_error_raised_when_no_puml_start_tag_found() -> None:
 
     with pytest.raises(
         PumlParsingError,
-        match="PUML file needs a start and an end tag.",
+        match="No diagram specification found",
     ):
         parser.parse(path)
 
