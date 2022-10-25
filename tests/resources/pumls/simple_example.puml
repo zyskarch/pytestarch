@@ -3,7 +3,7 @@
 [M_A]
 [Module B] as M_B
 component M_C
-component M_D [
+component [
 This component
 has a long comment
 on several lines

@@ -11,7 +11,7 @@ def test_error_raised_when_no_puml_start_tag_found() -> None:
 
     with pytest.raises(
         PumlParsingError,
-        match="PUML file needs a start and an end tag.",
+        match="No diagram specification found",
     ):
         parser.parse(path)
 
@@ -25,6 +25,41 @@ def test_modules_parsed_correctly_from_puml() -> None:
     assert parsed_dependencies.all_modules == {"M_A", "M_B", "M_C"}
 
 
+def test_all_module_types_parsed_correctly_from_puml() -> None:
+    path = ROOT_DIR / "tests/resources/pumls/all_component_declaration_types.puml"
+    parser = PumlParser()
+
+    parsed_dependencies = parser.parse(path)
+
+    assert parsed_dependencies.all_modules == {"M_A", "M_B", "M_C", "M_D", "M_E"}
+
+
+def test_module_aliases_resolved_correctly() -> None:
+    path = ROOT_DIR / "tests/resources/pumls/all_component_declaration_types.puml"
+    parser = PumlParser()
+
+    parsed_dependencies = parser.parse(path)
+
+    assert parsed_dependencies.dependencies["M_A"] == {"M_C"}
+
+
+def test_all_module_and_dependency_types_parsed_correctly_from_puml() -> None:
+    path = ROOT_DIR / "tests/resources/pumls/all_dependency_declaration_types.puml"
+    parser = PumlParser()
+
+    parsed_dependencies = parser.parse(path)
+
+    assert parsed_dependencies.all_modules == {"M_A", "M_B", "M_C", "M_D", "M_E", "M_F"}
+    assert parsed_dependencies.dependencies == {
+        "M_A": {"M_B"},
+        "M_B": {"M_A"},
+        "M_C": {"M_D"},
+        "M_D": {"M_C"},
+        "M_E": {"M_F"},
+        "M_F": {"M_E"},
+    }
+
+
 def test_dependencies_parsed_correctly_from_puml() -> None:
     path = ROOT_DIR / "tests/resources/pumls/very_simple_example.puml"
     parser = PumlParser()
@@ -34,7 +69,7 @@ def test_dependencies_parsed_correctly_from_puml() -> None:
     assert parsed_dependencies.dependencies == {"M_C": {"M_B"}, "M_B": {"M_C"}}
 
 
-def test_diagram_with_mro_file() -> None:
+def test_diagram_with_multiple_components_file() -> None:
     path = (
         ROOT_DIR / "tests/resources/pumls/multiple_component_example_with_brackets.puml"
     )
