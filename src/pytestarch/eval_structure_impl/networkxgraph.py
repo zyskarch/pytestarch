@@ -198,7 +198,23 @@ class NetworkxGraph(AbstractGraph):
         return edge_data["inherits"]
 
     def draw(self, **kwargs: Any) -> None:
-        """Creates a matplotlib plot representing the graph."""
+        """Creates a matplotlib plot representing the graph.
+
+        Keyword Args:
+            spacing (float): optimal distance between nodes
+            aliases (dict[str, str]): module name aliases for plot labels. Keys are
+                module names and values the aliases. If no alias is specified the module
+                name is used a node label. If a module name has an alias, the module
+                name is replaced by the alias for the module and all its submodules,
+                e.g. for modules a, a.b, a.c, a.c.d and aliases == {'a', 'A'}, the plot
+                labels for these modules will be A, A.b, A.c, A.c.d.
+                If a submodule also has an alias, the alias for the submodule takes
+                priority, e.g. with the same modules as above and
+                aliases == {'a': 'A', 'a.c': 'C'} the plot labels will be A, A.b, C,
+                C.d.
+            Remaining keyword args are passed to draw_networkx. Notably, "ax" can be
+            used to draw the graph onto an existing matploblib Axis object.
+        """
         if "spacing" in kwargs:
             spacing = kwargs.pop("spacing")
             pos = spring_layout(self._graph, k=spacing, iterations=20)
