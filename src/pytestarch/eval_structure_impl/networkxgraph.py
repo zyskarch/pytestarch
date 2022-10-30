@@ -204,7 +204,54 @@ class NetworkxGraph(AbstractGraph):
             pos = spring_layout(self._graph, k=spacing, iterations=20)
             kwargs["pos"] = pos
 
+        if "aliases" in kwargs:
+            aliases = kwargs.pop("aliases")
+            labels = self._create_plot_labels_with_alias(aliases)
+            kwargs["labels"] = labels
+
         draw_networkx(self._graph, **kwargs)
+
+    def _create_plot_labels_with_alias(self, aliases: dict[str, str]) -> dict[str, str]:
+        module_names: list[str] = self._graph.nodes
+        self._assert_aliased_modules_exist(aliases, module_names)
+
+        aliased_modules = sorted(
+            aliases.keys(), key=lambda name: len(name), reverse=True
+        )
+        labels = {}
+        for module_name_to_alias in module_names:
+            labels[module_name_to_alias] = self._create_label(
+                module_name_to_alias, aliased_modules, aliases
+            )
+
+        return labels
+
+    def _assert_aliased_modules_exist(self, aliases, module_names):
+        for module in aliases:
+            if module not in module_names:
+                raise KeyError(
+                    f"An alias was specified for module {module},"
+                    f" but the module does not exist."
+                )
+
+    def _create_label(
+        self,
+        module_name: str,
+        sorted_aliased_modules: list[str],
+        aliases: dict[str, str],
+    ) -> str:
+        try:
+            most_specific_aliased_module = next(
+                module
+                for module in sorted_aliased_modules
+                if module_name.startswith(module)
+            )
+            alias = module_name.removeprefix(most_specific_aliased_module)
+            alias = aliases[most_specific_aliased_module] + alias
+            return alias
+
+        except StopIteration:  # no alias for module or parent module
+            return module_name
 
     def _flatten_graph_node(self, node: Node) -> Node:
         """Limits the depth of the graph by aggregating sub modules above a certain limit.
