@@ -1,0 +1,8 @@
+@startuml
+
+[M_A]
+[M_C] --> [M_B]
+[M_B] --> [M_C]
+
+@enduml
+

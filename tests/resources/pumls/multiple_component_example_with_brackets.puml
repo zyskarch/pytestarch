@@ -1,0 +1,37 @@
+@startuml
+
+[runtime] --> [persistence]
+[runtime] --> [services]
+[runtime] --> [orchestration]
+[runtime] --> [logging_util]
+[runtime] --> [util]
+
+[services] --> [persistence]
+[services] --> [util]
+[services] --> [model]
+[services] --> [importer]
+
+[orchestration] --> [model]
+[orchestration] --> [importer]
+[orchestration] --> [simulation]
+[orchestration] --> [exporter]
+[orchestration] --> [util]
+[orchestration] --> [logging_util]
+
+[importer] --> [model]
+[importer] -->  [util]
+
+[logging_util] --> [util]
+
+[simulation] --> [model]
+[simulation] --> [util]
+[simulation] --> [logging_util]
+
+[persistence] --> [model]
+[persistence] --> [util]
+
+[exporter] --> [model]
+[exporter] --> [logging_util]
+[exporter] --> [util]
+
+@enduml

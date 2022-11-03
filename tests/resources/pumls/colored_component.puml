@@ -1,0 +1,11 @@
+@startuml
+
+[M_A] #Yellow
+[Module B] as M_B
+
+[M_A] -down-> M_B
+
+
+
+@enduml
+

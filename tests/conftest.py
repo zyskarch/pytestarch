@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import pytest
 from resources.test_project import src
@@ -8,6 +9,8 @@ from pytestarch.pytestarch import (
     get_evaluable_architecture,
     get_evaluable_architecture_for_module_objects,
 )
+
+ROOT_DIR = Path(__file__).parent.parent.resolve()
 
 
 @pytest.fixture(scope="session")

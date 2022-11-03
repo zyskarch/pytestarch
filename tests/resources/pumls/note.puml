@@ -1,0 +1,16 @@
+@startuml
+
+[M_A]
+[Module B] as M_B
+
+[M_A] -down-> M_B
+
+note bottom of M_B
+  A bottom note can also
+  be on several lines
+end note
+
+
+
+@enduml
+
