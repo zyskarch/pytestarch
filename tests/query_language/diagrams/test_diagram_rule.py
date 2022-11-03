@@ -137,7 +137,7 @@ def test_base_module_names_prefixed() -> None:
 
     prefix = "I am a prefix"
 
-    prefixed = ModulePrefixer(prefix).prefix(dependencies)
+    prefixed = ModulePrefixer.prefix(dependencies, prefix)
 
     module_1_prefixed = f"{prefix}.{MODULE_1}"
     module_2_prefixed = f"{prefix}.{MODULE_2}"

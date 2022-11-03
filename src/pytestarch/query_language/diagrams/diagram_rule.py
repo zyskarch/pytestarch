@@ -17,23 +17,25 @@ from pytestarch.query_language.multiple_rule_applier import MultipleRuleApplier
 
 
 class ModulePrefixer:
+    @classmethod
     def prefix(
-        self, parsed_dependencies: ParsedDependencies, prefix: Optional[str]
+        cls, parsed_dependencies: ParsedDependencies, prefix: Optional[str]
     ) -> ParsedDependencies:
         modules = parsed_dependencies.all_modules
         dependencies = parsed_dependencies.dependencies
 
         return ParsedDependencies(
-            all_modules={self._add_prefix_to_module(m, prefix) for m in modules},
+            all_modules={cls._add_prefix_to_module(m, prefix) for m in modules},
             dependencies={
-                self._add_prefix_to_module(key, prefix): {
-                    self._add_prefix_to_module(value, prefix) for value in values
+                cls._add_prefix_to_module(key, prefix): {
+                    cls._add_prefix_to_module(value, prefix) for value in values
                 }
                 for key, values in dependencies.items()
             },
         )
 
-    def _add_prefix_to_module(self, module_name: str, prefix: Optional[str]) -> str:
+    @classmethod
+    def _add_prefix_to_module(cls, module_name: str, prefix: Optional[str]) -> str:
         if prefix is None:
             return module_name
 
@@ -88,7 +90,7 @@ class DiagramRule(FileRule, BaseModuleSpecifier, RuleApplier):
     def _add_base_module_path(
         self, parsed_dependencies: ParsedDependencies
     ) -> ParsedDependencies:
-        return ModulePrefixer().prefix(parsed_dependencies, self._name_relative_to_root)
+        return ModulePrefixer.prefix(parsed_dependencies, self._name_relative_to_root)
 
     def _convert_to_rules(self, dependencies: ParsedDependencies) -> list[RuleApplier]:
         return DependencyToRuleConverter(self._should_only_rule).convert(dependencies)
