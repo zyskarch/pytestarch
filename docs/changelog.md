@@ -5,7 +5,7 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 
 ## [Unreleased]
 ### Added
-- Tests generated from PUML component diagrams
+- Test generation from PUML component diagrams
 
 ## [1.2.1] -- 2022-10-21
 ### Fixed

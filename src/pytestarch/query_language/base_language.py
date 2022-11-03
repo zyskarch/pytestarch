@@ -11,7 +11,8 @@ from pytestarch.query_language.rule_matcher import BehaviorRequirement
 class FileRule(ABC):
     @abstractmethod
     def from_file(self, file_path: Path) -> BaseModuleSpecifier:
-        """Set the path to the file containing the rules that should be applied to the evaluable."""
+        """Set the path to the file containing the rules that should be
+        applied to the evaluable."""
         pass
 
 
@@ -19,7 +20,8 @@ class BaseModuleSpecifier(ABC):
     @abstractmethod
     def with_base_module(self, name_relative_to_root: str) -> RuleApplier:
         """Sets the name of the base module that was turned into an Evaluable.
-        This enables the user to not having to include the entire name relative to the root module in
+        This enables the user to not having to include the entire name relative
+        to the root module in
         the diagram.
         Example: root module is named 'src'
         Base module: my_project
@@ -75,7 +77,8 @@ ModuleSpecificationSuccessor = TypeVar(
 
 
 class ModuleSpecification(Generic[ModuleSpecificationSuccessor], ABC):
-    """Offers functionality to specify detail information about Rule Subjects or Objects."""
+    """Offers functionality to specify detail information about Rule
+    Subjects or Objects."""
 
     @abstractmethod
     def are_sub_modules_of(
