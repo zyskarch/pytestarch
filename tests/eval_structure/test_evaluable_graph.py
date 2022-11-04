@@ -857,16 +857,17 @@ def test_all_modules_labeled_when_aliases_used(
 
 
 def test_alias_replaces_module_name_in_plot(evaluable: EvaluableArchitecture) -> None:
-    module_1_alias = "1"
-    aliases = {MODULE_1: module_1_alias}
+    module_2_alias = "2"
+    aliases = {MODULE_2: module_2_alias}
     fig, ax = subplots()
 
     evaluable.visualize(aliases=aliases, ax=ax)
 
     labels_in_plot = [t.get_text() for t in ax.texts]
-    assert module_1_alias in labels_in_plot
-    assert MODULE_1 not in labels_in_plot
-    assert SUB_MODULE_OF_1 not in labels_in_plot
+    assert module_2_alias in labels_in_plot
+    assert MODULE_2 not in labels_in_plot
+    assert SUB_MODULE_OF_2 not in labels_in_plot
+    assert f"{module_2_alias}.SubModule1" in labels_in_plot
 
 
 def test_alias_replaces_module_name_in_submodules_plot(

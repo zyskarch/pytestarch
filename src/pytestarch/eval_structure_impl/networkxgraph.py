@@ -228,12 +228,15 @@ class NetworkxGraph(AbstractGraph):
         draw_networkx(self._graph, **kwargs)
 
     def _create_plot_labels_with_alias(self, aliases: dict[str, str]) -> dict[str, str]:
-        module_names: list[str] = self._graph.nodes
+        module_names: list[str] = list(self._graph.nodes)
         self._assert_aliased_modules_exist(aliases, module_names)
 
+        # longest name first so aliases for submodule take priority over aliases  for
+        # parent modules
         aliased_modules = sorted(
             aliases.keys(), key=lambda name: len(name), reverse=True
         )
+
         labels = {}
         for module_name_to_alias in module_names:
             labels[module_name_to_alias] = self._create_label(
@@ -242,7 +245,11 @@ class NetworkxGraph(AbstractGraph):
 
         return labels
 
-    def _assert_aliased_modules_exist(self, aliases, module_names):
+    def _assert_aliased_modules_exist(
+        self,
+        aliases: dict[str, str],
+        module_names: list[str],
+    ) -> None:
         for module in aliases:
             if module not in module_names:
                 raise KeyError(
