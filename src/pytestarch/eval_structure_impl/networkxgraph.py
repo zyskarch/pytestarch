@@ -198,13 +198,83 @@ class NetworkxGraph(AbstractGraph):
         return edge_data["inherits"]
 
     def draw(self, **kwargs: Any) -> None:
-        """Creates a matplotlib plot representing the graph."""
+        """Creates a matplotlib plot representing the graph.
+
+        Keyword Args:
+            spacing (float): optimal distance between nodes
+            aliases (dict[str, str]): module name aliases for plot labels. Keys are
+                module names and values the aliases. If no alias is specified the module
+                name is used a node label. If a module name has an alias, the module
+                name is replaced by the alias for the module and all its submodules,
+                e.g. for modules a, a.b, a.c, a.c.d and aliases == {'a', 'A'}, the plot
+                labels for these modules will be A, A.b, A.c, A.c.d.
+                If a submodule also has an alias, the alias for the submodule takes
+                priority, e.g. with the same modules as above and
+                aliases == {'a': 'A', 'a.c': 'C'} the plot labels will be A, A.b, C,
+                C.d.
+            Remaining keyword args are passed to draw_networkx. Notably, "ax" can be
+            used to draw the graph onto an existing matploblib Axis object.
+        """
         if "spacing" in kwargs:
             spacing = kwargs.pop("spacing")
             pos = spring_layout(self._graph, k=spacing, iterations=20)
             kwargs["pos"] = pos
 
+        if "aliases" in kwargs:
+            aliases = kwargs.pop("aliases")
+            labels = self._create_plot_labels_with_alias(aliases)
+            kwargs["labels"] = labels
+
         draw_networkx(self._graph, **kwargs)
+
+    def _create_plot_labels_with_alias(self, aliases: dict[str, str]) -> dict[str, str]:
+        module_names: list[str] = list(self._graph.nodes)
+        self._assert_aliased_modules_exist(aliases, module_names)
+
+        # longest name first so aliases for submodule take priority over aliases  for
+        # parent modules
+        aliased_modules = sorted(
+            aliases.keys(), key=lambda name: len(name), reverse=True
+        )
+
+        labels = {}
+        for module_name_to_alias in module_names:
+            labels[module_name_to_alias] = self._create_label(
+                module_name_to_alias, aliased_modules, aliases
+            )
+
+        return labels
+
+    def _assert_aliased_modules_exist(
+        self,
+        aliases: dict[str, str],
+        module_names: list[str],
+    ) -> None:
+        for module in aliases:
+            if module not in module_names:
+                raise KeyError(
+                    f"An alias was specified for module {module},"
+                    f" but the module does not exist."
+                )
+
+    def _create_label(
+        self,
+        module_name: str,
+        sorted_aliased_modules: list[str],
+        aliases: dict[str, str],
+    ) -> str:
+        try:
+            most_specific_aliased_module = next(
+                module
+                for module in sorted_aliased_modules
+                if module_name.startswith(module)
+            )
+            alias = module_name.removeprefix(most_specific_aliased_module)
+            alias = aliases[most_specific_aliased_module] + alias
+            return alias
+
+        except StopIteration:  # no alias for module or parent module
+            return module_name
 
     def _flatten_graph_node(self, node: Node) -> Node:
         """Limits the depth of the graph by aggregating sub modules above a certain limit.
