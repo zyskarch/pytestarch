@@ -1519,3 +1519,121 @@ def test_rule_violated_with_multiple_rule_objects_raises_proper_error_message(
 ) -> None:
     with pytest.raises(AssertionError, match=expected_error_message):
         rule.assert_applies(graph_based_on_string_module_names)
+
+
+partial_name_match_test_cases = [
+    pytest.param(
+        Rule()
+        .modules_that()
+        .have_name_containing("*moduleC*")
+        .should()
+        .import_modules_that()
+        .are_sub_modules_of([A, B]),
+        True,
+        id="named should import submodule - partial name match subject",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_sub_modules_of(A)
+        .should_only()
+        .import_modules_that()
+        .have_name_containing("*leB*"),
+        True,
+        id="submodule should only import named - partial name match object",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .have_name_containing("*moduleB")
+        .should_not()
+        .import_modules_that()
+        .are_named([A, C]),
+        True,
+        id="named should not import named - partial name match subject",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .have_name_containing("src.moduleA*")
+        .should_only()
+        .import_modules_except_modules_that()
+        .are_sub_modules_of([C, B]),
+        True,
+        id="named should only import except submodule - forbidden import - partial name match subject",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_sub_modules_of(C)
+        .should_only()
+        .import_modules_except_modules_that()
+        .have_name_containing("*moduleB*"),
+        True,
+        id="submodule should only import except named - no import - partial name match object",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .have_name_containing("*duleA*")
+        .should_not()
+        .import_modules_except_modules_that()
+        .are_named([B, B2]),
+        True,
+        id="named should not import except named - partial name match subject",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .have_name_containing("*moduleA*")
+        .should()
+        .be_imported_by_modules_that()
+        .are_sub_modules_of([C, FILE_C]),
+        True,
+        id="named should be imported by submodule - partial name match subject",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_sub_modules_of(C)
+        .should_only()
+        .be_imported_by_modules_that()
+        .have_name_containing(["*leB"]),
+        True,
+        id="submodule should only be imported by named - partial name match object",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .have_name_containing("*moduleC*")
+        .should_not()
+        .be_imported_by_modules_that()
+        .are_named([A, FILE_A2]),
+        True,
+        id="named should not be imported by named - partial name match subject",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_sub_modules_of(A11)
+        .should_only()
+        .be_imported_by_modules_except_modules_that()
+        .have_name_containing(["*fileB2"]),
+        True,
+        id="submodule should only be imported by except named - forbidden import - partial name match object",
+    ),
+]
+
+
+@pytest.mark.parametrize("rule, violation", partial_name_match_test_cases)
+def test_rule_violation_correctly_detected_for_partial_name_matches(
+    rule: Rule,
+    violation: bool,
+    graph_based_on_string_module_names: EvaluableArchitecture,
+) -> None:
+    if violation:
+        with pytest.raises(AssertionError):
+            rule.assert_applies(graph_based_on_string_module_names)
+    else:
+        rule.assert_applies(graph_based_on_string_module_names)
+        # no exception

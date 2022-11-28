@@ -12,10 +12,12 @@ class Module:
     Attributes:
         name: full name of the module
         parent_module: full name of the parent module
+        partial_match: if True, the name may only represent a single part of the actual module name
     """
 
     name: Optional[str] = None
     parent_module: Optional[str] = None
+    partial_match: bool = False
 
 
 StrictDependency = Tuple[Module, Module]
@@ -43,7 +45,8 @@ class EvaluableArchitecture(Protocol):
             dependent_upon: Module
 
         Returns:
-            Importer and importee per pair of dependent and dependent_upon module if there are any that are sub modules of dependent and dependent_upon respectively.
+            Importer and importee per pair of dependent and dependent_upon module if there are any
+            that are sub modules of dependent and dependent_upon respectively.
         """
         raise NotImplementedError()
 

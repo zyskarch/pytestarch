@@ -18,6 +18,7 @@ IMPORT_TYPE:
 SUBJECT/OBJECT:
     sub_module_of
     name  # complete match
+    partial_name  # partial match
     anything (only object)
 
 

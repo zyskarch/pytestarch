@@ -46,6 +46,7 @@ class NetworkxGraph(AbstractGraph):
         self._level_limit = level_limit
 
         self._initialise()
+        nx.freeze(self._graph)
 
     def _initialise(self) -> None:
         """Constructs a graph from all modules and their imports."""

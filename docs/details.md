@@ -134,6 +134,7 @@ Currently, the following markers are supported by PyTestArch:
 #### RULE_SUBJECT
 * are_named("X"): applies to module named "X" (and also to its submodules)
 * are_submodules_of("Y"): applies to submodules of module named "Y", but not "Y" itself
+* have_name_containing("*Z*"): applies to modules with names containing Z. The syntax is the same as for the file exclusion mechanism
 
 #### RULE_OBJECT
 same as RULE_SUBJECT, with an additional

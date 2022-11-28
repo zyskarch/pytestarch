@@ -18,3 +18,8 @@ class AbstractGraph(ABC):
     @abstractmethod
     def direct_predecessor_nodes(self, node: AbstractNode) -> List[AbstractNode]:
         raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def nodes(self) -> List[AbstractNode]:
+        raise NotImplementedError()
