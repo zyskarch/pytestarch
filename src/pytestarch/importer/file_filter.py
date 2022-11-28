@@ -22,11 +22,14 @@ class FileFilter:
         self._excluded_infixes = set()
 
         for dir in config.excluded_directories:
-            if dir.startswith(ALL_MARKER) and dir.endswith(ALL_MARKER):
+            starts_with_all_marker = dir.startswith(ALL_MARKER)
+            ends_with_all_marker = dir.endswith(ALL_MARKER)
+
+            if starts_with_all_marker and ends_with_all_marker:
                 self._excluded_infixes.add(dir[1:-1])
-            elif dir.startswith(ALL_MARKER):
+            elif starts_with_all_marker:
                 self._excluded_suffixes.add(dir[1:])
-            elif dir.endswith(ALL_MARKER):
+            elif ends_with_all_marker:
                 self._excluded_prefixes.add(dir[:-1])
             else:
                 self._excluded_dirs.add(dir)

@@ -73,6 +73,14 @@ class Rule(
         self._set_modules(names, lambda name: Module(name=name))
         return self
 
+    def have_name_containing(
+        self, partial_names: Union[str, List[str]]
+    ) -> BehaviorSpecification:
+        self._set_modules(
+            partial_names, lambda name: Module(name=name, partial_match=True)
+        )
+        return self
+
     def _set_modules(
         self,
         module_names: Union[str, List[str]],

@@ -8,3 +8,7 @@ class ParsingError(Exception):
 
 class PumlParsingError(ParsingError):
     pass
+
+
+class ImpossibleMatch(Exception):
+    pass

@@ -90,6 +90,12 @@ class ModuleSpecification(Generic[ModuleSpecificationSuccessor], ABC):
     def are_named(self, names: Union[str, List[str]]) -> ModuleSpecificationSuccessor:
         pass
 
+    @abstractmethod
+    def have_name_containing(
+        self, partial_name: Union[str, List[str]]
+    ) -> ModuleSpecificationSuccessor:
+        pass
+
 
 class RuleObject(ModuleSpecification[RuleApplier], ABC):
     pass

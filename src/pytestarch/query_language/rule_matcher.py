@@ -126,9 +126,6 @@ class BehaviorRequirement:
         self,
         strict_dependencies: Optional[StrictDependenciesByBaseModules],
         lax_dependencies: Optional[LaxDependenciesByBaseModule],
-        import_rule: bool,
-        left_hand_side_module: Union[Module, List[Module]],
-        right_hand_side_module: Union[Module, List[Module]],
     ) -> RuleViolations:
         """Translate from the detected types of dependencies back to which behavior and dependency requirements are violated by them.
         Args:
@@ -209,9 +206,6 @@ class DefaultRuleMatcher(RuleMatcher):
         return self._behavior_requirement.generate_rule_violation(
             strict_dependencies,
             lax_dependencies,
-            not self._module_requirement.left_hand_module_has_specifier,
-            self._module_requirement.left_hand_modules,
-            self._module_requirement.right_hand_modules,
         )
 
     def _get_lax_dependencies(
