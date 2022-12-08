@@ -3,7 +3,7 @@ and edges to its subclasses in a template pattern.
 """
 from collections import defaultdict
 from itertools import product
-from typing import Any, List, Set, Union, Iterable
+from typing import Any, Dict, Iterable, List, Set, Tuple, Union
 
 from pytestarch.eval_structure.evaluable_architecture import (
     EvaluableArchitecture,
@@ -370,10 +370,10 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
 
     def _split_into_complete_modules_and_partial_matches(
         self,
-        modules_by_group: dict[int, List[Any]],
-    ) -> tuple[dict[int, List[AbstractNode]], dict[int, List[Module]]]:
-        result_by_group: dict[int, List[Module]] = defaultdict(list)
-        partial_match_module_name_by_group: dict[int, List[AbstractNode]] = {}
+        modules_by_group: Dict[int, List[Any]],
+    ) -> Tuple[Dict[int, List[AbstractNode]], Dict[int, List[Module]]]:
+        result_by_group: Dict[int, List[Module]] = defaultdict(list)
+        partial_match_module_name_by_group: Dict[int, List[AbstractNode]] = {}
 
         for group, modules in modules_by_group.items():
             partial_match_module_names = []
@@ -391,7 +391,7 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
 
     @classmethod
     def _convert_dict_values_to_list_sorted_by_keys(
-        cls, d: dict[Any, Iterable[Any]]
+        cls, d: Dict[Any, Iterable[Any]]
     ) -> List[List[Any]]:
         return [group_and_values[1] for group_and_values in sorted(d.items())]
 

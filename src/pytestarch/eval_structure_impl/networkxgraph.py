@@ -1,5 +1,6 @@
 """Encapsulation of networkx graph functionality."""
-from typing import Any, List, Optional, Tuple
+import re
+from typing import Any, Dict, List, Optional, Tuple
 
 import networkx as nx
 from networkx import draw_networkx, has_path, spring_layout
@@ -203,7 +204,7 @@ class NetworkxGraph(AbstractGraph):
 
         Keyword Args:
             spacing (float): optimal distance between nodes
-            aliases (dict[str, str]): module name aliases for plot labels. Keys are
+            aliases (Dict[str, str]): module name aliases for plot labels. Keys are
                 module names and values the aliases. If no alias is specified the module
                 name is used a node label. If a module name has an alias, the module
                 name is replaced by the alias for the module and all its submodules,
@@ -228,8 +229,8 @@ class NetworkxGraph(AbstractGraph):
 
         draw_networkx(self._graph, **kwargs)
 
-    def _create_plot_labels_with_alias(self, aliases: dict[str, str]) -> dict[str, str]:
-        module_names: list[str] = list(self._graph.nodes)
+    def _create_plot_labels_with_alias(self, aliases: Dict[str, str]) -> Dict[str, str]:
+        module_names: List[str] = list(self._graph.nodes)
         self._assert_aliased_modules_exist(aliases, module_names)
 
         # longest name first so aliases for submodule take priority over aliases  for
@@ -248,8 +249,8 @@ class NetworkxGraph(AbstractGraph):
 
     def _assert_aliased_modules_exist(
         self,
-        aliases: dict[str, str],
-        module_names: list[str],
+        aliases: Dict[str, str],
+        module_names: List[str],
     ) -> None:
         for module in aliases:
             if module not in module_names:
@@ -261,8 +262,8 @@ class NetworkxGraph(AbstractGraph):
     def _create_label(
         self,
         module_name: str,
-        sorted_aliased_modules: list[str],
-        aliases: dict[str, str],
+        sorted_aliased_modules: List[str],
+        aliases: Dict[str, str],
     ) -> str:
         try:
             most_specific_aliased_module = next(
@@ -270,7 +271,7 @@ class NetworkxGraph(AbstractGraph):
                 for module in sorted_aliased_modules
                 if module_name.startswith(module)
             )
-            alias = module_name.removeprefix(most_specific_aliased_module)
+            alias = re.sub(rf"^{most_specific_aliased_module}", "", module_name)
             alias = aliases[most_specific_aliased_module] + alias
             return alias
 
