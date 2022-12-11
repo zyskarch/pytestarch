@@ -17,13 +17,15 @@ from pytestarch.query_language.exceptions import ImproperlyConfigured
 from pytestarch.rule_assessment.error_message.message_generator import (
     RuleViolationMessageGenerator,
 )
-from pytestarch.rule_assessment.rule_check.rule_matcher import (
+from pytestarch.rule_assessment.rule_check.behavior_requirement import (
     BehaviorRequirement,
-    DefaultRuleMatcher,
-    ModuleRequirement,
-    RuleMatcher,
-    RuleViolations,
 )
+from pytestarch.rule_assessment.rule_check.module_requirement import ModuleRequirement
+from pytestarch.rule_assessment.rule_check.rule_matcher import (
+    DefaultRuleMatcher,
+    RuleMatcher,
+)
+from pytestarch.rule_assessment.rule_check.rule_violations import RuleViolations
 
 
 @dataclass

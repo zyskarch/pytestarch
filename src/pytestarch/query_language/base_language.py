@@ -5,7 +5,9 @@ from pathlib import Path
 from typing import Generic, List, TypeVar, Union
 
 from pytestarch import EvaluableArchitecture
-from pytestarch.rule_assessment.rule_check.rule_matcher import BehaviorRequirement
+from pytestarch.rule_assessment.rule_check.behavior_requirement import (
+    BehaviorRequirement,
+)
 
 
 class FileRule(ABC):

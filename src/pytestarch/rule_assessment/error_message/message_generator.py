@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import Iterable, List, Optional, Tuple
 
 from pytestarch.eval_structure.evaluable_architecture import Module, StrictDependency
-from pytestarch.rule_assessment.rule_check.rule_matcher import RuleViolations
+from pytestarch.rule_assessment.rule_check.rule_violations import RuleViolations
 
 IMPORT = "import"
 IMPORTED_BY = "imported by"

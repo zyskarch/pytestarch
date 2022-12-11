@@ -10,7 +10,7 @@ from pytestarch.eval_structure.evaluable_architecture import (
 from pytestarch.rule_assessment.error_message.message_generator import (
     RuleViolationMessageGenerator,
 )
-from pytestarch.rule_assessment.rule_check.rule_matcher import RuleViolations
+from pytestarch.rule_assessment.rule_check.rule_violations import RuleViolations
 
 ORIGINAL_SUBJECT = "A"
 ORIGINAL_OBJECT_1 = "B"
