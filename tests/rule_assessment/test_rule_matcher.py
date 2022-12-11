@@ -661,7 +661,7 @@ def test_multiple_violations_due_to_multiple_rule_objects(
 ) -> None:
     evaluable = EvaluableArchitectureGraph(NetworkxGraph(ALL_MODULES, imports))
     matcher = rule._prepare_rule_matcher()
-    violations = matcher.match(evaluable)
+    violations = matcher._find_rule_violations(evaluable)
 
     flags = violations._bool_field_names()
 

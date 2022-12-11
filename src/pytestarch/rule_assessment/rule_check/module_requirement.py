@@ -12,6 +12,9 @@ class ModuleRequirement:
         right_hand_modules: List[Module],
         import_relation: bool,
     ) -> None:
+        self._left_hand_modules_as_specified_by_user = left_hand_module
+        self._right_hand_modules_as_specified_by_user = right_hand_modules
+
         self._left_hand_modules = left_hand_module
         self._right_hand_modules = right_hand_modules
 
