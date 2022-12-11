@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from pytestarch.config.config import Config
-from pytestarch.importer.file_filter import FileFilter
+from pytestarch.eval_structure_generation.file_import.config import Config
+from pytestarch.eval_structure_generation.file_import.file_filter import FileFilter
 
 
 class MockFileFilter(FileFilter):

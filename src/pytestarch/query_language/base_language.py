@@ -4,8 +4,8 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Generic, List, TypeVar, Union
 
-from pytestarch.eval_structure.evaluable_architecture import EvaluableArchitecture
-from pytestarch.query_language.rule_matcher import BehaviorRequirement
+from pytestarch import EvaluableArchitecture
+from pytestarch.rule_assessment.rule_check.rule_matcher import BehaviorRequirement
 
 
 class FileRule(ABC):

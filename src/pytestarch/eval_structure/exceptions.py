@@ -1,0 +1,2 @@
+class ImpossibleMatch(Exception):
+    pass

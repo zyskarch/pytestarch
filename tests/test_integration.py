@@ -5,8 +5,7 @@ from resources.test_project import src
 from resources.test_project.src import moduleA
 from resources.test_project.src.moduleA import submoduleA1
 
-from pytestarch import Rule
-from pytestarch.eval_structure.evaluable_architecture import EvaluableArchitecture
+from pytestarch import EvaluableArchitecture, Rule
 from pytestarch.pytestarch import get_evaluable_architecture
 
 # from matplotlib import pyplot as plt

@@ -5,7 +5,6 @@ from typing import Callable, List, Optional, Type, Union
 
 from pytestarch import EvaluableArchitecture
 from pytestarch.eval_structure.evaluable_architecture import Module
-from pytestarch.exceptions import ImproperlyConfigured
 from pytestarch.query_language.base_language import (
     BehaviorSpecification,
     DependencySpecification,
@@ -14,8 +13,11 @@ from pytestarch.query_language.base_language import (
     RuleObject,
     RuleSubject,
 )
-from pytestarch.query_language.message_generator import RuleViolationMessageGenerator
-from pytestarch.query_language.rule_matcher import (
+from pytestarch.query_language.exceptions import ImproperlyConfigured
+from pytestarch.rule_assessment.error_message.message_generator import (
+    RuleViolationMessageGenerator,
+)
+from pytestarch.rule_assessment.rule_check.rule_matcher import (
     BehaviorRequirement,
     DefaultRuleMatcher,
     ModuleRequirement,

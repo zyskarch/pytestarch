@@ -13,7 +13,7 @@ from pytestarch.eval_structure.evaluable_architecture import (
     StrictDependency,
 )
 from pytestarch.eval_structure.evaluable_structures import AbstractGraph, AbstractNode
-from pytestarch.exceptions import ImpossibleMatch
+from pytestarch.eval_structure.exceptions import ImpossibleMatch
 
 ALL_MARKER = "*"
 
