@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 from pytestarch import EvaluableArchitecture
 from pytestarch.diagram_import.diagram_parser import PumlParser
@@ -92,11 +92,11 @@ class DiagramRule(FileRule, BaseModuleSpecifier, RuleApplier):
     ) -> ParsedDependencies:
         return ModulePrefixer.prefix(parsed_dependencies, self._name_relative_to_root)
 
-    def _convert_to_rules(self, dependencies: ParsedDependencies) -> list[RuleApplier]:
+    def _convert_to_rules(self, dependencies: ParsedDependencies) -> List[RuleApplier]:
         return DependencyToRuleConverter(self._should_only_rule).convert(dependencies)
 
     @classmethod
     def _apply_rules(
-        cls, rule_appliers: list[RuleApplier], evaluable: EvaluableArchitecture
+        cls, rule_appliers: List[RuleApplier], evaluable: EvaluableArchitecture
     ) -> None:
         MultipleRuleApplier(rule_appliers).assert_applies(evaluable)

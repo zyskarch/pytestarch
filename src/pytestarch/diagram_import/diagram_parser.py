@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Optional, Set, Tuple
 
 from pytestarch.diagram_import.parsed_dependencies import ParsedDependencies
 from pytestarch.exceptions import PumlParsingError
@@ -99,7 +99,7 @@ class PumlParser(DiagramParser):
     @classmethod
     def _retrieve_modules_declared_outside_dependencies(
         cls, content: str
-    ) -> set[Module]:
+    ) -> Set[Module]:
         module_group_1 = "m1"
         module_group_2 = "m2"
         alias_group = "alias"
@@ -133,7 +133,7 @@ class PumlParser(DiagramParser):
     def _retrieve_dependencies_and_inline_modules(
         cls,
         content: str,
-    ) -> dict[str, set[str]]:
+    ) -> Dict[str, Set[str]]:
         dependor_group_1 = "dependor1"
         dependor_group_2 = "dependor2"
 
@@ -166,9 +166,9 @@ class PumlParser(DiagramParser):
 
     def _unify(
         self,
-        modules: set[Module],
-        dependencies: dict[str, set[str]],
-    ) -> tuple[set[str], dict[str, set[str]]]:
+        modules: Set[Module],
+        dependencies: Dict[str, Set[str]],
+    ) -> Tuple[Set[str], Dict[str, Set[str]]]:
         unified_dependencies = {}
 
         all_aliases = self._get_modules_by_alias(modules)
@@ -188,9 +188,9 @@ class PumlParser(DiagramParser):
     @classmethod
     def _get_unified_modules(
         cls,
-        modules: set[Module],
-        unified_dependencies: dict[str, set[str]],
-    ) -> set[str]:
+        modules: Set[Module],
+        unified_dependencies: Dict[str, Set[str]],
+    ) -> Set[str]:
         all_modules = {m.name for m in modules}
 
         all_modules.update(set(unified_dependencies.keys()))
@@ -201,11 +201,11 @@ class PumlParser(DiagramParser):
         return all_modules
 
     @classmethod
-    def _get_modules_by_alias(cls, modules: set[Module]) -> dict[str, str]:
+    def _get_modules_by_alias(cls, modules: Set[Module]) -> Dict[str, str]:
         return {
             module.alias: module.name for module in modules if module.alias is not None
         }
 
     @classmethod
-    def _unify_module(cls, module: str, all_aliases: dict[str, str]) -> str:
+    def _unify_module(cls, module: str, all_aliases: Dict[str, str]) -> str:
         return all_aliases.get(module, module)
