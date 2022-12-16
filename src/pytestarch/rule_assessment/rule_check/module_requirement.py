@@ -8,33 +8,46 @@ class ModuleRequirement:
 
     def __init__(
         self,
-        left_hand_module: Module,
-        right_hand_modules: List[Module],
-        import_relation: bool,
+        importer: Module,
+        importees: List[Module],
+        flip_importer_and_importees: bool,
     ) -> None:
-        self._left_hand_modules_as_specified_by_user = left_hand_module
-        self._right_hand_modules_as_specified_by_user = right_hand_modules
+        self._importer_as_specified_by_user = importer
+        self._importees_as_specified_by_user = importees
 
-        self._left_hand_modules = left_hand_module
-        self._right_hand_modules = right_hand_modules
+        self._importers = importer
+        self._importees = importees
 
-        self._right_hand_module_has_specifier = import_relation
+        self._flip_importer_and_importees = flip_importer_and_importees
 
-        if self.left_hand_module_has_specifier:
-            self._left_hand_modules, self._right_hand_modules = (
-                self._right_hand_modules,
-                self._left_hand_modules,
+        if self.rule_specified_with_importer_as_rule_object:
+            self._importers, self._importees = (
+                self._importees,
+                self._importers,
             )
 
     @property
-    def left_hand_modules(self) -> Union[Module, List[Module]]:
-        return self._left_hand_modules
+    def importers(self) -> Union[Module, List[Module]]:
+        return self._importers
 
     @property
-    def right_hand_modules(self) -> Union[Module, List[Module]]:
-        return self._right_hand_modules
+    def importees(self) -> Union[Module, List[Module]]:
+        return self._importees
 
     @property
-    def left_hand_module_has_specifier(self) -> bool:
+    def importers_as_specified_by_user(self) -> Module:
+        return self._importer_as_specified_by_user
+
+    @property
+    def importees_as_specified_by_user(self) -> Union[Module, List[Module]]:
+        return self._importees_as_specified_by_user
+
+    @property
+    def rule_specified_with_importer_as_rule_object(self) -> bool:
         # True if rule is of format "is imported by"
-        return not self._right_hand_module_has_specifier
+        return not self._flip_importer_and_importees
+
+    @property
+    def rule_specified_with_importer_as_rule_subject(self) -> bool:
+        # True if rule is of format "is imported by"
+        return self._flip_importer_and_importees

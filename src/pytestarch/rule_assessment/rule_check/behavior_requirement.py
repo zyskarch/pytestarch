@@ -1,8 +1,8 @@
 from typing import Optional
 
 from pytestarch.eval_structure.evaluable_architecture import (
-    LaxDependenciesByBaseModule,
-    StrictDependenciesByBaseModules,
+    DependenciesByBaseModules,
+    UnexpectedDependenciesByBaseModule,
 )
 from pytestarch.rule_assessment.exceptions import RuleInconsistency
 from pytestarch.rule_assessment.rule_check.rule_violations import RuleViolations
@@ -63,8 +63,8 @@ class BehaviorRequirement:
 
     def generate_rule_violation(
         self,
-        strict_dependencies: Optional[StrictDependenciesByBaseModules],
-        lax_dependencies: Optional[LaxDependenciesByBaseModule],
+        strict_dependencies: Optional[DependenciesByBaseModules],
+        lax_dependencies: Optional[UnexpectedDependenciesByBaseModule],
     ) -> RuleViolations:
         """Translate from the detected types of dependencies back to which behavior and dependency requirements are violated by them.
         Args:
@@ -107,6 +107,6 @@ class BehaviorRequirement:
             should_except_violated=should_except_expected
             and not lax_dependencies_present,
             should_violated=should_expected and not strict_dependency_present,
-            lax_dependencies=lax_dependencies,
-            strict_dependencies=strict_dependencies,
+            unexpected_dependencies=lax_dependencies,
+            dependencies=strict_dependencies,
         )

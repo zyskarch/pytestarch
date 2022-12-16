@@ -2,9 +2,9 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 from pytestarch.eval_structure.evaluable_architecture import (
+    DependenciesByBaseModules,
     EvaluableArchitecture,
-    LaxDependenciesByBaseModule,
-    StrictDependenciesByBaseModules,
+    UnexpectedDependenciesByBaseModule,
 )
 from pytestarch.rule_assessment.error_message.message_generator import (
     RuleViolationMessageGenerator,
@@ -58,35 +58,32 @@ class DefaultRuleMatcher(RuleMatcher):
         )
 
     def _create_rule_violation_message(self, rule_violations: RuleViolations) -> str:
-        message_generator = RuleViolationMessageGenerator(  # TODO
-            self._module_requirement._left_hand_modules_as_specified_by_user,
-            self._module_requirement._right_hand_modules_as_specified_by_user,
-            self._module_requirement._right_hand_module_has_specifier,
+        message_generator = RuleViolationMessageGenerator(
+            self._module_requirement.importers_as_specified_by_user,
+            self._module_requirement.importees_as_specified_by_user,
+            self._module_requirement.rule_specified_with_importer_as_rule_subject,
         )
-        single_violation_messages = message_generator.create_rule_violation_messages(
-            rule_violations
-        )
-        return "\n".join(single_violation_messages)
+        return message_generator.create_rule_violation_message(rule_violations)
 
     def _get_lax_dependencies(
         self, evaluable: EvaluableArchitecture
-    ) -> Optional[LaxDependenciesByBaseModule]:
+    ) -> Optional[UnexpectedDependenciesByBaseModule]:
         if (
             self._behavior_requirement.lax_dependency_required
             or self._behavior_requirement.lax_dependency_not_allowed
         ):
-            if not self._module_requirement.left_hand_module_has_specifier:
+            if not self._module_requirement.rule_specified_with_importer_as_rule_object:
                 lax_dependency_check_method = (
-                    evaluable.any_dependencies_to_modules_other_than
+                    evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons
                 )
             else:
                 lax_dependency_check_method = (
-                    evaluable.any_other_dependencies_to_modules_than
+                    evaluable.any_other_dependencies_on_dependent_upons_than_from_dependents
                 )
 
             return lax_dependency_check_method(
-                self._module_requirement.left_hand_modules,
-                self._module_requirement.right_hand_modules,
+                self._module_requirement.importers,
+                self._module_requirement.importees,
             )
 
         return None
@@ -94,14 +91,14 @@ class DefaultRuleMatcher(RuleMatcher):
     def _get_strict_dependencies(
         self,
         evaluable: EvaluableArchitecture,
-    ) -> Optional[StrictDependenciesByBaseModules]:
+    ) -> Optional[DependenciesByBaseModules]:
         if (
             self._behavior_requirement.strict_dependency_required
             or self._behavior_requirement.strict_dependency_not_allowed
         ):
             return evaluable.get_dependencies(
-                self._module_requirement.left_hand_modules,
-                self._module_requirement.right_hand_modules,
+                self._module_requirement.importers,
+                self._module_requirement.importees,
             )
 
         return None

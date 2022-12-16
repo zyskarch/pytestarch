@@ -68,6 +68,17 @@ class RuleViolationMessageGenerator:
 
         self._base_verb = IMPORT if self._import_rule else IMPORTED_BY
 
+    def create_rule_violation_message(self, rule_violations: RuleViolations) -> str:
+        """Create a message about all rule violations.
+
+        Args:
+            rule_violations: to convert to human-readable format
+
+        Returns:
+            message containing all individual rule violation messages
+        """
+        return "\n".join(self.create_rule_violation_messages(rule_violations))
+
     def create_rule_violation_messages(
         self, rule_violations: RuleViolations
     ) -> List[str]:
@@ -184,7 +195,7 @@ class RuleViolationMessageGenerator:
         if not rule_violations.should_only_violated_by_forbidden_import:
             return []
 
-        violating_dependencies = rule_violations.lax_dependencies.values()
+        violating_dependencies = rule_violations.unexpected_dependencies.values()
         return self._create_other_violating_dependencies_message(violating_dependencies)
 
     def _create_other_violating_dependencies_message(
@@ -200,14 +211,12 @@ class RuleViolationMessageGenerator:
             prefix=verb_prefix, verb=self._base_verb, suffix=suffix
         )
 
-        for strict_dependencies in violating_dependencies:
-            for strict_dependency in strict_dependencies:
+        for dependencies in violating_dependencies:
+            for dependency in dependencies:
                 (
                     rule_subject,
                     rule_object,
-                ) = self._get_rule_subject_and_object_of_strict_dependency(
-                    strict_dependency
-                )
+                ) = self._get_rule_subject_and_object_of_dependency(dependency)
                 messages.append(
                     RuleViolatedMessage(rule_subject, rule_verb, rule_object)
                 )
@@ -228,7 +237,7 @@ class RuleViolationMessageGenerator:
         if not rule_violations.should_not_violated:
             return []
 
-        violating_dependencies = rule_violations.strict_dependencies.values()
+        violating_dependencies = rule_violations.dependencies.values()
         return self._create_other_violating_dependencies_message(violating_dependencies)
 
     def _create_should_import_except_violated_messages(
@@ -295,7 +304,7 @@ class RuleViolationMessageGenerator:
         if not rule_violations.should_only_except_violated_by_forbidden_import:
             return []
 
-        violating_dependencies = rule_violations.strict_dependencies.values()
+        violating_dependencies = rule_violations.dependencies.values()
         return self._create_other_violating_dependencies_message(violating_dependencies)
 
     def _create_should_only_import_except_no_import_violated_messages(
@@ -314,7 +323,7 @@ class RuleViolationMessageGenerator:
         if not rule_violations.should_not_except_violated:
             return []
 
-        violating_dependencies = rule_violations.lax_dependencies.values()
+        violating_dependencies = rule_violations.unexpected_dependencies.values()
         return self._create_other_violating_dependencies_message(violating_dependencies)
 
     def _generate_rule_subject_name(self, module: Module) -> str:
@@ -355,15 +364,15 @@ class RuleViolationMessageGenerator:
     def _quoted_name(self, name: str) -> str:
         return f'"{name}"'
 
-    def _get_rule_subject_and_object_of_strict_dependency(
-        self, strict_dependency: StrictDependency
+    def _get_rule_subject_and_object_of_dependency(
+        self, dependency: StrictDependency
     ) -> Tuple[str, str]:
-        # strict dependency is always reported in format (importer, importee)
+        # dependency is always reported in format (importer, importee)
         # if rule is of format A ... imports B, the dependency will be (A, B)
         if self._import_rule:
-            rule_subject, rule_object = strict_dependency
+            rule_subject, rule_object = dependency
         else:
-            rule_object, rule_subject = strict_dependency
+            rule_object, rule_subject = dependency
 
         rule_subject_name = self._get_module_name(rule_subject)
         rule_object_name = self._get_module_name(rule_object)

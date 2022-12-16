@@ -2,15 +2,15 @@ from dataclasses import dataclass, fields
 from typing import List, Optional
 
 from pytestarch.eval_structure.evaluable_architecture import (
-    LaxDependenciesByBaseModule,
-    StrictDependenciesByBaseModules,
+    DependenciesByBaseModules,
+    UnexpectedDependenciesByBaseModule,
 )
 
 
 @dataclass
 class RuleViolations:
-    lax_dependencies: Optional[LaxDependenciesByBaseModule]
-    strict_dependencies: Optional[StrictDependenciesByBaseModules]
+    unexpected_dependencies: Optional[UnexpectedDependenciesByBaseModule]
+    dependencies: Optional[DependenciesByBaseModules]
 
     should_violated: bool = False
     should_only_violated_by_forbidden_import: bool = False

@@ -21,11 +21,12 @@ class Module:
 
 
 StrictDependency = Tuple[Module, Module]
-# if value is not None, it contains the actual (sub) modules of the key-modules that are connected
-StrictDependenciesByBaseModules = Dict[StrictDependency, List[StrictDependency]]
-# key: module that either has dependencies or that other are dependent on that were not expected
+# key: module that has dependencies
+# values: modules the key depends on
+DependenciesByBaseModules = Dict[StrictDependency, List[StrictDependency]]
+# key: module that either has dependencies or that others are dependent on that were not expected
 # value: importer and importee that were not expected
-LaxDependenciesByBaseModule = Dict[Module, List[StrictDependency]]
+UnexpectedDependenciesByBaseModule = Dict[Module, List[StrictDependency]]
 
 
 class EvaluableArchitecture(Protocol):
@@ -33,16 +34,20 @@ class EvaluableArchitecture(Protocol):
         self,
         dependents: Union[Module, List[Module]],
         dependent_upons: Union[Module, List[Module]],
-    ) -> StrictDependenciesByBaseModules:
+    ) -> DependenciesByBaseModules:
         """Returns tuple of importer and importee per dependent and depending module if the dependent module is indeed
-        depending on the dependent_upon module.
-        Submodules of dependent towards are taken into account, but submodules of dependent_upon are not.
+        depending on the dependent_upon module. In short: find all dependencies between dependent and dependent_upons.
+
+        Submodules of dependent and dependent upon are taken into account.
+        If X.A depends on Y, then X also depends on Y, as X.A is part of X.
+        If X depends on Y.Z, then it also depends on Y.
+
         If one or both of the modules are defined by their parent module, this parent module is excluded from possible
         matches.
 
         Args:
-            dependent: Module
-            dependent_upon: Module
+            dependent: Module(s)
+            dependent_upon: Module(s)
 
         Returns:
             Importer and importee per pair of dependent and dependent_upon module if there are any
@@ -50,16 +55,19 @@ class EvaluableArchitecture(Protocol):
         """
         raise NotImplementedError()
 
-    def any_dependencies_to_modules_other_than(
+    def any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         self,
         dependents: Union[Module, List[Module]],
         dependent_upons: Union[Module, List[Module]],
-    ) -> LaxDependenciesByBaseModule:
+    ) -> UnexpectedDependenciesByBaseModule:
         """Returns list of depending modules per dependent module if the dependent module has any
         dependency to a module other than the dependent_upon modules
         or any of their submodules.
+
         If a dependent module is defined via a parent module, this parent module is not taken into account.
         If a dependent upon module is defined via a parent module, this parent module counts as an 'other' dependency.
+            Reason behind this: If we want to know whether there are any dependencies from X to any non-Y modules,
+            Y's parent is such a module, as this parent module can and usually will also contain other modules than Y.
 
         Args:
             dependent: Module
@@ -70,11 +78,11 @@ class EvaluableArchitecture(Protocol):
         """
         raise NotImplementedError()
 
-    def any_other_dependencies_to_modules_than(
+    def any_other_dependencies_on_dependent_upons_than_from_dependents(
         self,
         dependents: Union[Module, List[Module]],
         dependent_upons: Union[Module, List[Module]],
-    ) -> LaxDependenciesByBaseModule:
+    ) -> UnexpectedDependenciesByBaseModule:
         """Returns list of depending modules per dependent_upon module if any module other than the dependent
         module and its submodules has any dependency to the
         dependent_upon module.
