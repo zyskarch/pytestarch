@@ -134,7 +134,7 @@ Currently, the following markers are supported by PyTestArch:
 #### RULE_SUBJECT
 * are_named("X"): applies to module named "X" (and also to its submodules)
 * are_submodules_of("Y"): applies to submodules of module named "Y", but not "Y" itself
-* have_name_containing("*Z*"): applies to modules with names containing Z. The syntax is the same as for the file exclusion mechanism
+* have_name_containing("*Z*"): applies to modules with names containing Z. The syntax is the same as for the file exclusion mechanism.
 
 #### RULE_OBJECT
 same as RULE_SUBJECT, with an additional
@@ -248,7 +248,7 @@ resulting labels for a given aliases are:
 
 ## Testing your architecture based on PlantUML component diagrams
 ### General
-Instead of hand-crafting a number of rules, you can supply the path to a PlantUML component diagram. PyTestArch will
+Instead of hand-crafting a number of rules, you can supply the path to a PlantUML component diagram via a `DiagramRule`. PyTestArch will
 then parse this file and generate rules based on the connections of nodes in this diagram. Connections between two nodes
 will be converted into 'should only' or 'should' import rules; the absence of a connection will be converted into
 'should not' import rules. All rules are then evaluated against an Evaluable.
