@@ -1,10 +1,24 @@
+ci:
+  autofix_prs: false
+
 repos:
-  - repo: https://github.com/ambv/black
-    rev: 22.6.0
+  - repo: https://github.com/pycqa/isort
+    rev: v5.11.3
+    hooks:
+      - id: isort
+  - repo: https://github.com/psf/black
+    rev: 22.12.0
     hooks:
       - id: black
-        language_version: python3.10
-  -   repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v2.0.0
-      hooks:
+        language_version: python3.8
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
       - id: flake8
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.4
+    hooks:
+      - id: bandit
+        args: ["-c", "pyproject.toml"]
+        additional_dependencies:
+          - bandit[toml]
