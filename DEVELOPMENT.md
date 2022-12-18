@@ -15,7 +15,7 @@ To make sure that everything works as expected, run `nox`.
 
 ## Requirements for PRs
 When opening a PR, make sure the following requirements are fulfilled:
-1. All existing tests should pass: Run `nox` to ensure this.
+1. All existing tests should pass: Run `nox` to ensure this. Github Actions will be used to run all tests with multiple python versions, so this is just meant for local use without having to open a PR first.
 2. Ensure your code is properly formatted. Make sure you are using the pre-commit hooks to ensure this.
 3. For new features or bugfixes, your added code should be covered by new tests.
 4. Add your changes to the [changelog](docs/changelog.md).
