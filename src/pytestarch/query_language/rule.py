@@ -5,7 +5,6 @@ from typing import Callable, List, Optional, Type, Union
 
 from pytestarch import EvaluableArchitecture
 from pytestarch.eval_structure.evaluable_architecture import Module
-from pytestarch.exceptions import ImproperlyConfigured
 from pytestarch.query_language.base_language import (
     BehaviorSpecification,
     DependencySpecification,
@@ -14,13 +13,14 @@ from pytestarch.query_language.base_language import (
     RuleObject,
     RuleSubject,
 )
-from pytestarch.query_language.message_generator import RuleViolationMessageGenerator
-from pytestarch.query_language.rule_matcher import (
+from pytestarch.query_language.exceptions import ImproperlyConfigured
+from pytestarch.rule_assessment.rule_check.behavior_requirement import (
     BehaviorRequirement,
+)
+from pytestarch.rule_assessment.rule_check.module_requirement import ModuleRequirement
+from pytestarch.rule_assessment.rule_check.rule_matcher import (
     DefaultRuleMatcher,
-    ModuleRequirement,
     RuleMatcher,
-    RuleViolations,
 )
 
 
@@ -155,10 +155,7 @@ class Rule(
         self._assert_required_configuration_present()
 
         matcher = self._prepare_rule_matcher()
-        rule_violations = matcher.match(evaluable)
-
-        if rule_violations:
-            raise AssertionError(self._create_rule_violation_message(rule_violations))
+        matcher.match(evaluable)
 
     def _prepare_rule_matcher(self) -> RuleMatcher:
         module_requirement = ModuleRequirement(
@@ -248,17 +245,6 @@ class Rule(
     @classmethod
     def _name_or_empty(cls, empty: bool, clz: type) -> str:
         return f"a {clz.__name__}" if empty else ""
-
-    def _create_rule_violation_message(self, rule_violations: RuleViolations) -> str:
-        message_generator = RuleViolationMessageGenerator(
-            self._configuration.module_to_check,
-            self._configuration.modules_to_check_against,
-            self._configuration.import_,
-        )
-        single_violation_messages = message_generator.create_rule_violation_messages(
-            rule_violations
-        )
-        return "\n".join(single_violation_messages)
 
     @classmethod
     def _convert_aliases(cls, configuration: RuleConfiguration) -> RuleConfiguration:

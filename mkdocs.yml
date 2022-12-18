@@ -21,10 +21,13 @@ nav:
   - details.md
   - changelog.md
   - Reference:
-      - general.md
-      - eval_structure.md
-      - parsing.md
-      - query_language.md
+      - references/general.md
+      - references/query_language.md
+      - references/eval_structure.md
+      - references/eval_structure_generation.md
+      - references/diagram_extension.md
+      - references/rule_assessment.md
+
 
 
 repo_url: https://github.com/zyskarch/pytestarch

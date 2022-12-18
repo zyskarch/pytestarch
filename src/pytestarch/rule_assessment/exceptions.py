@@ -1,0 +1,2 @@
+class RuleInconsistency(Exception):
+    pass
