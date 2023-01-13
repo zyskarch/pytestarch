@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 from eval_structure.evaluable_graph.conftest import (
     MODULE_1,

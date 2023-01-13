@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import List, Union
 
 from pytestarch.eval_structure.evaluable_architecture import Module

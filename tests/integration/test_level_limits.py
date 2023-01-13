@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 import pytest
@@ -118,7 +120,7 @@ def test_edges_correctly_calculated_for_level_2_module_path_no_external_dependen
         exclude_external_libraries=False,
     )
 
-    assert len(level_2_graph._graph._graph.edges) == 16
+    assert len(level_2_graph._graph._graph.edges) == 23
 
     for edge in [
         ("src", "src.moduleA"),
@@ -168,7 +170,7 @@ def test_edges_correctly_calculated_for_level_3_module_path_no_external_dependen
         exclude_external_libraries=False,
     )
 
-    assert len(level_3_graph._graph._graph.edges) == 7
+    assert len(level_3_graph._graph._graph.edges) == 12
 
     for edge in [
         ("src", "src.moduleB"),

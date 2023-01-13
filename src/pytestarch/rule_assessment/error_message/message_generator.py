@@ -1,5 +1,7 @@
 """Converts a RuleViolations object into a human-readable format."""
 
+from __future__ import annotations
+
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Iterable, List, Optional, Tuple

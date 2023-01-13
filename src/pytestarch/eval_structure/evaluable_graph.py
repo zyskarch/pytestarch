@@ -1,6 +1,8 @@
 """Base class for different graph implementations of an evaluable structure. Delegates direct access to graph nodes
 and edges to its subclasses in a template pattern.
 """
+from __future__ import annotations
+
 from collections import defaultdict
 from itertools import product
 from typing import Any, Dict, Iterable, List, Set, Tuple, Union

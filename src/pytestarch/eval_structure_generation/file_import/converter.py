@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import ast
 from _ast import Import
 from typing import List, Optional

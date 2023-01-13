@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 
 from pytestarch.eval_structure_generation.file_import.config import Config

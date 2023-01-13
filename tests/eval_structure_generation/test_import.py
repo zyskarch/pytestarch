@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pytestarch.eval_structure_generation.file_import.import_types import AbsoluteImport
 
 

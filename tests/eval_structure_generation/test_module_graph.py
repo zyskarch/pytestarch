@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 from typing import List, Tuple
 
@@ -49,8 +51,8 @@ def module_graph(all_modules: List[str], imports: List[Import]) -> NetworkxGraph
 
 
 def test_node_edge_count_as_expected(module_graph: NetworkxGraph) -> None:
-    assert module_graph.nodes_number == 33
-    assert module_graph.edges_number == 23
+    assert module_graph.nodes_number == 34
+    assert module_graph.edges_number == 30
 
 
 def test_expected_nodes_present(module_graph: NetworkxGraph) -> None:

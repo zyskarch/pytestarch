@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass, fields
 from typing import List, Optional
 
@@ -26,4 +28,4 @@ class RuleViolations:
 
     @classmethod
     def _bool_field_names(cls) -> List[str]:
-        return [field.name for field in fields(cls) if field.type == bool]
+        return [field.name for field in fields(cls) if field.type == "bool"]

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from flat_test_project_1.exporter.exporter_importee import e  # noqa: F401 E401
 from flat_test_project_1.importer.importer_importee import i  # noqa: F401 E401
 from flat_test_project_1.logging_util.logging_util_importee import l  # noqa: F401 E401

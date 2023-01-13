@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from query_language.rule.conftest import (
     MODULE_1,
     MODULE_2,

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 
 from util import MockFileFilter
@@ -30,6 +32,7 @@ def test_converter_retains_all_non_empty_modules() -> None:
         "pytest",
         "tests.resources.importer.level0.test_dummy",
         "urllib",
+        "__future__",
     }
 
     assert set(map(lambda i: i.importee(), imports)) == expected_imports

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pytestarch.diagram_extension.dependency_to_rule_converter import (
     DependencyToRuleConverter,
 )
