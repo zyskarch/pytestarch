@@ -50,6 +50,7 @@ sourcepath = "src"
 [tool.isort]
 profile = "black"
 extend_skip = ["src/pytestarch/__init__.py"]
+add_imports = ["from __future__ import annotations"]
 
 [tool.bandit]
 [tool.bandit.assert_used]
