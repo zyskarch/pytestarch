@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 from integration.interesting_rules_for_tests import (
     multiple_rule_objects_error_message_test_cases,

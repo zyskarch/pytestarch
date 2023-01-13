@@ -2,6 +2,8 @@
 The following two functions are the main entry point to PyTestArch. They can be used to create an evaluable object,
 for which the user can then define architectural rules.
 """
+from __future__ import annotations
+
 import os
 from pathlib import Path
 from types import ModuleType

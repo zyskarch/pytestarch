@@ -1,5 +1,7 @@
 """Abstract types to specify the interface of evaluable objects."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Protocol, Tuple, Union
 
@@ -32,8 +34,8 @@ UnexpectedDependenciesByBaseModule = Dict[Module, List[StrictDependency]]
 class EvaluableArchitecture(Protocol):
     def get_dependencies(
         self,
-        dependents: Union[Module, List[Module]],
-        dependent_upons: Union[Module, List[Module]],
+        dependents: Union[Module, list[Module]],
+        dependent_upons: Union[Module, list[Module]],
     ) -> DependenciesByBaseModules:
         """Returns tuple of importer and importee per dependent and depending module if the dependent module is indeed
         depending on the dependent_upon module. In short: find all dependencies between dependent and dependent_upons.

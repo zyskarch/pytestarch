@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import io as io_import  # noqa: F401
 import sys  # noqa: F401
 import typing  # noqa: F401 E401
