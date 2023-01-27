@@ -7,6 +7,9 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 ### Changed
 - Internal module structure to improve coupling, cohesion.
 
+### Fixed
+- Support for python3.8.
+
 ## [1.3.0] -- 2022-11-28
 ### Added
 - Reference to modules only by part of their names
