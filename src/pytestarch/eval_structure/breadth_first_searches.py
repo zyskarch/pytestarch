@@ -96,7 +96,6 @@ def any_dependency_to_module_other_than(  # noqa: C901
         children = graph.direct_successor_nodes(node)
 
         for child in children:
-
             if not graph.parent_child_relationship(node, child):
                 if (
                     child not in nodes_to_exclude
@@ -165,7 +164,6 @@ def any_other_dependency_to_module_than(  # noqa: C901
         parents = graph.direct_predecessor_nodes(node)
 
         for parent in parents:
-
             if not graph.parent_child_relationship(parent, node):
                 if (
                     parent not in nodes_to_exclude
