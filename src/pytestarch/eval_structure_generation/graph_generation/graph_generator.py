@@ -76,7 +76,8 @@ def _get_internal_module_prefix(
 ) -> str:
     """In general, all internal modules should start with the root module name to be able to differentiate between
     internal and external modules. If the root and base module differ, the modules between them also need to be taken
-    into account, as not root.a.b modules are external, but root.a.b.base are internal."""
+    into account, as not root.a.b modules are external, but root.a.b.base are internal.
+    """
     internal_module_prefix = root_path.name + "."
 
     if path_diff_between_root_and_module != ".":

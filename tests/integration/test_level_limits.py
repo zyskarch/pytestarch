@@ -112,7 +112,9 @@ def test_edges_correctly_calculated_for_level_2_module_path() -> None:
     assert len(level_2_graph._graph._graph.edges) == 0  # no internal dependencies left
 
 
-def test_edges_correctly_calculated_for_level_2_module_path_no_external_dependencies_modified() -> None:
+def test_edges_correctly_calculated_for_level_2_module_path_no_external_dependencies_modified() -> (
+    None
+):
     level_2_graph = get_evaluable_architecture(
         os.path.dirname(src.__file__),
         os.path.dirname(moduleA.__file__),
@@ -162,7 +164,9 @@ def test_edges_correctly_calculated_for_level_3_module_path() -> None:
     assert len(level_3_graph._graph._graph.edges) == 0  # no internal dependencies left
 
 
-def test_edges_correctly_calculated_for_level_3_module_path_no_external_dependencies_modified() -> None:
+def test_edges_correctly_calculated_for_level_3_module_path_no_external_dependencies_modified() -> (
+    None
+):
     level_3_graph = get_evaluable_architecture(
         os.path.dirname(src.__file__),
         os.path.dirname(submoduleA1.__file__),
