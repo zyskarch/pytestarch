@@ -4,6 +4,11 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 
 
 ## [Unreleased]
+
+### Changed
+- Error message only lists violated rule objects when multiple rule objects are defined.
+
+## [1.3.1] -- 2023-01-27
 ### Changed
 - Internal module structure to improve coupling, cohesion.
 
