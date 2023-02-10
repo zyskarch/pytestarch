@@ -143,10 +143,12 @@ class RuleViolationMessageGenerator:
         if not rule_violations.should_violated:
             return []
 
-        return self._create_no_import_between_original_subject_and_objects_message()
+        return self._create_no_import_between_original_subject_and_objects_message(
+            rule_violations
+        )
 
     def _create_no_import_between_original_subject_and_objects_message(
-        self,
+        self, rule_violations: RuleViolations
     ) -> List[RuleViolatedMessage]:
         messages = []
 
@@ -162,7 +164,8 @@ class RuleViolationMessageGenerator:
         for rule_object, is_singular in zip(
             self._original_rule_object_names, self._original_rule_object_singular
         ):
-            rule_objects.append(self._get_rule_object(rule_object, is_singular))
+            if self._rule_object_not_imported(rule_object, rule_violations):
+                rule_objects.append(self._get_rule_object(rule_object, is_singular))
 
         combined_rule_object = ", ".join(rule_objects)
         messages.append(
@@ -231,7 +234,9 @@ class RuleViolationMessageGenerator:
         if not rule_violations.should_only_violated_by_no_import:
             return []
 
-        return self._create_no_import_between_original_subject_and_objects_message()
+        return self._create_no_import_between_original_subject_and_objects_message(
+            rule_violations
+        )
 
     def _create_should_not_import_violated_messages(
         self, rule_violations: RuleViolations
@@ -390,3 +395,23 @@ class RuleViolationMessageGenerator:
 
         # "is imported by" does not need an additional 's'
         return ""
+
+    @classmethod
+    def _rule_object_not_imported(
+        cls, rule_object: str, rule_violations: RuleViolations
+    ) -> bool:
+        found_dependencies = rule_violations.dependencies
+
+        if not found_dependencies:
+            return True
+
+        dependencies_for_rule_object = [
+            len(concrete_dependency_realisations)
+            for abstract_dependency, concrete_dependency_realisations in found_dependencies.items()
+            if abstract_dependency[1].name == rule_object
+        ]
+
+        if not dependencies_for_rule_object:
+            return True
+
+        return sum(dependencies_for_rule_object) == 0

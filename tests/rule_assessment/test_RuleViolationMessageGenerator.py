@@ -4,8 +4,10 @@ from typing import Dict, List
 
 import pytest
 
+from pytestarch import Rule
 from pytestarch.eval_structure.evaluable_architecture import (
     DependenciesByBaseModules,
+    EvaluableArchitecture,
     Module,
     UnexpectedDependenciesByBaseModule,
 )
@@ -683,3 +685,21 @@ def test_multiple_messages_if_forbidden_and_no_import_both_present(
 
     assert len(messages) == 2
     assert messages == expected_messages
+
+
+def test_only_offending_rule_object_listed(
+    graph_based_on_string_module_names: EvaluableArchitecture,
+) -> None:
+    rule = (
+        Rule()
+        .modules_that()
+        .are_named("src.moduleA.submoduleA1.submoduleA11.fileA11")
+        .should_only()
+        .import_modules_that()
+        .are_named(["src.moduleB", "src.moduleC"])
+    )
+    with pytest.raises(
+        AssertionError,
+        match='"src.moduleA.submoduleA1.submoduleA11.fileA11" does not import "src.moduleC".',
+    ):
+        rule.assert_applies(graph_based_on_string_module_names)
