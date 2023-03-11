@@ -6,9 +6,9 @@ import pytest
 
 from pytestarch import Rule
 from pytestarch.eval_structure.evaluable_architecture import (
-    DependenciesByBaseModules,
+    ExplicitlyRequestedDependenciesByBaseModules,
     Module,
-    UnexpectedDependenciesByBaseModule,
+    NotExplicitlyRequestedDependenciesByBaseModule,
 )
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.networkxgraph import NetworkxGraph
@@ -658,8 +658,8 @@ def test_multiple_violations_due_to_multiple_rule_objects(
     imports: List[AbsoluteImport],
     rule: Rule,
     expected_violated: List[str],
-    strict_dependencies: DependenciesByBaseModules,
-    lax_dependencies: UnexpectedDependenciesByBaseModule,
+    strict_dependencies: ExplicitlyRequestedDependenciesByBaseModules,
+    lax_dependencies: NotExplicitlyRequestedDependenciesByBaseModule,
 ) -> None:
     evaluable = EvaluableArchitectureGraph(NetworkxGraph(ALL_MODULES, imports))
     matcher = rule._prepare_rule_matcher()
@@ -674,5 +674,5 @@ def test_multiple_violations_due_to_multiple_rule_objects(
         else:
             assert not violated
 
-    assert violations.dependencies == strict_dependencies
-    assert violations.unexpected_dependencies == lax_dependencies
+    assert violations.explicitly_requested_dependencies == strict_dependencies
+    assert violations.not_explicitly_requested_dependencies == lax_dependencies

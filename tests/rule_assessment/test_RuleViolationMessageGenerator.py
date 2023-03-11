@@ -6,10 +6,10 @@ import pytest
 
 from pytestarch import Rule
 from pytestarch.eval_structure.evaluable_architecture import (
-    DependenciesByBaseModules,
     EvaluableArchitecture,
+    ExplicitlyRequestedDependenciesByBaseModules,
     Module,
-    UnexpectedDependenciesByBaseModule,
+    NotExplicitlyRequestedDependenciesByBaseModule,
 )
 from pytestarch.rule_assessment.error_message.message_generator import (
     RuleViolationMessageGenerator,
@@ -199,12 +199,12 @@ def test_rule_violation_message_content(
     generator: RuleViolationMessageGenerator,
     violation: Dict[str, bool],
     expected_message: str,
-    strict_dependencies: DependenciesByBaseModules,
-    lax_dependencies: UnexpectedDependenciesByBaseModule,
+    strict_dependencies: ExplicitlyRequestedDependenciesByBaseModules,
+    lax_dependencies: NotExplicitlyRequestedDependenciesByBaseModule,
 ) -> None:
     violations = RuleViolations(
-        dependencies=strict_dependencies,
-        unexpected_dependencies=lax_dependencies,
+        explicitly_requested_dependencies=strict_dependencies,
+        not_explicitly_requested_dependencies=lax_dependencies,
         **violation,
     )
     messages = generator.create_rule_violation_messages(violations)
@@ -366,12 +366,12 @@ message_only_present_if_rule_violated_test_cases = [
 def test_violated_message_only_present_if_rule_actually_violated(
     generator: RuleViolationMessageGenerator,
     violation: Dict[str, bool],
-    strict_dependencies: DependenciesByBaseModules,
-    lax_dependencies: UnexpectedDependenciesByBaseModule,
+    strict_dependencies: ExplicitlyRequestedDependenciesByBaseModules,
+    lax_dependencies: NotExplicitlyRequestedDependenciesByBaseModule,
 ) -> None:
     violations = RuleViolations(
-        dependencies=strict_dependencies,
-        unexpected_dependencies=lax_dependencies,
+        explicitly_requested_dependencies=strict_dependencies,
+        not_explicitly_requested_dependencies=lax_dependencies,
         **violation,
     )
     messages = generator.create_rule_violation_messages(violations)
@@ -455,12 +455,12 @@ def test_multiple_rule_objects_combined_in_one_message(
     generator: RuleViolationMessageGenerator,
     violation: Dict[str, bool],
     expected_message: str,
-    strict_dependencies: DependenciesByBaseModules,
-    lax_dependencies: UnexpectedDependenciesByBaseModule,
+    strict_dependencies: ExplicitlyRequestedDependenciesByBaseModules,
+    lax_dependencies: NotExplicitlyRequestedDependenciesByBaseModule,
 ) -> None:
     violations = RuleViolations(
-        dependencies=strict_dependencies,
-        unexpected_dependencies=lax_dependencies,
+        explicitly_requested_dependencies=strict_dependencies,
+        not_explicitly_requested_dependencies=lax_dependencies,
         **violation,
     )
     messages = generator.create_rule_violation_messages(violations)
@@ -622,12 +622,12 @@ def test_multiple_rule_objects_in_multiple_message(
     violation: Dict[str, bool],
     expected_message_count: int,
     expected_messages: List[str],
-    strict_dependencies: DependenciesByBaseModules,
-    lax_dependencies: UnexpectedDependenciesByBaseModule,
+    strict_dependencies: ExplicitlyRequestedDependenciesByBaseModules,
+    lax_dependencies: NotExplicitlyRequestedDependenciesByBaseModule,
 ) -> None:
     violations = RuleViolations(
-        dependencies=strict_dependencies,
-        unexpected_dependencies=lax_dependencies,
+        explicitly_requested_dependencies=strict_dependencies,
+        not_explicitly_requested_dependencies=lax_dependencies,
         **violation,
     )
     messages = generator.create_rule_violation_messages(violations)
@@ -673,12 +673,12 @@ forbidden_and_no_import_test_cases = [
 def test_multiple_messages_if_forbidden_and_no_import_both_present(
     violation: Dict[str, bool],
     expected_messages: List[str],
-    strict_dependencies: DependenciesByBaseModules,
-    lax_dependencies: UnexpectedDependenciesByBaseModule,
+    strict_dependencies: ExplicitlyRequestedDependenciesByBaseModules,
+    lax_dependencies: NotExplicitlyRequestedDependenciesByBaseModule,
 ) -> None:
     violations = RuleViolations(
-        dependencies=strict_dependencies,
-        unexpected_dependencies=lax_dependencies,
+        explicitly_requested_dependencies=strict_dependencies,
+        not_explicitly_requested_dependencies=lax_dependencies,
         **violation,
     )
     messages = single_object_import_generator.create_rule_violation_messages(violations)

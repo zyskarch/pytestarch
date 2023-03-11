@@ -23,12 +23,15 @@ class Module:
 
 
 StrictDependency = Tuple[Module, Module]
-# key: module that has dependencies
-# values: modules the key depends on
-DependenciesByBaseModules = Dict[StrictDependency, List[StrictDependency]]
-# key: module that either has dependencies or that others are dependent on that were not expected
-# value: importer and importee that were not expected
-UnexpectedDependenciesByBaseModule = Dict[Module, List[StrictDependency]]
+# key: user-requested dependency
+# values: list of exact modules that show this dependency
+ExplicitlyRequestedDependenciesByBaseModules = Dict[
+    StrictDependency, List[StrictDependency]
+]
+# key: module that either has dependencies or that others are dependent on that were not explicitly requested
+# via the rule the user has specified
+# value: importer and importee that were not found
+NotExplicitlyRequestedDependenciesByBaseModule = Dict[Module, List[StrictDependency]]
 
 
 class EvaluableArchitecture(Protocol):
@@ -36,7 +39,7 @@ class EvaluableArchitecture(Protocol):
         self,
         dependents: Union[Module, list[Module]],
         dependent_upons: Union[Module, list[Module]],
-    ) -> DependenciesByBaseModules:
+    ) -> ExplicitlyRequestedDependenciesByBaseModules:
         """Returns tuple of importer and importee per dependent and depending module if the dependent module is indeed
         depending on the dependent_upon module. In short: find all dependencies between dependent and dependent_upons.
 
@@ -61,7 +64,7 @@ class EvaluableArchitecture(Protocol):
         self,
         dependents: Union[Module, List[Module]],
         dependent_upons: Union[Module, List[Module]],
-    ) -> UnexpectedDependenciesByBaseModule:
+    ) -> NotExplicitlyRequestedDependenciesByBaseModule:
         """Returns list of depending modules per dependent module if the dependent module has any
         dependency to a module other than the dependent_upon modules
         or any of their submodules.
@@ -84,7 +87,7 @@ class EvaluableArchitecture(Protocol):
         self,
         dependents: Union[Module, List[Module]],
         dependent_upons: Union[Module, List[Module]],
-    ) -> UnexpectedDependenciesByBaseModule:
+    ) -> NotExplicitlyRequestedDependenciesByBaseModule:
         """Returns list of depending modules per dependent_upon module if any module other than the dependent
         module and its submodules has any dependency to the
         dependent_upon module.

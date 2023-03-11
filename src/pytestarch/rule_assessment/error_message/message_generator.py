@@ -200,7 +200,9 @@ class RuleViolationMessageGenerator:
         if not rule_violations.should_only_violated_by_forbidden_import:
             return []
 
-        violating_dependencies = rule_violations.unexpected_dependencies.values()
+        violating_dependencies = (
+            rule_violations.not_explicitly_requested_dependencies.values()
+        )
         return self._create_other_violating_dependencies_message(violating_dependencies)
 
     def _create_other_violating_dependencies_message(
@@ -244,7 +246,9 @@ class RuleViolationMessageGenerator:
         if not rule_violations.should_not_violated:
             return []
 
-        violating_dependencies = rule_violations.dependencies.values()
+        violating_dependencies = (
+            rule_violations.explicitly_requested_dependencies.values()
+        )
         return self._create_other_violating_dependencies_message(violating_dependencies)
 
     def _create_should_import_except_violated_messages(
@@ -311,7 +315,9 @@ class RuleViolationMessageGenerator:
         if not rule_violations.should_only_except_violated_by_forbidden_import:
             return []
 
-        violating_dependencies = rule_violations.dependencies.values()
+        violating_dependencies = (
+            rule_violations.explicitly_requested_dependencies.values()
+        )
         return self._create_other_violating_dependencies_message(violating_dependencies)
 
     def _create_should_only_import_except_no_import_violated_messages(
@@ -330,7 +336,9 @@ class RuleViolationMessageGenerator:
         if not rule_violations.should_not_except_violated:
             return []
 
-        violating_dependencies = rule_violations.unexpected_dependencies.values()
+        violating_dependencies = (
+            rule_violations.not_explicitly_requested_dependencies.values()
+        )
         return self._create_other_violating_dependencies_message(violating_dependencies)
 
     def _generate_rule_subject_name(self, module: Module) -> str:
@@ -400,7 +408,7 @@ class RuleViolationMessageGenerator:
     def _rule_object_not_imported(
         cls, rule_object: str, rule_violations: RuleViolations
     ) -> bool:
-        found_dependencies = rule_violations.dependencies
+        found_dependencies = rule_violations.explicitly_requested_dependencies
 
         if not found_dependencies:
             return True
