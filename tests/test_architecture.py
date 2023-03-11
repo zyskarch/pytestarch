@@ -9,7 +9,13 @@ from pytestarch import EvaluableArchitecture, Rule, get_evaluable_architecture
 
 @pytest.fixture(scope="session")
 def pytestarch_architecture() -> EvaluableArchitecture:
-    src_folder = str(Path.cwd() / "src/pytestarch")
+    """Running the test in isolation leads to a different cwd than when running via the full pytest suite. Therefore,
+    walk up in the file hierarchy until the top level folder is reached."""
+    cwd = Path.cwd()
+    while cwd.stem != "pytestarch":
+        cwd = cwd.parent
+    src_folder = str(cwd / "src/pytestarch")
+
     return get_evaluable_architecture(
         src_folder,
         src_folder,
