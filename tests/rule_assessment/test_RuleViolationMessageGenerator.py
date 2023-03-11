@@ -4,6 +4,9 @@ from typing import Dict, List
 
 import pytest
 
+from integration.interesting_rules_for_tests import (
+    multiple_rule_subjects_multiple_rule_objects_error_message_test_cases,
+)
 from pytestarch import Rule
 from pytestarch.eval_structure.evaluable_architecture import (
     EvaluableArchitecture,
@@ -29,23 +32,23 @@ OTHER_OBJECT_MODULE_1 = Module(name=OTHER_OBJECT_1)
 OTHER_OBJECT_MODULE_2 = Module(name=OTHER_OBJECT_2)
 
 single_object_import_generator = RuleViolationMessageGenerator(
-    ORIGINAL_SUBJECT_MODULE,
+    [ORIGINAL_SUBJECT_MODULE],
     [ORIGINAL_OBJECT_MODULE_1],
     True,
 )
 single_object_be_imported_generator = RuleViolationMessageGenerator(
-    ORIGINAL_SUBJECT_MODULE,
+    [ORIGINAL_SUBJECT_MODULE],
     [ORIGINAL_OBJECT_MODULE_1],
     False,
 )
 
 multiple_object_import_generator = RuleViolationMessageGenerator(
-    ORIGINAL_SUBJECT_MODULE,
+    [ORIGINAL_SUBJECT_MODULE],
     [ORIGINAL_OBJECT_MODULE_1, ORIGINAL_OBJECT_MODULE_2],
     True,
 )
 multiple_object_be_imported_generator = RuleViolationMessageGenerator(
-    ORIGINAL_SUBJECT_MODULE,
+    [ORIGINAL_SUBJECT_MODULE],
     [ORIGINAL_OBJECT_MODULE_1, ORIGINAL_OBJECT_MODULE_2],
     False,
 )
@@ -232,21 +235,29 @@ message_only_present_if_rule_violated_test_cases = [
         single_object_import_generator,
         {"should_only_violated_by_forbidden_import": True},
         None,
-        {ORIGINAL_SUBJECT_MODULE: [(ORIGINAL_SUBJECT_MODULE, OTHER_OBJECT_MODULE_1)]},
+        {
+            (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1): [
+                (ORIGINAL_SUBJECT_MODULE, OTHER_OBJECT_MODULE_1)
+            ]
+        },
         id="should only import -- forbidden present",
     ),
     pytest.param(
         single_object_be_imported_generator,
         {"should_only_violated_by_forbidden_import": False},
         None,
-        {ORIGINAL_SUBJECT_MODULE: [(OTHER_OBJECT_MODULE_1, ORIGINAL_SUBJECT_MODULE)]},
+        {
+            (ORIGINAL_SUBJECT_MODULE, ORIGINAL_SUBJECT_MODULE): [
+                (OTHER_OBJECT_MODULE_1, ORIGINAL_SUBJECT_MODULE)
+            ]
+        },
         id="should only import -- forbidden not present",
     ),
     pytest.param(
         single_object_import_generator,
         {"should_only_violated_by_no_import": True},
         {
-            (ORIGINAL_OBJECT_1, ORIGINAL_SUBJECT_MODULE): [
+            (ORIGINAL_OBJECT_MODULE_1, ORIGINAL_SUBJECT_MODULE): [
                 (OTHER_OBJECT_MODULE_1, ORIGINAL_SUBJECT_MODULE)
             ]
         },
@@ -660,7 +671,7 @@ forbidden_and_no_import_test_cases = [
             f'"{ORIGINAL_SUBJECT}" imports "{ORIGINAL_OBJECT_1}".',
         ],
         {ORIGINAL_SUBJECT: [(ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1)]},
-        {ORIGINAL_SUBJECT_MODULE: [(ORIGINAL_SUBJECT_MODULE, OTHER_OBJECT_MODULE_1)]},
+        {ORIGINAL_SUBJECT_MODULE: []},
         id="should only except",
     ),
 ]
@@ -702,4 +713,17 @@ def test_only_offending_rule_object_listed(
         AssertionError,
         match='"src.moduleA.submoduleA1.submoduleA11.fileA11" does not import "src.moduleC".',
     ):
+        rule.assert_applies(graph_based_on_string_module_names)
+
+
+@pytest.mark.parametrize(
+    "rule, expected_error_message",
+    multiple_rule_subjects_multiple_rule_objects_error_message_test_cases,
+)
+def test_multiple_rule_subjects(
+    rule: Rule,
+    expected_error_message: str,
+    graph_based_on_string_module_names: EvaluableArchitecture,
+) -> None:
+    with pytest.raises(AssertionError, match=expected_error_message):
         rule.assert_applies(graph_based_on_string_module_names)

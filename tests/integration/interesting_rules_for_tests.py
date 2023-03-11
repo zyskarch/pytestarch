@@ -11,7 +11,10 @@ FILE_A2 = f"{A}.submoduleA2.fileA2"
 A2 = f"{A}.submoduleA2"
 A1 = f"{A}.submoduleA1"
 A11 = f"{A}.submoduleA1.submoduleA11"
+FILE_A11 = f"{A}.submoduleA1.submoduleA11.fileA11"
 B1_MODULE = f"{B}.submoduleB1"
+FILE_B1 = f"{B}.submoduleB1.fileB1"
+FILE_B11 = f"{B}.submoduleB1.submoduleB11.fileB11"
 B2 = f"{B}.submoduleB1.fileB2"
 FILE_C = f"{C}.fileC"
 
@@ -132,7 +135,7 @@ rules_for_level_limits = [
     ),
 ]
 
-single_rule_object_error_message_test_cases = [
+single_rule_subject_single_rule_object_error_message_test_cases = [
     pytest.param(
         Rule().modules_that().are_named(C).should().import_modules_that().are_named(A),
         '"src.moduleC" does not import "src.moduleA".',
@@ -710,7 +713,7 @@ single_rule_object_error_message_test_cases = [
     ),
 ]
 
-multiple_rule_objects_error_message_test_cases = [
+single_rule_subject_multiple_rule_objects_error_message_test_cases = [
     pytest.param(
         Rule()
         .modules_that()
@@ -1282,6 +1285,313 @@ multiple_rule_objects_error_message_test_cases = [
         + "\n"
         + '"src.moduleC.fileC" is imported by "src.moduleA.submoduleA2.fileA2".',
         id="submodule should not be imported by except submodule",
+    ),
+]
+
+
+multiple_rule_subjects_multiple_rule_objects_error_message_test_cases = [
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([B2, FILE_B1])
+        .should_only()
+        .import_modules_that()
+        .are_named([A]),
+        '"src.moduleB.submoduleB1.fileB1" does not import "src.moduleA".',
+        id="one subject violates should only rule -- no import",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([A, A2])
+        .should_only()
+        .import_modules_that()
+        .are_named([C]),
+        '"src.moduleA.submoduleA1.submoduleA11.fileA11" imports "src.moduleB.submoduleB1.fileB1".',
+        id="one subject violates should only rule -- forbidden import",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([A, C])
+        .should_only()
+        .import_modules_that()
+        .are_named([B]),
+        '"src.moduleA.fileA" imports "src.moduleC.fileC".\n'
+        '"src.moduleA.submoduleA2.fileA2" imports "src.moduleC.fileC".\n'
+        '"src.moduleC" does not import "src.moduleB".',
+        id="both subjects violate should only rule -- one forbidden one missing import",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([A, C])
+        .should()
+        .import_modules_that()
+        .are_named([B]),
+        '"src.moduleC" does not import "src.moduleB".',
+        id="one subject violates should rule",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([FILE_C, C])
+        .should()
+        .import_modules_that()
+        .are_named([B]),
+        '"src.moduleC" does not import "src.moduleB".\n'
+        '"src.moduleC.fileC" does not import "src.moduleB".',
+        id="two subjects violate should rule",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([A, B])
+        .should_not()
+        .import_modules_that()
+        .are_named([C]),
+        '"src.moduleA.fileA" imports "src.moduleC.fileC".\n'
+        '"src.moduleA.submoduleA2.fileA2" imports "src.moduleC.fileC".',
+        id="one subject violates should_not rule",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([B, B2])
+        .should_not()
+        .import_modules_that()
+        .are_named([A]),
+        '"src.moduleB.fileB" imports "src.moduleA.submoduleA1.submoduleA11.fileA11".\n'
+        '"src.moduleB.submoduleB1.fileB2" imports "src.moduleA.submoduleA1.submoduleA11.fileA11".\n'
+        '"src.moduleB.submoduleB1.submoduleB11.fileB11" imports "src.moduleA.submoduleA1.submoduleA11.fileA11".',
+        id="two subjects violate should_not rule",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([A2, C])
+        .should_only()
+        .import_modules_except_modules_that()
+        .are_named([C]),
+        '"src.moduleC" does not import any module that is not "src.moduleC".',
+        id="one subject violates should_only except rule -- no import",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([B, C])
+        .should_only()
+        .import_modules_except_modules_that()
+        .are_named([B]),
+        '"src.moduleC" does not import any module that is not "src.moduleB".',
+        id="two subjects violate should_only except rule -- no import",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([B, C])
+        .should_only()
+        .import_modules_except_modules_that()
+        .are_named([A]),
+        '"src.moduleB" does not import any module that is not "src.moduleA".\n'
+        '"src.moduleB.fileB" imports "src.moduleA.submoduleA1.submoduleA11.fileA11".\n'
+        '"src.moduleB.submoduleB1.fileB2" imports "src.moduleA.submoduleA1.submoduleA11.fileA11".\n'
+        '"src.moduleB.submoduleB1.submoduleB11.fileB11" imports "src.moduleA.submoduleA1.submoduleA11.fileA11".\n'
+        '"src.moduleC" does not import any module that is not "src.moduleA".',
+        id="two subjects violate should_only except rule -- no import and forbidden import",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([A11, A2])
+        .should()
+        .import_modules_except_modules_that()
+        .are_named([FILE_B1]),
+        '"src.moduleA.submoduleA1.submoduleA11" does not import any module that is not "src.moduleB.submoduleB1.fileB1".',
+        id="one subject violates should except rule",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([B, C])
+        .should()
+        .import_modules_except_modules_that()
+        .are_named([A]),
+        '"src.moduleB" does not import any module that is not "src.moduleA".\n'
+        '"src.moduleC" does not import any module that is not "src.moduleA".',
+        id="two subjects violate should except rule",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([A2, B2])
+        .should_not()
+        .import_modules_except_modules_that()
+        .are_named([C]),
+        '"src.moduleB.submoduleB1.fileB2" imports "src.moduleA.submoduleA1.submoduleA11.fileA11".',
+        id="one subject violates should_not except rule",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([A, B2])
+        .should_not()
+        .import_modules_except_modules_that()
+        .are_named([C]),
+        '"src.moduleA.submoduleA1.submoduleA11.fileA11" imports "src.moduleB.submoduleB1.fileB1".\n'
+        '"src.moduleB.submoduleB1.fileB2" imports "src.moduleA.submoduleA1.submoduleA11.fileA11".',
+        id="two subjects violate should_not except rule",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([B2, FILE_A11])
+        .should_only()
+        .be_imported_by_modules_that()
+        .are_named([B]),
+        '"src.moduleA.submoduleA1.submoduleA11.fileA11" is not imported by "src.moduleB".',
+        id="one subject violates should only be imported rule -- no import",
+    ),
+    # pytest.param(  # TODO
+    #     Rule()
+    #     .modules_that()
+    #     .are_named([A, A2])
+    #     .should_only()
+    #     .be_imported_by_modules_that()
+    #     .are_named([C]),
+    #     '"src.moduleA.submoduleA1.submoduleA11.fileA11" imports "src.moduleB.submoduleB1.fileB1".',
+    #     id="one subject violates should only be imported rule -- forbidden import",
+    # ),
+    # pytest.param(  # TODO
+    #     Rule()
+    #     .modules_that()
+    #     .are_named([A, C])
+    #     .should_only()
+    #     .be_imported_by_modules_that()
+    #     .are_named([B]),
+    #     '"src.moduleA.fileA" imports "src.moduleC.fileC".\n'
+    #     '"src.moduleA.submoduleA2.fileA2" imports "src.moduleC.fileC".\n'
+    #     '"src.moduleC" does not import "src.moduleB".',
+    #     id="both subjects violate should only be imported rule -- one forbidden one missing import",
+    # ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([A, C])
+        .should()
+        .be_imported_by_modules_that()
+        .are_named([B]),
+        '"src.moduleC" is not imported by "src.moduleB".',
+        id="one subject violates should be imported rule",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([A, B])
+        .should()
+        .be_imported_by_modules_that()
+        .are_named([C]),
+        '"src.moduleA" is not imported by "src.moduleC".\n'
+        '"src.moduleB" is not imported by "src.moduleC".',
+        id="two subjects violate should be imported rule",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([A, C])
+        .should_not()
+        .be_imported_by_modules_that()
+        .are_named([B]),
+        '"src.moduleA.submoduleA1.submoduleA11.fileA11" is imported by "src.moduleB.fileB".\n'
+        '"src.moduleA.submoduleA1.submoduleA11.fileA11" is imported by "src.moduleB.submoduleB1.fileB2".',
+        id="one subject violates should_not be imported rule",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([B, C])
+        .should_not()
+        .be_imported_by_modules_that()
+        .are_named([A]),
+        '"src.moduleB.submoduleB1.fileB1" is imported by "src.moduleA.submoduleA1.submoduleA11.fileA11".\n'
+        '"src.moduleC.fileC" is imported by "src.moduleA.fileA".\n'
+        '"src.moduleC.fileC" is imported by "src.moduleA.submoduleA2.fileA2".',
+        id="two subjects violate should_not be imported rule",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([B, A11])
+        .should_only()
+        .be_imported_by_modules_except_modules_that()
+        .are_named([A]),
+        '"src.moduleB" is not imported by any module that is not "src.moduleA".',
+        id="one subject violates should_only except be imported rule -- no import",
+    ),
+    # pytest.param(  # TODO
+    #         Rule()
+    #         .modules_that()
+    #         .are_named([B, C])
+    #         .should_only()
+    #         .be_imported_by_modules_except_modules_that()
+    #         .are_named([B]),
+    #         '"src.moduleC" is imported by "src.moduleC".',
+    #         id="one subject violates should_only except be imported rule -- forbidden import",
+    #     ),
+    #     pytest.param(  # TODO
+    #         Rule()
+    #         .modules_that()
+    #         .are_named([B, C])
+    #         .should_only()
+    #         .be_imported_by_modules_except_modules_that()
+    #         .are_named([A]),
+    #         '"src.moduleB" does not import any module that is not "src.moduleA".\n'
+    #         '"src.moduleC" does not import any module that is not "src.moduleA".',
+    #         id="two subjects violate should_only except be imported rule --- no import and forbidden import",
+    #     ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([A, FILE_B11])
+        .should()
+        .be_imported_by_modules_except_modules_that()
+        .are_named([C]),
+        '"src.moduleB.submoduleB1.submoduleB11.fileB11" is not imported by any module that is not "src.moduleC".',
+        id="one subject violates should except be imported rule",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([A2, B])
+        .should()
+        .be_imported_by_modules_except_modules_that()
+        .are_named([C]),
+        '"src.moduleA.submoduleA2" is not imported by any module that is not "src.moduleC".',
+        id="two subjects violate should except be imported rule",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([B, C])
+        .should_not()
+        .be_imported_by_modules_except_modules_that()
+        .are_named([A11]),
+        '"src.moduleC.fileC" is imported by "src.moduleA.fileA".\n'
+        '"src.moduleC.fileC" is imported by "src.moduleA.submoduleA2.fileA2".',
+        id="one subject violates should_not except be imported rule",
+    ),
+    pytest.param(
+        Rule()
+        .modules_that()
+        .are_named([A, B])
+        .should_not()
+        .be_imported_by_modules_except_modules_that()
+        .are_named([C]),
+        '"src.moduleA.submoduleA1.submoduleA11.fileA11" is imported by "src.moduleB.fileB".\n'
+        '"src.moduleA.submoduleA1.submoduleA11.fileA11" is imported by "src.moduleB.submoduleB1.fileB2".\n'
+        '"src.moduleA.submoduleA1.submoduleA11.fileA11" is imported by "src.moduleB.submoduleB1.submoduleB11.fileB11".\n'
+        '"src.moduleB.submoduleB1.fileB1" is imported by "src.moduleA.submoduleA1.submoduleA11.fileA11".',
+        id="two subjects violate should_not except be imported rule",
     ),
 ]
 

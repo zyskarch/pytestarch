@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import List
 
 import pytest
+
 from eval_structure.evaluable_graph.conftest import (
     MODULE_1,
     MODULE_2,
@@ -10,7 +11,6 @@ from eval_structure.evaluable_graph.conftest import (
     SUB_MODULE_OF_1,
     SUB_MODULE_OF_2,
 )
-
 from pytestarch.eval_structure.evaluable_architecture import Module
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.networkxgraph import NetworkxGraph
@@ -31,7 +31,7 @@ def test_any_to_other_between_named_modules(imports: List[AbsoluteImport]) -> No
     module_1 = Module(name=MODULE_1)
     module_2 = Module(name=MODULE_2)
     assert architecture.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
-        module_1, module_2
+        [module_1], [module_2]
     )[
         module_1
     ]
@@ -55,7 +55,7 @@ def test_any_to_other_between_named_and_submodule_modules(
     module_1 = Module(name=MODULE_1)
     module_2 = Module(parent_module=MODULE_2)
     assert architecture.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
-        module_1, module_2
+        [module_1], [module_2]
     )[
         module_1
     ]
@@ -76,7 +76,7 @@ def test_any_to_other_between_submodule_and_named_modules(
     module_1 = Module(parent_module=MODULE_1)
     module_2 = Module(name=MODULE_2)
     assert architecture.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
-        module_1, module_2
+        [module_1], [module_2]
     )[
         module_1
     ]
@@ -96,7 +96,7 @@ def test_any_to_other_between_submodule_modules(imports: List[AbsoluteImport]) -
     module_1 = Module(parent_module=MODULE_1)
     module_2 = Module(parent_module=MODULE_2)
     assert architecture.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
-        module_1, module_2
+        [module_1], [module_2]
     )[
         module_1
     ]
@@ -118,7 +118,7 @@ def test_not_any_to_other_between_named_modules(imports: List[AbsoluteImport]) -
     module_1 = Module(name=MODULE_1)
     module_2 = Module(name=MODULE_2)
     assert not architecture.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
-        module_1, module_2
+        [module_1], [module_2]
     )[
         module_1
     ]
@@ -140,7 +140,7 @@ def test_not_any_to_other_between_named_and_submodule_modules(
     module_1 = Module(name=MODULE_1)
     module_2 = Module(parent_module=MODULE_2)
     assert not architecture.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
-        module_1, module_2
+        [module_1], [module_2]
     )[
         module_1
     ]
@@ -163,7 +163,7 @@ def test_not_any_to_other_between_submodule_and_named_modules(
     module_1 = Module(parent_module=MODULE_1)
     module_2 = Module(name=MODULE_2)
     assert not architecture.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
-        module_1, module_2
+        [module_1], [module_2]
     )[
         module_1
     ]
@@ -185,7 +185,7 @@ def test_not_any_to_other_between_submodule_modules(
     module_1 = Module(parent_module=MODULE_1)
     module_2 = Module(parent_module=MODULE_2)
     assert not architecture.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
-        module_1, module_2
+        [module_1], [module_2]
     )[
         module_1
     ]

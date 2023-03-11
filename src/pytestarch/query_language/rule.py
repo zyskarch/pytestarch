@@ -26,7 +26,7 @@ from pytestarch.rule_assessment.rule_check.rule_matcher import (
 
 @dataclass
 class RuleConfiguration:
-    module_to_check: Optional[Module] = None
+    modules_to_check: Optional[List[Module]] = None
     modules_to_check_against: Optional[List[Module]] = None
     should: bool = False
     should_only: bool = False
@@ -56,8 +56,8 @@ class Rule(
         self._configuration = RuleConfiguration()
 
     @property
-    def rule_subject(self) -> Optional[Module]:
-        return self._configuration.module_to_check
+    def rule_subjects(self) -> Optional[List[Module]]:
+        return self._configuration.modules_to_check
 
     def modules_that(self) -> RuleSubject:
         self._modules_to_check_to_be_specified_next = True
@@ -89,22 +89,14 @@ class Rule(
         if self._modules_to_check_to_be_specified_next is None:
             raise ImproperlyConfigured("Specify a RuleSubject or RuleObject first.")
 
-        if self._modules_to_check_to_be_specified_next and isinstance(
-            module_names, list
-        ):
-            raise ImproperlyConfigured("Only rule subjects can be specified in batch.")
-
-        if not self._modules_to_check_to_be_specified_next and isinstance(
-            module_names, str
-        ):
+        if isinstance(module_names, str):
             module_names = [module_names]
 
+        modules = [create_module_fn(n) for n in module_names]
         if self._modules_to_check_to_be_specified_next:
-            self._configuration.module_to_check = create_module_fn(module_names)  # type: ignore
+            self._configuration.modules_to_check = modules
         else:
-            self._configuration.modules_to_check_against = [
-                create_module_fn(n) for n in module_names
-            ]
+            self._configuration.modules_to_check_against = modules
 
     def should(self) -> DependencySpecification:
         self._configuration.should = True
@@ -159,7 +151,7 @@ class Rule(
 
     def _prepare_rule_matcher(self) -> RuleMatcher:
         module_requirement = ModuleRequirement(
-            self._configuration.module_to_check,
+            self._configuration.modules_to_check,
             self._configuration.modules_to_check_against,
             self._configuration.import_,
         )
@@ -179,7 +171,7 @@ class Rule(
 
         subject_prefix = (
             "Sub modules of "
-            if self._configuration.module_to_check.parent_module is not None
+            if self._configuration.modules_to_check[0].parent_module is not None
             else ""
         )
         if self._configuration.rule_object_anything:
@@ -187,13 +179,24 @@ class Rule(
         else:
             object_message = f'modules that are {"named" if self._configuration.modules_to_check_against[0].name is not None else "sub modules of"} '
 
+        combined_rule_subjects = self._combine_names(
+            self._configuration.modules_to_check
+        )
+        combined_rule_objects = self._combine_names(
+            self._configuration.modules_to_check_against
+        )
         return (
-            f'{subject_prefix}"{self._get_module_name(self._configuration.module_to_check)}" '
+            f'{subject_prefix}"{combined_rule_subjects}" '
             f"{method_name} "
             f'{"import" if self._configuration.import_ else "be imported by"} '
             f'{"modules except " if self._configuration.except_present else ""}'
             f"{object_message}"
-            f'"{", ".join(sorted(map(lambda module: self._get_module_name(module), self._configuration.modules_to_check_against)))}".'
+            f'"{combined_rule_objects}".'
+        )
+
+    def _combine_names(self, modules: list[Module]) -> str:
+        return ", ".join(
+            sorted(map(lambda module: self._get_module_name(module), modules))
         )
 
     def _get_module_name(self, module: Module) -> str:
@@ -208,7 +211,7 @@ class Rule(
             ]
         )
         dependency_missing = self._configuration.import_ is None
-        subject_missing = not self._configuration.module_to_check
+        subject_missing = not self._configuration.modules_to_check
         object_missing = not self._configuration.modules_to_check_against
 
         if any([behavior_missing, dependency_missing, subject_missing, object_missing]):
@@ -256,6 +259,6 @@ class Rule(
         return replace(
             configuration,
             rule_object_anything=False,
-            modules_to_check_against=[configuration.module_to_check],
+            modules_to_check_against=configuration.modules_to_check,
             except_present=True,
         )

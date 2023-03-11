@@ -44,27 +44,25 @@ class RuleViolationMessageGenerator:
 
     def __init__(
         self,
-        original_rule_subject: Module,
+        original_rule_subjects: List[Module],
         original_rule_objects: List[Module],
         import_rule: bool,
     ) -> None:
         """
         Args:
-            original_rule_subject: module as originally specified
+            original_rule_subjects: modules as originally specified
             original_rule_objects: modules as originally specified
             import_rule: True if the underlying rule is a "import" instead of an "is imported" rule
         """
-        self._original_rule_subject_name = self._generate_rule_subject_name(
-            original_rule_subject
-        )
-        self._original_rule_subject_singular = self._is_singular_module(
-            original_rule_subject
-        )
+        (
+            self._original_rule_subject_names,
+            self._original_rule_subjects_singular,
+        ) = self._generate_rule_xbject_names_and_count(original_rule_subjects)
 
         (
             self._original_rule_object_names,
             self._original_rule_object_singular,
-        ) = self._generate_rule_object_names_and_count(original_rule_objects)
+        ) = self._generate_rule_xbject_names_and_count(original_rule_objects)
 
         self._import_rule = import_rule
 
@@ -152,25 +150,36 @@ class RuleViolationMessageGenerator:
     ) -> List[RuleViolatedMessage]:
         messages = []
 
-        rule_subject = self._original_rule_subject_name
-
-        verb_prefix = self._get_verb_prefix(
-            negated=True, subject_singular=self._original_rule_subject_singular
-        )
-        rule_verb = self._concatenate_verb(prefix=verb_prefix, verb=self._base_verb)
-
-        rule_objects = []
-
-        for rule_object, is_singular in zip(
-            self._original_rule_object_names, self._original_rule_object_singular
+        for rule_subject, rule_subject_is_singular in zip(
+            self._original_rule_subject_names, self._original_rule_subjects_singular
         ):
-            if self._rule_object_not_imported(rule_object, rule_violations):
-                rule_objects.append(self._get_rule_object(rule_object, is_singular))
+            verb_prefix = self._get_verb_prefix(
+                negated=True, subject_singular=rule_subject_is_singular
+            )
+            rule_verb = self._concatenate_verb(prefix=verb_prefix, verb=self._base_verb)
 
-        combined_rule_object = ", ".join(rule_objects)
-        messages.append(
-            RuleViolatedMessage(rule_subject, rule_verb, combined_rule_object)
-        )
+            rule_objects = []
+
+            for rule_object, rule_object_is_singular in zip(
+                self._original_rule_object_names, self._original_rule_object_singular
+            ):
+                if self._rule_object_not_imported(
+                    rule_subject, rule_object, rule_violations
+                ):
+                    rule_objects.append(
+                        self._get_rule_object(rule_object, rule_object_is_singular)
+                    )
+
+            combined_rule_object = ", ".join(rule_objects)
+            if combined_rule_object:
+                rule_subject_formatted = self._get_rule_subject_formatted(
+                    rule_subject, rule_subject_is_singular
+                )
+                messages.append(
+                    RuleViolatedMessage(
+                        rule_subject_formatted, rule_verb, combined_rule_object
+                    )
+                )
 
         return messages
 
@@ -257,35 +266,44 @@ class RuleViolationMessageGenerator:
         if not rule_violations.should_except_violated:
             return []
 
-        return (
-            self._create_no_import_other_than_between_original_subject_and_objects_message()
+        return self._create_no_import_other_than_between_original_subject_and_objects_message(
+            rule_violations
         )
 
     def _create_no_import_other_than_between_original_subject_and_objects_message(
-        self,
+        self, rule_violations: RuleViolations
     ) -> List[RuleViolatedMessage]:
         messages = []
 
-        rule_subject = self._original_rule_subject_name
-
-        verb_prefix = self._get_verb_prefix(
-            negated=True, subject_singular=self._original_rule_subject_singular
-        )
-        rule_verb = self._concatenate_verb(prefix=verb_prefix, verb=self._base_verb)
-
-        rule_objects = []
-
-        for rule_object, is_singular in zip(
-            self._original_rule_object_names, self._original_rule_object_singular
+        for rule_subject, rule_subject_is_singular in zip(
+            self._original_rule_subject_names, self._original_rule_subjects_singular
         ):
-            rule_objects.append(
-                self._get_rule_object(rule_object, is_singular),
+            verb_prefix = self._get_verb_prefix(
+                negated=True, subject_singular=rule_subject_is_singular
             )
+            rule_verb = self._concatenate_verb(prefix=verb_prefix, verb=self._base_verb)
 
-        combined_rule_object = ANY_MODULE_THAT_IS_NOT + ", ".join(rule_objects)
-        messages.append(
-            RuleViolatedMessage(rule_subject, rule_verb, combined_rule_object)
-        )
+            rule_objects = []
+
+            if self._no_other_import(rule_subject, rule_violations):
+                for rule_object, rule_object_is_singular in zip(
+                    self._original_rule_object_names,
+                    self._original_rule_object_singular,
+                ):
+                    rule_objects.append(
+                        self._get_rule_object(rule_object, rule_object_is_singular),
+                    )
+
+            if rule_objects:
+                combined_rule_object = ANY_MODULE_THAT_IS_NOT + ", ".join(rule_objects)
+                rule_subject_formatted = self._get_rule_subject_formatted(
+                    rule_subject, rule_subject_is_singular
+                )
+                messages.append(
+                    RuleViolatedMessage(
+                        rule_subject_formatted, rule_verb, combined_rule_object
+                    )
+                )
 
         return messages
 
@@ -326,8 +344,8 @@ class RuleViolationMessageGenerator:
         if not rule_violations.should_only_except_violated_by_no_import:
             return []
 
-        return (
-            self._create_no_import_other_than_between_original_subject_and_objects_message()
+        return self._create_no_import_other_than_between_original_subject_and_objects_message(
+            rule_violations
         )
 
     def _create_should_not_import_except_violated_messages(
@@ -341,20 +359,13 @@ class RuleViolationMessageGenerator:
         )
         return self._create_other_violating_dependencies_message(violating_dependencies)
 
-    def _generate_rule_subject_name(self, module: Module) -> str:
-        name = self._get_module_name(module)
-        prefix = ""
-        if not self._is_singular_module(module):
-            prefix = "Sub modules of "
-        return f"{prefix}{self._quoted_name(name)}"
-
-    def _generate_rule_object_names_and_count(
-        self, original_rule_objects: List[Module]
+    def _generate_rule_xbject_names_and_count(
+        self, original_rule_xbjects: List[Module]
     ) -> Tuple[List[str], List[bool]]:
         names = []
         is_singular = []
 
-        for rule_object in original_rule_objects:
+        for rule_object in original_rule_xbjects:
             names.append(self._get_module_name(rule_object))
             is_singular.append(self._is_singular_module(rule_object))
 
@@ -374,9 +385,16 @@ class RuleViolationMessageGenerator:
 
     def _get_rule_object(self, rule_object: str, is_singular: bool) -> str:
         module_qualifier = "" if is_singular else RULE_OBJECT_IS_SUBMODULE_MARKER
-        return f"{module_qualifier}{self._quoted_name(rule_object)}"
+        return f"{module_qualifier}{self._get_quoted_name(rule_object)}"
 
-    def _quoted_name(self, name: str) -> str:
+    def _get_rule_subject_formatted(self, rule_subject: str, is_singular: bool) -> str:
+        prefix = ""
+        if not is_singular:  # assumes that all modules here are of the same type
+            prefix = "Sub modules of "
+
+        return f'{prefix}"{rule_subject}"'
+
+    def _get_quoted_name(self, name: str) -> str:
         return f'"{name}"'
 
     def _get_rule_subject_and_object_of_dependency(
@@ -392,7 +410,9 @@ class RuleViolationMessageGenerator:
         rule_subject_name = self._get_module_name(rule_subject)
         rule_object_name = self._get_module_name(rule_object)
 
-        return self._quoted_name(rule_subject_name), self._quoted_name(rule_object_name)
+        return self._get_quoted_name(rule_subject_name), self._get_quoted_name(
+            rule_object_name
+        )
 
     def _get_verb_suffix(self, subject_singular: bool) -> str:
         if not subject_singular:
@@ -406,9 +426,18 @@ class RuleViolationMessageGenerator:
 
     @classmethod
     def _rule_object_not_imported(
-        cls, rule_object: str, rule_violations: RuleViolations
+        cls, rule_subject: str, rule_object: str, rule_violations: RuleViolations
     ) -> bool:
-        found_dependencies = rule_violations.explicitly_requested_dependencies
+        all_found_dependencies = rule_violations.explicitly_requested_dependencies
+
+        if all_found_dependencies is None:
+            return True
+
+        found_dependencies = {
+            abstract_dependency: concrete_dependency
+            for abstract_dependency, concrete_dependency in all_found_dependencies.items()
+            if abstract_dependency[0].name == rule_subject
+        }
 
         if not found_dependencies:
             return True
@@ -417,6 +446,31 @@ class RuleViolationMessageGenerator:
             len(concrete_dependency_realisations)
             for abstract_dependency, concrete_dependency_realisations in found_dependencies.items()
             if abstract_dependency[1].name == rule_object
+        ]
+
+        if not dependencies_for_rule_object:
+            return True
+
+        return sum(dependencies_for_rule_object) == 0
+
+    def _no_other_import(
+        self, rule_subject: str, rule_violations: RuleViolations
+    ) -> bool:
+        if rule_violations.not_explicitly_requested_dependencies is None:
+            return True
+
+        found_dependencies = {
+            abstract_dependency: concrete_dependency
+            for abstract_dependency, concrete_dependency in rule_violations.not_explicitly_requested_dependencies.items()
+            if abstract_dependency.name == rule_subject
+        }
+
+        if not found_dependencies:
+            return True
+
+        dependencies_for_rule_object = [
+            len(concrete_dependency_realisations)
+            for abstract_dependency, concrete_dependency_realisations in found_dependencies.items()
         ]
 
         if not dependencies_for_rule_object:

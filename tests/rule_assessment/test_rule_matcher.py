@@ -68,7 +68,7 @@ multiple_violations_test_cases = [
     pytest.param(
         [
             AbsoluteImport(MODULE_2, MODULE_1),
-            AbsoluteImport(MODULE_4, MODULE_1),
+            AbsoluteImport(MODULE_3, MODULE_1),
         ],
         Rule()
         .modules_that()
@@ -78,7 +78,9 @@ multiple_violations_test_cases = [
         .are_named([MODULE_2, MODULE_3]),
         [],
         {
-            (Module(name=MODULE_3), Module(name=MODULE_1)): [],
+            (Module(name=MODULE_3), Module(name=MODULE_1)): [
+                (Module(name=MODULE_3), Module(name=MODULE_1))
+            ],
             (Module(name=MODULE_2), Module(name=MODULE_1)): [
                 (Module(name=MODULE_2), Module(name=MODULE_1))
             ],
