@@ -67,19 +67,13 @@ class RuleViolationDetector:
             and not self._behavior_requirement._behavior_exception
         )
 
-        not_explicitly_requested_dependency_present = (
-            not_explicitly_requested_dependencies is not None
-            and any(
-                lax_dependency
-                for lax_dependency in not_explicitly_requested_dependencies.values()
-            )
+        not_explicitly_requested_dependency_present = not_explicitly_requested_dependencies is not None and any(
+            not_explicitly_requested_dependency
+            for not_explicitly_requested_dependency in not_explicitly_requested_dependencies.values()
         )
-        explicitly_requested_dependency_present = (
-            explicitly_requested_dependencies is not None
-            and any(
-                strict_dependency
-                for strict_dependency in explicitly_requested_dependencies.values()
-            )
+        explicitly_requested_dependency_present = explicitly_requested_dependencies is not None and any(
+            explicitly_requested_dependency
+            for explicitly_requested_dependency in explicitly_requested_dependencies.values()
         )
 
         return RuleViolations(

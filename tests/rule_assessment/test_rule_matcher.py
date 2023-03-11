@@ -651,15 +651,15 @@ multiple_violations_test_cases = [
 
 
 @pytest.mark.parametrize(
-    "imports, rule, expected_violated, strict_dependencies, lax_dependencies",
+    "imports, rule, expected_violated, explicitly_requested_dependencies, not_explicitly_requested_dependencies",
     multiple_violations_test_cases,
 )
 def test_multiple_violations_due_to_multiple_rule_objects(
     imports: List[AbsoluteImport],
     rule: Rule,
     expected_violated: List[str],
-    strict_dependencies: ExplicitlyRequestedDependenciesByBaseModules,
-    lax_dependencies: NotExplicitlyRequestedDependenciesByBaseModule,
+    explicitly_requested_dependencies: ExplicitlyRequestedDependenciesByBaseModules,
+    not_explicitly_requested_dependencies: NotExplicitlyRequestedDependenciesByBaseModule,
 ) -> None:
     evaluable = EvaluableArchitectureGraph(NetworkxGraph(ALL_MODULES, imports))
     matcher = rule._prepare_rule_matcher()
@@ -674,5 +674,11 @@ def test_multiple_violations_due_to_multiple_rule_objects(
         else:
             assert not violated
 
-    assert violations.explicitly_requested_dependencies == strict_dependencies
-    assert violations.not_explicitly_requested_dependencies == lax_dependencies
+    assert (
+        violations.explicitly_requested_dependencies
+        == explicitly_requested_dependencies
+    )
+    assert (
+        violations.not_explicitly_requested_dependencies
+        == not_explicitly_requested_dependencies
+    )
