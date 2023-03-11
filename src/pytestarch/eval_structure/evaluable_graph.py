@@ -13,10 +13,10 @@ from pytestarch.eval_structure.breadth_first_searches import (
     get_dependency_between_modules,
 )
 from pytestarch.eval_structure.evaluable_architecture import (
-    DependenciesByBaseModules,
     EvaluableArchitecture,
+    ExplicitlyRequestedDependenciesByBaseModules,
     Module,
-    UnexpectedDependenciesByBaseModule,
+    NotExplicitlyRequestedDependenciesByBaseModule,
 )
 from pytestarch.eval_structure.evaluable_structures import AbstractGraph, AbstractNode
 from pytestarch.eval_structure.exceptions import ImpossibleMatch
@@ -35,7 +35,7 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
         self,
         dependents: Union[Module, List[Module]],
         dependent_upons: Union[Module, List[Module]],
-    ) -> DependenciesByBaseModules:
+    ) -> ExplicitlyRequestedDependenciesByBaseModules:
         result = {}
 
         dependents = self._listify(dependents)
@@ -57,7 +57,7 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
         self,
         dependents: Union[Module, List[Module]],
         dependent_upons: Union[Module, List[Module]],
-    ) -> UnexpectedDependenciesByBaseModule:
+    ) -> NotExplicitlyRequestedDependenciesByBaseModule:
         result = {}
 
         dependents = self._listify(dependents)
@@ -82,7 +82,7 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
         self,
         dependents: Union[Module, List[Module]],
         dependent_upons: Union[Module, List[Module]],
-    ) -> UnexpectedDependenciesByBaseModule:
+    ) -> NotExplicitlyRequestedDependenciesByBaseModule:
         result = {}
 
         dependents = self._listify(dependents)
