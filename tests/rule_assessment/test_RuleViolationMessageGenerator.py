@@ -5,6 +5,10 @@ from typing import Dict, List
 import pytest
 
 from integration.interesting_rules_for_tests import (
+    FILE_A11,
+    B,
+    C,
+    additional_multiple_rule_subjects_multiple_rule_objects_error_message_test_cases,
     multiple_rule_subjects_multiple_rule_objects_error_message_test_cases,
 )
 from pytestarch import Rule
@@ -665,10 +669,10 @@ def test_only_offending_rule_object_listed(
     rule = (
         Rule()
         .modules_that()
-        .are_named("src.moduleA.submoduleA1.submoduleA11.fileA11")
+        .are_named(FILE_A11)
         .should_only()
         .import_modules_that()
-        .are_named(["src.moduleB", "src.moduleC"])
+        .are_named([B, C])
     )
     with pytest.raises(
         AssertionError,
@@ -688,3 +692,16 @@ def test_multiple_rule_subjects(
 ) -> None:
     with pytest.raises(AssertionError, match=expected_error_message):
         rule.assert_applies(graph_based_on_string_module_names)
+
+
+@pytest.mark.parametrize(
+    "rule, expected_error_message",
+    additional_multiple_rule_subjects_multiple_rule_objects_error_message_test_cases,
+)
+def test_multiple_rule_subjects_additional_dependencies_only_present_in_other_test_project(
+    rule: Rule,
+    expected_error_message: str,
+    flat_project_1: EvaluableArchitecture,
+) -> None:
+    with pytest.raises(AssertionError, match=expected_error_message):
+        rule.assert_applies(flat_project_1)
