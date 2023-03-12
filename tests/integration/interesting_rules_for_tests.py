@@ -1449,7 +1449,7 @@ multiple_rule_subjects_multiple_rule_objects_error_message_test_cases = [
         .should_only()
         .be_imported_by_modules_that()
         .are_named([B]),
-        '"src.moduleA.submoduleA1.submoduleA11.fileA11" is not imported by "src.moduleB".',
+        '"src.moduleB.submoduleB1.fileB2" is not imported by "src.moduleB".',
         id="one subject violates should only be imported rule -- no import",
     ),
     # pytest.param(  # TODO

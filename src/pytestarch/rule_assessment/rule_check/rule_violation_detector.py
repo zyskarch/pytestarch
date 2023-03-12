@@ -1,29 +1,40 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Iterable, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pytestarch.eval_structure.evaluable_architecture import (
     ExplicitlyRequestedDependenciesByBaseModules,
     NotExplicitlyRequestedDependenciesByBaseModule,
+    StrictDependency,
 )
 from pytestarch.rule_assessment.rule_check.behavior_requirement import (
     BehaviorRequirement,
 )
+from pytestarch.rule_assessment.rule_check.module_requirement import ModuleRequirement
 from pytestarch.rule_assessment.rule_check.rule_violations import RuleViolations
 
 
 class RuleViolationDetector:
     """Based on the behavior requirement and the dependencies that have actually been (not) found in the graph,
-    this class decides whether any of the requirements have been violated.
+    this class decides whether any of the requirements have been violated and how.
 
     ExplicitlyRequestedDependenciesByBaseModules follow this structure:
     {(requested dependency, e.g. from A to B): [list of dependencies found that qualifiy as the requested dependency, e.g. A.a1 imports B, A.a2 imports B]}
 
     NotExplicitlyRequestedDependenciesByBaseModule on the other hand are structured like this:
     {Module for which not explicitly requested dependencies (either from or to this module) were found: [list of such dependencies]}.
+
+    The output is a rule violation object which for each type of rule contains a list of (rule subject, rule object) which violate the rule. These are ordered according
+    to the order the user used when specifying the rule, i.e. the rule subject is the original rule subject no matter if the rule is an import
+    or be imported rule.
     """
 
-    def __init__(self, behavior_requirement: BehaviorRequirement) -> None:
+    def __init__(
+        self,
+        module_requirement: ModuleRequirement,
+        behavior_requirement: BehaviorRequirement,
+    ) -> None:
+        self._module_requirement = module_requirement
         self._behavior_requirement = behavior_requirement
 
     def get_rule_violation(
@@ -67,158 +78,239 @@ class RuleViolationDetector:
             and not self._behavior_requirement._behavior_exception
         )
 
-        not_explicitly_requested_dependencies_present_for_any_module = (
-            self._any_present(not_explicitly_requested_dependencies)
-        )
-        not_explicitly_requested_dependencies_present_for_all_modules = (
-            self._all_present(not_explicitly_requested_dependencies)
-        )
-        explicitly_requested_dependencies_present_for_any_module = self._any_present(
-            explicitly_requested_dependencies
-        )
-        explicitly_requested_dependencies_present_for_all_modules = self._all_present(
-            explicitly_requested_dependencies
-        )
-
         return RuleViolations(
-            should_not_violated=self._should_not_requirement_violated(
+            should_not_violations=self._should_not_requirement_violations(
                 explicitly_requested_dependencies_should_not_be_present,
-                explicitly_requested_dependencies_present_for_any_module,
+                explicitly_requested_dependencies,
             ),
-            should_violated=self._should_requirement_violated(
+            should_violations=self._should_requirement_violations(
                 explicitly_requested_dependencies_should_be_present,
-                explicitly_requested_dependencies_present_for_all_modules,
+                explicitly_requested_dependencies,
             ),
-            should_only_violated_by_no_import=self._should_only_requirement_violated_by_no_import(
+            should_only_violations_by_no_import=self._should_only_requirement_violations_by_no_import(
                 explicitly_requested_dependencies_and_no_other_should_be_present,
                 explicitly_requested_dependencies,
             ),
-            should_only_violated_by_forbidden_import=self._should_only_requirement_violated_by_not_explicitly_requested_dependency(
+            should_only_violations_by_forbidden_import=self._should_only_requirement_violations_by_not_explicitly_requested_dependency(
                 explicitly_requested_dependencies_and_no_other_should_be_present,
-                not_explicitly_requested_dependencies_present_for_any_module,
+                not_explicitly_requested_dependencies,
             ),
-            should_except_violated=self._should_except_requirement_violated(
+            should_except_violations=self._should_except_requirement_violations(
                 at_least_one_not_explicitly_requested_dependency_should_be_present,
-                not_explicitly_requested_dependencies_present_for_all_modules,
+                not_explicitly_requested_dependencies,
             ),
-            should_only_except_violated_by_no_import=self._should_only_except_requirement_violated_due_to_no_other_imports(
+            should_only_except_violations_by_no_import=self._should_only_except_requirement_violations_due_to_no_other_imports(
                 explicitly_requested_dependencies_should_not_but_others_should_be_present,
-                not_explicitly_requested_dependencies_present_for_all_modules,
+                not_explicitly_requested_dependencies,
             ),
-            should_only_except_violated_by_forbidden_import=self._should_only_except_requirement_violated_due_to_explicit_dependency_present(
+            should_only_except_violations_by_forbidden_import=self._should_only_except_requirement_violations_due_to_explicit_dependency_present(
                 explicitly_requested_dependencies_should_not_but_others_should_be_present,
-                explicitly_requested_dependencies_present_for_any_module,
+                explicitly_requested_dependencies,
             ),
-            should_not_except_violated=self._should_not_except_requirement_violated(
+            should_not_except_violations=self._should_not_except_requirement_violations(
                 not_explicitly_requested_dependencies_should_not_be_present,
-                not_explicitly_requested_dependencies_present_for_any_module,
+                not_explicitly_requested_dependencies,
             ),
-            not_explicitly_requested_dependencies=not_explicitly_requested_dependencies,
-            explicitly_requested_dependencies=explicitly_requested_dependencies,
         )
 
-    def _all_present(self, d: Dict[Any, List[Any]]) -> bool:
-        return self._present(d, all)
-
-    def _any_present(self, d: Dict[Any, List[Any]]) -> bool:
-        return self._present(d, any)
-
-    def _present(
-        self, d: Dict[Any, List[Any]], aggregator: Callable[[Iterable], bool]
-    ) -> bool:
-        return d is not None and aggregator(list_value for list_value in d.values())
-
-    def _should_not_requirement_violated(
+    def _should_not_requirement_violations(
         self,
         explicitly_requested_dependencies_should_not_be_present: bool,
-        explicitly_requested_dependencies_present_for_any_module: bool,
-    ) -> bool:
-        return (
-            explicitly_requested_dependencies_should_not_be_present
-            and explicitly_requested_dependencies_present_for_any_module
-        )
+        explicitly_requested_dependencies: Optional[
+            ExplicitlyRequestedDependenciesByBaseModules
+        ],
+    ) -> List[StrictDependency]:
+        if (
+            explicitly_requested_dependencies is None
+            or not explicitly_requested_dependencies_should_not_be_present
+        ):
+            return []
 
-    def _should_requirement_violated(
+        return self._get_realised_dependencies(explicitly_requested_dependencies)
+
+    def _get_realised_dependencies(
+        self, explicitly_requested_dependencies: Dict[Any, List[StrictDependency]]
+    ) -> List[StrictDependency]:
+        violating_dependencies = explicitly_requested_dependencies.values()
+
+        violating_dependencies_in_user_specified_rule_subject_object_order = []
+        for dependencies in violating_dependencies:
+            for dependency in dependencies:
+                dependency_in_user_specified_order = (
+                    self._get_rule_subject_and_object_in_user_specified_order(
+                        dependency
+                    )
+                )
+
+                violating_dependencies_in_user_specified_rule_subject_object_order.append(
+                    dependency_in_user_specified_order
+                )
+
+        return violating_dependencies_in_user_specified_rule_subject_object_order
+
+    def _get_rule_subject_and_object_in_user_specified_order(
+        self, dependency: StrictDependency
+    ) -> StrictDependency:
+        if self._module_requirement.rule_specified_with_importer_as_rule_subject:
+            return dependency
+
+        return dependency[1], dependency[0]
+
+    def _should_requirement_violations(
         self,
         explicitly_requested_dependencies_should_be_present: bool,
-        explicitly_requested_dependencies_present_for_all_modules: bool,
-    ) -> bool:
-        return (
-            explicitly_requested_dependencies_should_be_present
-            and not explicitly_requested_dependencies_present_for_all_modules
+        explicitly_requested_dependencies: Optional[
+            ExplicitlyRequestedDependenciesByBaseModules
+        ],
+    ) -> List[StrictDependency]:
+        if (
+            explicitly_requested_dependencies is None
+            or not explicitly_requested_dependencies_should_be_present
+        ):
+            return []
+
+        return self._get_abstract_dependencies_without_realisations(
+            explicitly_requested_dependencies
         )
 
-    def _should_only_requirement_violated_by_no_import(
+    def _get_abstract_dependencies_without_realisations(
+        self, explicitly_requested_dependencies: Dict[Any, List[StrictDependency]]
+    ) -> List[StrictDependency]:
+        violating_dependencies = [
+            abstract_dependency
+            for abstract_dependency, concrete_dependency in explicitly_requested_dependencies.items()
+            if len(concrete_dependency) == 0
+        ]
+        return [
+            self._get_rule_subject_and_object_in_user_specified_order(dependency)
+            for dependency in violating_dependencies
+        ]
+
+    def _should_only_requirement_violations_by_no_import(
         self,
         explicitly_requested_dependencies_and_no_other_should_be_present: bool,
         explicitly_requested_dependencies: Optional[
             ExplicitlyRequestedDependenciesByBaseModules
         ],
-    ) -> bool:
-        return (
-            explicitly_requested_dependencies_and_no_other_should_be_present
-            and self._any_explicitly_requested_dependency_missing(
-                explicitly_requested_dependencies
-            )
+    ) -> List[StrictDependency]:
+        if (
+            explicitly_requested_dependencies is None
+            or not explicitly_requested_dependencies_and_no_other_should_be_present
+        ):
+            return []
+
+        return self._get_abstract_dependencies_without_realisations(
+            explicitly_requested_dependencies
         )
 
-    def _any_explicitly_requested_dependency_missing(
-        self,
-        explicitly_requested_dependencies: Optional[
-            ExplicitlyRequestedDependenciesByBaseModules
-        ],
-    ) -> bool:
-        return any(
-            dependency == []
-            for dependency in explicitly_requested_dependencies.values()
-        )
-
-    def _should_only_requirement_violated_by_not_explicitly_requested_dependency(
+    def _should_only_requirement_violations_by_not_explicitly_requested_dependency(
         self,
         explicitly_requested_dependencies_and_no_other_should_be_present: bool,
-        not_explicitly_requested_dependencies_present_for_any_module: bool,
-    ) -> bool:
-        return (
-            explicitly_requested_dependencies_and_no_other_should_be_present
-            and not_explicitly_requested_dependencies_present_for_any_module
-        )
+        not_explicitly_requested_dependencies: Optional[
+            NotExplicitlyRequestedDependenciesByBaseModule
+        ],
+    ) -> List[StrictDependency]:
+        if (
+            not_explicitly_requested_dependencies is None
+            or not explicitly_requested_dependencies_and_no_other_should_be_present
+        ):
+            return []
 
-    def _should_except_requirement_violated(
+        return self._get_realised_dependencies(not_explicitly_requested_dependencies)
+
+    def _should_except_requirement_violations(
         self,
         at_least_one_not_explicitly_requested_dependency_should_be_present: bool,
-        not_explicitly_requested_dependencies_present_for_any_module: bool,
-    ) -> bool:
-        return (
-            at_least_one_not_explicitly_requested_dependency_should_be_present
-            and not not_explicitly_requested_dependencies_present_for_any_module
+        not_explicitly_requested_dependencies: Optional[
+            NotExplicitlyRequestedDependenciesByBaseModule
+        ],
+    ) -> List[StrictDependency]:
+        if (
+            not_explicitly_requested_dependencies is None
+            or not at_least_one_not_explicitly_requested_dependency_should_be_present
+        ):
+            return []
+
+        return self._get_missing_dependencies_in_user_specified_order(
+            not_explicitly_requested_dependencies
         )
 
-    def _should_only_except_requirement_violated_due_to_no_other_imports(
+    def _should_only_except_requirement_violations_due_to_no_other_imports(
         self,
         explicitly_requested_dependency_should_not_but_others_should_be_present: bool,
-        not_explicitly_requested_dependencies_present_for_all_modules: bool,
-    ) -> bool:
-        return (
-            explicitly_requested_dependency_should_not_but_others_should_be_present
-            and not not_explicitly_requested_dependencies_present_for_all_modules
+        not_explicitly_requested_dependencies: Optional[
+            NotExplicitlyRequestedDependenciesByBaseModule
+        ],
+    ) -> List[StrictDependency]:
+        if (
+            not_explicitly_requested_dependencies is None
+            or not explicitly_requested_dependency_should_not_but_others_should_be_present
+        ):
+            return []
+
+        return self._get_missing_dependencies_in_user_specified_order(
+            not_explicitly_requested_dependencies
         )
 
-    def _should_only_except_requirement_violated_due_to_explicit_dependency_present(
+    def _should_only_except_requirement_violations_due_to_explicit_dependency_present(
         self,
         explicitly_requested_dependency_should_not_but_others_should_be_present: bool,
-        explicitly_requested_dependencies_present_for_any_module: bool,
-    ) -> bool:
-        return (
-            explicitly_requested_dependency_should_not_but_others_should_be_present
-            and explicitly_requested_dependencies_present_for_any_module
-        )
+        explicitly_requested_dependencies: Optional[
+            ExplicitlyRequestedDependenciesByBaseModules
+        ],
+    ) -> List[StrictDependency]:
+        if (
+            explicitly_requested_dependencies is None
+            or not explicitly_requested_dependency_should_not_but_others_should_be_present
+        ):
+            return []
 
-    def _should_not_except_requirement_violated(
+        return self._get_realised_dependencies(explicitly_requested_dependencies)
+
+    def _should_not_except_requirement_violations(
         self,
         not_explicitly_requested_dependencies_should_not_be_present: bool,
-        not_explicitly_requested_dependencies_present_for_any_module: bool,
-    ) -> bool:
-        return (
-            not_explicitly_requested_dependencies_should_not_be_present
-            and not_explicitly_requested_dependencies_present_for_any_module
-        )
+        not_explicitly_requested_dependencies: Optional[
+            NotExplicitlyRequestedDependenciesByBaseModule
+        ],
+    ) -> List[StrictDependency]:
+        if (
+            not_explicitly_requested_dependencies is None
+            or not not_explicitly_requested_dependencies_should_not_be_present
+        ):
+            return []
+
+        return self._get_realised_dependencies(not_explicitly_requested_dependencies)
+
+    def _get_missing_dependencies_in_user_specified_order(
+        self,
+        not_explicitly_requested_dependencies: NotExplicitlyRequestedDependenciesByBaseModule,
+    ) -> List[StrictDependency]:
+        dependencies = []
+
+        for (
+            module_with_missing_dependencies,
+            not_explicitly_requested_dependencies_of_module,
+        ) in not_explicitly_requested_dependencies.items():
+            if len(not_explicitly_requested_dependencies_of_module) > 0:
+                continue
+
+            if self._module_requirement.rule_specified_with_importer_as_rule_subject:
+                for (
+                    other_module
+                ) in self._module_requirement.importees_as_specified_by_user:
+                    dependencies.append(
+                        (module_with_missing_dependencies, other_module)
+                    )
+            else:
+                for (
+                    other_module
+                ) in self._module_requirement.importees_as_specified_by_user:
+                    dependencies.append(
+                        (other_module, module_with_missing_dependencies)
+                    )
+
+        return [
+            self._get_rule_subject_and_object_in_user_specified_order(dependency)
+            for dependency in dependencies
+        ]
