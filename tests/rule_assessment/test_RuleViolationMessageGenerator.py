@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Dict, List
 
 import pytest
-
 from integration.interesting_rules_for_tests import (
     FILE_A11,
     B,
@@ -11,6 +10,7 @@ from integration.interesting_rules_for_tests import (
     additional_multiple_rule_subjects_multiple_rule_objects_error_message_test_cases,
     multiple_rule_subjects_multiple_rule_objects_error_message_test_cases,
 )
+
 from pytestarch import Rule
 from pytestarch.eval_structure.evaluable_architecture import (
     EvaluableArchitecture,

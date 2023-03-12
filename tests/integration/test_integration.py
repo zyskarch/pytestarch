@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import pytest
-
 from integration.interesting_rules_for_tests import (
     partial_name_match_test_cases,
     single_rule_subject_multiple_rule_objects_error_message_test_cases,
     single_rule_subject_single_rule_object_error_message_test_cases,
 )
+
 from pytestarch import EvaluableArchitecture, Rule
 
 

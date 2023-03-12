@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import pytest
+from query_language.rule.conftest import MODULE_A
 
 from pytestarch import Rule
 from pytestarch.query_language.rule import RuleConfiguration
-from query_language.rule.conftest import MODULE_A
 
 config_alias_test_cases = [
     [

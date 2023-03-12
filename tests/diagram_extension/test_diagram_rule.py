@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import pytest
-
 from conftest import ROOT_DIR
+
 from pytestarch import DiagramRule, EvaluableArchitecture
 from pytestarch.diagram_extension.diagram_rule import ModulePrefixer
 from pytestarch.diagram_extension.parsed_dependencies import ParsedDependencies

@@ -4,14 +4,14 @@ import os
 from pathlib import Path
 
 import pytest
+from resources import flat_test_project_1, flat_test_project_2
+from resources.test_project import src
 
 from pytestarch import EvaluableArchitecture
 from pytestarch.pytestarch import (
     get_evaluable_architecture,
     get_evaluable_architecture_for_module_objects,
 )
-from resources import flat_test_project_1, flat_test_project_2
-from resources.test_project import src
 
 ROOT_DIR = Path(__file__).parent.parent.resolve()
 

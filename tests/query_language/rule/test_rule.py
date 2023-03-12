@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import pytest
+from query_language.rule.conftest import MODULE_1, MODULE_2
 
 from pytestarch import Rule
 from pytestarch.eval_structure.evaluable_architecture import EvaluableArchitecture
 from pytestarch.query_language.exceptions import ImproperlyConfigured
-from query_language.rule.conftest import MODULE_1, MODULE_2
 
 
 def test_rule_to_str_as_expected() -> None:
