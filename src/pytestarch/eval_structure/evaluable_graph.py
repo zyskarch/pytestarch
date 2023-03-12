@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from itertools import product
-from typing import Any, Dict, Iterable, List, Set, Tuple, Union
+from typing import Any, Dict, Iterable, List, Set, Tuple
 
 from pytestarch.eval_structure.breadth_first_searches import (
     any_dependency_to_module_other_than,
@@ -33,13 +33,10 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
 
     def get_dependencies(
         self,
-        dependents: Union[Module, List[Module]],
-        dependent_upons: Union[Module, List[Module]],
+        dependents: List[Module],
+        dependent_upons: List[Module],
     ) -> ExplicitlyRequestedDependenciesByBaseModules:
         result = {}
-
-        dependents = self._listify(dependents)
-        dependent_upons = self._listify(dependent_upons)
 
         dependents, dependent_upons = self._convert_to_full_name_matches(
             [dependents, dependent_upons]
@@ -55,13 +52,10 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
 
     def any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         self,
-        dependents: Union[Module, List[Module]],
-        dependent_upons: Union[Module, List[Module]],
+        dependents: List[Module],
+        dependent_upons: List[Module],
     ) -> NotExplicitlyRequestedDependenciesByBaseModule:
         result = {}
-
-        dependents = self._listify(dependents)
-        dependent_upons = self._listify(dependent_upons)
 
         dependents, dependent_upons = self._convert_to_full_name_matches(
             [dependents, dependent_upons]
@@ -75,18 +69,12 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
 
         return result
 
-    def _listify(self, module: Union[Module, List[Module]]) -> List[Module]:
-        return [module] if not isinstance(module, list) else module
-
     def any_other_dependencies_on_dependent_upons_than_from_dependents(
         self,
-        dependents: Union[Module, List[Module]],
-        dependent_upons: Union[Module, List[Module]],
+        dependents: List[Module],
+        dependent_upons: List[Module],
     ) -> NotExplicitlyRequestedDependenciesByBaseModule:
         result = {}
-
-        dependents = self._listify(dependents)
-        dependent_upons = self._listify(dependent_upons)
 
         dependents, dependent_upons = self._convert_to_full_name_matches(
             [dependents, dependent_upons]

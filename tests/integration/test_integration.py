@@ -2,16 +2,17 @@ from __future__ import annotations
 
 import pytest
 from integration.interesting_rules_for_tests import (
-    multiple_rule_objects_error_message_test_cases,
     partial_name_match_test_cases,
-    single_rule_object_error_message_test_cases,
+    single_rule_subject_multiple_rule_objects_error_message_test_cases,
+    single_rule_subject_single_rule_object_error_message_test_cases,
 )
 
 from pytestarch import EvaluableArchitecture, Rule
 
 
 @pytest.mark.parametrize(
-    "rule, expected_error_message", single_rule_object_error_message_test_cases
+    "rule, expected_error_message",
+    single_rule_subject_single_rule_object_error_message_test_cases,
 )
 def test_rule_violated_raises_proper_error_message(
     rule: Rule,
@@ -23,7 +24,8 @@ def test_rule_violated_raises_proper_error_message(
 
 
 @pytest.mark.parametrize(
-    "rule, expected_error_message", multiple_rule_objects_error_message_test_cases
+    "rule, expected_error_message",
+    single_rule_subject_multiple_rule_objects_error_message_test_cases,
 )
 def test_rule_violated_with_multiple_rule_objects_raises_proper_error_message(
     rule: Rule,

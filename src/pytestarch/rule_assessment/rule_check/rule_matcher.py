@@ -63,15 +63,15 @@ class DefaultRuleMatcher(RuleMatcher):
             self._get_not_explicitly_requested_dependencies(evaluable)
         )
 
-        return RuleViolationDetector(self._behavior_requirement).get_rule_violation(
+        return RuleViolationDetector(
+            self._module_requirement, self._behavior_requirement
+        ).get_rule_violation(
             explicitly_requested_dependencies,
             not_explicitly_requested_dependencies,
         )
 
     def _create_rule_violation_message(self, rule_violations: RuleViolations) -> str:
         message_generator = RuleViolationMessageGenerator(
-            self._module_requirement.importers_as_specified_by_user,
-            self._module_requirement.importees_as_specified_by_user,
             self._module_requirement.rule_specified_with_importer_as_rule_subject,
         )
         return message_generator.create_rule_violation_message(rule_violations)

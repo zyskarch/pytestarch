@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Iterable, List, Optional, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 from pytestarch.eval_structure.evaluable_architecture import Module, StrictDependency
 from pytestarch.rule_assessment.rule_check.rule_violations import RuleViolations
@@ -42,30 +42,11 @@ PREFIX_MAPPING.update(
 class RuleViolationMessageGenerator:
     """Generates a message for each violated rule."""
 
-    def __init__(
-        self,
-        original_rule_subject: Module,
-        original_rule_objects: List[Module],
-        import_rule: bool,
-    ) -> None:
+    def __init__(self, import_rule: bool) -> None:
         """
         Args:
-            original_rule_subject: module as originally specified
-            original_rule_objects: modules as originally specified
             import_rule: True if the underlying rule is a "import" instead of an "is imported" rule
         """
-        self._original_rule_subject_name = self._generate_rule_subject_name(
-            original_rule_subject
-        )
-        self._original_rule_subject_singular = self._is_singular_module(
-            original_rule_subject
-        )
-
-        (
-            self._original_rule_object_names,
-            self._original_rule_object_singular,
-        ) = self._generate_rule_object_names_and_count(original_rule_objects)
-
         self._import_rule = import_rule
 
         self._base_verb = IMPORT if self._import_rule else IMPORTED_BY
@@ -140,39 +121,59 @@ class RuleViolationMessageGenerator:
     def _create_should_import_violated_messages(
         self, rule_violations: RuleViolations
     ) -> List[RuleViolatedMessage]:
-        if not rule_violations.should_violated:
-            return []
-
         return self._create_no_import_between_original_subject_and_objects_message(
-            rule_violations
+            rule_violations.should_violations
         )
 
     def _create_no_import_between_original_subject_and_objects_message(
-        self, rule_violations: RuleViolations
+        self, rule_violations: List[StrictDependency]
     ) -> List[RuleViolatedMessage]:
         messages = []
 
-        rule_subject = self._original_rule_subject_name
+        (
+            rule_objects_for_rule_subject,
+            violating_rule_subjects,
+        ) = self._get_violating_rule_subjects_and_objects(rule_violations)
 
-        verb_prefix = self._get_verb_prefix(
-            negated=True, subject_singular=self._original_rule_subject_singular
-        )
-        rule_verb = self._concatenate_verb(prefix=verb_prefix, verb=self._base_verb)
+        for rule_subject in violating_rule_subjects:
+            verb_prefix = self._get_verb_prefix(
+                negated=True, subject_singular=self._is_singular_module(rule_subject)
+            )
+            rule_verb = self._concatenate_verb(prefix=verb_prefix, verb=self._base_verb)
 
-        rule_objects = []
+            rule_objects = []
+            for rule_object in rule_objects_for_rule_subject[rule_subject]:
+                rule_objects.append(self._get_rule_object(rule_object))
 
-        for rule_object, is_singular in zip(
-            self._original_rule_object_names, self._original_rule_object_singular
-        ):
-            if self._rule_object_not_imported(rule_object, rule_violations):
-                rule_objects.append(self._get_rule_object(rule_object, is_singular))
-
-        combined_rule_object = ", ".join(rule_objects)
-        messages.append(
-            RuleViolatedMessage(rule_subject, rule_verb, combined_rule_object)
-        )
+            combined_rule_object = ", ".join(rule_objects)
+            if combined_rule_object:
+                rule_subject_formatted = self._get_rule_subject_formatted(rule_subject)
+                messages.append(
+                    RuleViolatedMessage(
+                        rule_subject_formatted, rule_verb, combined_rule_object
+                    )
+                )
 
         return messages
+
+    def _get_violating_rule_subjects_and_objects(
+        self, rule_violation_dependency_names: List[StrictDependency]
+    ) -> Tuple[Dict[Module, List[Module]], Set[Module]]:
+        violating_rule_subjects = set()
+        rule_objects_for_rule_subject = defaultdict(list)
+        for rule_subject, rule_object in rule_violation_dependency_names:
+            violating_rule_subjects.add(rule_subject)
+            rule_objects_for_rule_subject[rule_subject].append(rule_object)
+
+        return rule_objects_for_rule_subject, violating_rule_subjects
+
+    def _convert_to_names(
+        self, violating_dependencies: List[StrictDependency]
+    ) -> List[Tuple[str, str]]:
+        return [
+            (dependency[0].name, dependency[1].name)
+            for dependency in violating_dependencies
+        ]
 
     def _create_should_only_import_violated_messages(
         self, rule_violations: RuleViolations
@@ -197,17 +198,13 @@ class RuleViolationMessageGenerator:
     def _create_should_only_import_forbidden_import_violated_messages(
         self, rule_violations: RuleViolations
     ) -> List[RuleViolatedMessage]:
-        if not rule_violations.should_only_violated_by_forbidden_import:
-            return []
-
-        violating_dependencies = (
-            rule_violations.not_explicitly_requested_dependencies.values()
+        return self._create_other_violating_dependencies_message(
+            rule_violations.should_only_violations_by_forbidden_import
         )
-        return self._create_other_violating_dependencies_message(violating_dependencies)
 
     def _create_other_violating_dependencies_message(
         self,
-        violating_dependencies: Iterable[List[StrictDependency]],
+        violating_dependencies: List[StrictDependency],
     ) -> List[RuleViolatedMessage]:
         # messages are always of the type "module x imports module y"
         messages = []
@@ -218,74 +215,66 @@ class RuleViolationMessageGenerator:
             prefix=verb_prefix, verb=self._base_verb, suffix=suffix
         )
 
-        for dependencies in violating_dependencies:
-            for dependency in dependencies:
-                (
-                    rule_subject,
-                    rule_object,
-                ) = self._get_rule_subject_and_object_of_dependency(dependency)
-                messages.append(
-                    RuleViolatedMessage(rule_subject, rule_verb, rule_object)
-                )
+        for dependency in violating_dependencies:
+            (
+                rule_subject,
+                rule_object,
+            ) = self._get_rule_subject_and_object_of_dependency(dependency)
+            messages.append(RuleViolatedMessage(rule_subject, rule_verb, rule_object))
 
         return messages
 
     def _create_should_only_import_no_import_violated_messages(
         self, rule_violations: RuleViolations
     ) -> List[RuleViolatedMessage]:
-        if not rule_violations.should_only_violated_by_no_import:
-            return []
-
         return self._create_no_import_between_original_subject_and_objects_message(
-            rule_violations
+            rule_violations.should_only_violations_by_no_import
         )
 
     def _create_should_not_import_violated_messages(
         self, rule_violations: RuleViolations
     ) -> List[RuleViolatedMessage]:
-        if not rule_violations.should_not_violated:
-            return []
-
-        violating_dependencies = (
-            rule_violations.explicitly_requested_dependencies.values()
+        return self._create_other_violating_dependencies_message(
+            rule_violations.should_not_violations
         )
-        return self._create_other_violating_dependencies_message(violating_dependencies)
 
     def _create_should_import_except_violated_messages(
         self, rule_violations: RuleViolations
     ) -> List[RuleViolatedMessage]:
-        if not rule_violations.should_except_violated:
-            return []
-
-        return (
-            self._create_no_import_other_than_between_original_subject_and_objects_message()
+        return self._create_no_import_other_than_between_original_subject_and_objects_message(
+            rule_violations.should_except_violations
         )
 
     def _create_no_import_other_than_between_original_subject_and_objects_message(
-        self,
+        self, rule_violations: List[StrictDependency]
     ) -> List[RuleViolatedMessage]:
         messages = []
 
-        rule_subject = self._original_rule_subject_name
+        (
+            rule_objects_for_rule_subject,
+            violating_rule_subjects,
+        ) = self._get_violating_rule_subjects_and_objects(rule_violations)
 
-        verb_prefix = self._get_verb_prefix(
-            negated=True, subject_singular=self._original_rule_subject_singular
-        )
-        rule_verb = self._concatenate_verb(prefix=verb_prefix, verb=self._base_verb)
-
-        rule_objects = []
-
-        for rule_object, is_singular in zip(
-            self._original_rule_object_names, self._original_rule_object_singular
-        ):
-            rule_objects.append(
-                self._get_rule_object(rule_object, is_singular),
+        for rule_subject in violating_rule_subjects:
+            verb_prefix = self._get_verb_prefix(
+                negated=True, subject_singular=self._is_singular_module(rule_subject)
             )
+            rule_verb = self._concatenate_verb(prefix=verb_prefix, verb=self._base_verb)
 
-        combined_rule_object = ANY_MODULE_THAT_IS_NOT + ", ".join(rule_objects)
-        messages.append(
-            RuleViolatedMessage(rule_subject, rule_verb, combined_rule_object)
-        )
+            rule_objects = []
+            for rule_object in rule_objects_for_rule_subject[rule_subject]:
+                rule_objects.append(
+                    self._get_rule_object(rule_object),
+                )
+
+            if rule_objects:
+                combined_rule_object = ANY_MODULE_THAT_IS_NOT + ", ".join(rule_objects)
+                rule_subject_formatted = self._get_rule_subject_formatted(rule_subject)
+                messages.append(
+                    RuleViolatedMessage(
+                        rule_subject_formatted, rule_verb, combined_rule_object
+                    )
+                )
 
         return messages
 
@@ -312,51 +301,34 @@ class RuleViolationMessageGenerator:
     def _create_should_only_import_except_forbidden_import_violated_messages(
         self, rule_violations: RuleViolations
     ) -> List[RuleViolatedMessage]:
-        if not rule_violations.should_only_except_violated_by_forbidden_import:
-            return []
-
-        violating_dependencies = (
-            rule_violations.explicitly_requested_dependencies.values()
+        return self._create_other_violating_dependencies_message(
+            rule_violations.should_only_except_violations_by_forbidden_import
         )
-        return self._create_other_violating_dependencies_message(violating_dependencies)
 
     def _create_should_only_import_except_no_import_violated_messages(
         self, rule_violations: RuleViolations
     ) -> List[RuleViolatedMessage]:
-        if not rule_violations.should_only_except_violated_by_no_import:
-            return []
-
-        return (
-            self._create_no_import_other_than_between_original_subject_and_objects_message()
+        return self._create_no_import_other_than_between_original_subject_and_objects_message(
+            rule_violations.should_only_except_violations_by_no_import
         )
 
     def _create_should_not_import_except_violated_messages(
         self, rule_violations: RuleViolations
     ) -> List[RuleViolatedMessage]:
-        if not rule_violations.should_not_except_violated:
-            return []
-
-        violating_dependencies = (
-            rule_violations.not_explicitly_requested_dependencies.values()
+        return self._create_other_violating_dependencies_message(
+            rule_violations.should_not_except_violations
         )
-        return self._create_other_violating_dependencies_message(violating_dependencies)
 
-    def _generate_rule_subject_name(self, module: Module) -> str:
-        name = self._get_module_name(module)
-        prefix = ""
-        if not self._is_singular_module(module):
-            prefix = "Sub modules of "
-        return f"{prefix}{self._quoted_name(name)}"
-
-    def _generate_rule_object_names_and_count(
-        self, original_rule_objects: List[Module]
-    ) -> Tuple[List[str], List[bool]]:
+    def _generate_rule_xbject_names_and_count(
+        self, original_rule_xbjects: List[Module]
+    ) -> Tuple[List[str], Dict[str, bool]]:
         names = []
-        is_singular = []
+        is_singular = {}
 
-        for rule_object in original_rule_objects:
-            names.append(self._get_module_name(rule_object))
-            is_singular.append(self._is_singular_module(rule_object))
+        for rule_object in original_rule_xbjects:
+            module_name = self._get_module_name(rule_object)
+            names.append(module_name)
+            is_singular[module_name] = self._is_singular_module(rule_object)
 
         return names, is_singular
 
@@ -372,27 +344,35 @@ class RuleViolationMessageGenerator:
     def _concatenate_verb(self, verb: str, prefix: str = "", suffix="") -> str:
         return f"{prefix}{verb}{suffix}"
 
-    def _get_rule_object(self, rule_object: str, is_singular: bool) -> str:
-        module_qualifier = "" if is_singular else RULE_OBJECT_IS_SUBMODULE_MARKER
-        return f"{module_qualifier}{self._quoted_name(rule_object)}"
+    def _get_rule_object(self, rule_object: Module) -> str:
+        module_qualifier = (
+            ""
+            if self._is_singular_module(rule_object)
+            else RULE_OBJECT_IS_SUBMODULE_MARKER
+        )
+        return f"{module_qualifier}{self._get_quoted_name(self._get_module_name(rule_object))}"
 
-    def _quoted_name(self, name: str) -> str:
+    def _get_rule_subject_formatted(self, rule_subject: Module) -> str:
+        prefix = ""
+        if not self._is_singular_module(
+            rule_subject
+        ):  # assumes that all modules here are of the same type
+            prefix = "Sub modules of "
+
+        return f'{prefix}"{self._get_module_name(rule_subject)}"'
+
+    def _get_quoted_name(self, name: str) -> str:
         return f'"{name}"'
 
     def _get_rule_subject_and_object_of_dependency(
         self, dependency: StrictDependency
     ) -> Tuple[str, str]:
-        # dependency is always reported in format (importer, importee)
-        # if rule is of format A ... imports B, the dependency will be (A, B)
-        if self._import_rule:
-            rule_subject, rule_object = dependency
-        else:
-            rule_object, rule_subject = dependency
+        rule_subject_name = self._get_module_name(dependency[0])
+        rule_object_name = self._get_module_name(dependency[1])
 
-        rule_subject_name = self._get_module_name(rule_subject)
-        rule_object_name = self._get_module_name(rule_object)
-
-        return self._quoted_name(rule_subject_name), self._quoted_name(rule_object_name)
+        return self._get_quoted_name(rule_subject_name), self._get_quoted_name(
+            rule_object_name
+        )
 
     def _get_verb_suffix(self, subject_singular: bool) -> str:
         if not subject_singular:
@@ -403,23 +383,3 @@ class RuleViolationMessageGenerator:
 
         # "is imported by" does not need an additional 's'
         return ""
-
-    @classmethod
-    def _rule_object_not_imported(
-        cls, rule_object: str, rule_violations: RuleViolations
-    ) -> bool:
-        found_dependencies = rule_violations.explicitly_requested_dependencies
-
-        if not found_dependencies:
-            return True
-
-        dependencies_for_rule_object = [
-            len(concrete_dependency_realisations)
-            for abstract_dependency, concrete_dependency_realisations in found_dependencies.items()
-            if abstract_dependency[1].name == rule_object
-        ]
-
-        if not dependencies_for_rule_object:
-            return True
-
-        return sum(dependencies_for_rule_object) == 0

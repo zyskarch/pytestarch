@@ -62,8 +62,8 @@ class EvaluableArchitecture(Protocol):
 
     def any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         self,
-        dependents: Union[Module, List[Module]],
-        dependent_upons: Union[Module, List[Module]],
+        dependents: List[Module],
+        dependent_upons: List[Module],
     ) -> NotExplicitlyRequestedDependenciesByBaseModule:
         """Returns list of depending modules per dependent module if the dependent module has any
         dependency to a module other than the dependent_upon modules
@@ -85,8 +85,8 @@ class EvaluableArchitecture(Protocol):
 
     def any_other_dependencies_on_dependent_upons_than_from_dependents(
         self,
-        dependents: Union[Module, List[Module]],
-        dependent_upons: Union[Module, List[Module]],
+        dependents: List[Module],
+        dependent_upons: List[Module],
     ) -> NotExplicitlyRequestedDependenciesByBaseModule:
         """Returns list of depending modules per dependent_upon module if any module other than the dependent
         module and its submodules has any dependency to the

@@ -28,8 +28,9 @@ def test_sub_modules_identification() -> None:
 
     rule.modules_that().are_sub_modules_of("A name")
 
-    assert rule.rule_subject.name is None
-    assert rule.rule_subject.parent_module == "A name"
+    assert len(rule.rule_subjects) == 1
+    assert rule.rule_subjects[0].name is None
+    assert rule.rule_subjects[0].parent_module == "A name"
 
 
 def test_module_name_identification() -> None:
@@ -37,8 +38,9 @@ def test_module_name_identification() -> None:
 
     rule.modules_that().are_named("A name")
 
-    assert rule.rule_subject.name == "A name"
-    assert rule.rule_subject.parent_module is None
+    assert len(rule.rule_subjects) == 1
+    assert rule.rule_subjects[0].name == "A name"
+    assert rule.rule_subjects[0].parent_module is None
 
 
 def test_partially_configured_rule_raises_error(

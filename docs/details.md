@@ -144,16 +144,17 @@ anything: can only be used in combination with should_not()
 In order to reduce the number of possible API component combinations, this rule object has been combined with two
 verbs into: `import_anything()` and `be_imported_by_anything()`. 
 
-In addition, RULE_OBJECTS can be passed in as a list. The rule is fulfilled if it applies to all rule objects.
+
+Both RULE_SUBJECTs and RULE_OBJECTs can be specified in batch, i.e. via a list of values.
 For example, the rule
 ```
 modules_that()
-    .are_named("1")
+    .are_named("1", "2")
     .should_only()
     .be_imported_by_modules_that()
-    .are_named(["2", "3"])
+    .are_named(["3", "4"])
 ```
-is fulfilled, it the module "1" is not imported by any module other than "2" and "3", and if both "2" and "3" do import "1".
+is fulfilled, it the modules "1" and "2" both are not imported by any module other than "3" and "4", and if both "3" and "4" do import "1" and "2".
 
 
 #### VERB_MARKER_1

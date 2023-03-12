@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Union
+from typing import List
 
 from pytestarch.eval_structure.evaluable_architecture import Module
 
@@ -10,14 +10,14 @@ class ModuleRequirement:
 
     def __init__(
         self,
-        importer: Module,
+        importers: List[Module],
         importees: List[Module],
         flip_importer_and_importees: bool,
     ) -> None:
-        self._importer_as_specified_by_user = importer
+        self._importer_as_specified_by_user = importers
         self._importees_as_specified_by_user = importees
 
-        self._importers = importer
+        self._importers = importers
         self._importees = importees
 
         self._flip_importer_and_importees = flip_importer_and_importees
@@ -29,19 +29,19 @@ class ModuleRequirement:
             )
 
     @property
-    def importers(self) -> Union[Module, List[Module]]:
+    def importers(self) -> List[Module]:
         return self._importers
 
     @property
-    def importees(self) -> Union[Module, List[Module]]:
+    def importees(self) -> List[Module]:
         return self._importees
 
     @property
-    def importers_as_specified_by_user(self) -> Module:
+    def importers_as_specified_by_user(self) -> list[Module]:
         return self._importer_as_specified_by_user
 
     @property
-    def importees_as_specified_by_user(self) -> Union[Module, List[Module]]:
+    def importees_as_specified_by_user(self) -> List[Module]:
         return self._importees_as_specified_by_user
 
     @property

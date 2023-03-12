@@ -33,7 +33,7 @@ def test_other_to_module_than_between_named_modules(
     module_1 = Module(name=MODULE_1)
     module_2 = Module(name=MODULE_2)
     assert architecture.any_other_dependencies_on_dependent_upons_than_from_dependents(
-        module_1, module_2
+        [module_1], [module_2]
     )[module_2]
 
 
@@ -52,7 +52,7 @@ def test_other_to_module_than_between_named_and_submodule_modules(
     module_1 = Module(name=MODULE_1)
     module_2 = Module(parent_module=MODULE_2)
     assert architecture.any_other_dependencies_on_dependent_upons_than_from_dependents(
-        module_1, module_2
+        [module_1], [module_2]
     )[module_2]
 
 
@@ -74,7 +74,7 @@ def test_other_to_module_than_between_submodule_and_named_modules(
     module_1 = Module(parent_module=MODULE_1)
     module_2 = Module(name=MODULE_2)
     assert architecture.any_other_dependencies_on_dependent_upons_than_from_dependents(
-        module_1, module_2
+        [module_1], [module_2]
     )[module_2]
 
 
@@ -94,7 +94,7 @@ def test_other_to_module_than_between_submodule_modules(
     module_1 = Module(parent_module=MODULE_1)
     module_2 = Module(parent_module=MODULE_2)
     assert architecture.any_other_dependencies_on_dependent_upons_than_from_dependents(
-        module_1, module_2
+        [module_1], [module_2]
     )[module_2]
 
 
@@ -117,7 +117,7 @@ def test_not_other_to_module_than_between_named_modules(
     module_2 = Module(name=MODULE_2)
     assert (
         not architecture.any_other_dependencies_on_dependent_upons_than_from_dependents(
-            module_1, module_2
+            [module_1], [module_2]
         )[module_2]
     )
 
@@ -140,7 +140,7 @@ def test_not_other_to_module_than_between_named_and_submodule_modules(
     module_2 = Module(parent_module=MODULE_2)
     assert (
         not architecture.any_other_dependencies_on_dependent_upons_than_from_dependents(
-            module_1, module_2
+            [module_1], [module_2]
         )[module_2]
     )
 
@@ -162,7 +162,7 @@ def test_not_other_to_module_than_between_submodule_and_named_modules(
     module_2 = Module(name=MODULE_2)
     assert (
         not architecture.any_other_dependencies_on_dependent_upons_than_from_dependents(
-            module_1, module_2
+            [module_1], [module_2]
         )[module_2]
     )
 
@@ -186,6 +186,6 @@ def test_not_other_to_module_than_between_submodule_modules(
     module_2 = Module(parent_module=MODULE_2)
     assert (
         not architecture.any_other_dependencies_on_dependent_upons_than_from_dependents(
-            module_1, module_2
+            [module_1], [module_2]
         )[module_2]
     )

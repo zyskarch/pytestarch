@@ -4,6 +4,8 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 
 
 ## [Unreleased]
+### Added
+- Batch support for rule subjects.
 
 ### Changed
 - Error message only lists violated rule objects when multiple rule objects are defined.

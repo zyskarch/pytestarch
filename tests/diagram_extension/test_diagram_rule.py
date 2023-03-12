@@ -1,12 +1,9 @@
 from __future__ import annotations
 
-import os
-
 import pytest
 from conftest import ROOT_DIR
-from resources import flat_test_project_1, flat_test_project_2
 
-from pytestarch import DiagramRule, EvaluableArchitecture, get_evaluable_architecture
+from pytestarch import DiagramRule, EvaluableArchitecture
 from pytestarch.diagram_extension.diagram_rule import ModulePrefixer
 from pytestarch.diagram_extension.parsed_dependencies import ParsedDependencies
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
@@ -57,24 +54,6 @@ def evaluable3() -> EvaluableArchitecture:
     ]
 
     return EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
-
-
-@pytest.fixture(scope="module")
-def flat_project_1() -> EvaluableArchitecture:
-    return get_evaluable_architecture(
-        os.path.dirname(flat_test_project_1.__file__),
-        os.path.dirname(flat_test_project_1.__file__),
-        ("*__pycache__", "*__init__.py", "*Test.py"),
-    )
-
-
-@pytest.fixture(scope="module")
-def flat_project_2() -> EvaluableArchitecture:
-    return get_evaluable_architecture(
-        os.path.dirname(flat_test_project_2.__file__),
-        os.path.dirname(flat_test_project_2.__file__),
-        ("*__pycache__", "*__init__.py", "*Test.py"),
-    )
 
 
 def test_puml_diagram_integration_rules_fulfilled(
