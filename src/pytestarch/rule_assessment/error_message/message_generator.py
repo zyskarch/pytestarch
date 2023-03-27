@@ -45,7 +45,7 @@ class RuleViolationMessageGenerator:
     def __init__(self, import_rule: bool) -> None:
         """
         Args:
-            import_rule: True if the underlying rule is a "import" instead of an "is imported" rule
+            import_rule: True if the underlying rule is an "import" instead of an "is imported" rule
         """
         self._import_rule = import_rule
 
