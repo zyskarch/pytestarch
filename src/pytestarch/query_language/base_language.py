@@ -86,16 +86,19 @@ class ModuleSpecification(Generic[ModuleSpecificationSuccessor], ABC):
     def are_sub_modules_of(
         self, modules: Union[str, List[str]]
     ) -> ModuleSpecificationSuccessor:
+        """If multiple rule subjects are specified, this has the same effect as defining a rule per rule subject."""
         pass
 
     @abstractmethod
     def are_named(self, names: Union[str, List[str]]) -> ModuleSpecificationSuccessor:
+        """If multiple rule subjects are specified, this has the same effect as defining a rule per rule subject."""
         pass
 
     @abstractmethod
     def have_name_containing(
         self, partial_name: Union[str, List[str]]
     ) -> ModuleSpecificationSuccessor:
+        """If multiple rule subjects are specified, this has the same effect as defining a rule per rule subject."""
         pass
 
 

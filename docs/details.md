@@ -145,7 +145,8 @@ In order to reduce the number of possible API component combinations, this rule 
 verbs into: `import_anything()` and `be_imported_by_anything()`. 
 
 
-Both RULE_SUBJECTs and RULE_OBJECTs can be specified in batch, i.e. via a list of values.
+Both RULE_SUBJECTs and RULE_OBJECTs can be specified in batch, i.e. via a list of values. If multiple rule subjects are
+specified, this has the same effect as defining a rule per rule subject.
 For example, the rule
 ```
 modules_that()
