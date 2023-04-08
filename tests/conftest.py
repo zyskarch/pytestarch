@@ -64,6 +64,20 @@ def graph_including_tests() -> EvaluableArchitecture:
 
 @pytest.fixture(scope="module")
 def flat_project_1() -> EvaluableArchitecture:
+    """
+    Dependencies:
+        - exporter: logging_util, model, util
+        - importer: model, util
+        - logging_util: util
+        - model: -
+        - orchestration: exporter, importer, logging_util, model, simulation, util
+        - persistence: model, util
+        - runtime: logging_util, orchestration, persistence, services, util
+        - services: importer, model, persistence, util
+        - simulation: logging_util, model, util
+        - util: -
+
+    """
     return get_evaluable_architecture(
         os.path.dirname(flat_test_project_1.__file__),
         os.path.dirname(flat_test_project_1.__file__),

@@ -151,3 +151,86 @@ simplified:
 | should only be imported except -- no import | M1 is not imported by any that is not M2, M3                                                                                                 | concatentation with ","                             | list all M2s  |
 | should only be imported except -- both      | Violator2 imports Violator1. Subviolator2 imports Subviolator1. Violator3 imports Subviolator1. M1 is not imported by any that is not M2, M3 | (submodules of M1, M2, M3); concatentation with "," | list all M2s  |
 | should not be imported except               | Violator2 imports Violator1. Violator3 imports Subviolator1                                                                                  | (submodule of M1)                                   | -             |
+
+
+# Layer Rule Syntax
+LayeredArchitecture().layer("name").containing_modules([M1, M2]).layer(...)...
+
+LayerRule()
+    .layers_that()
+    .are_named("name"/["X", "Y"])
+    .should/not/only()
+    .access_layers_that()/be_accessed_by_layers_that()/access_any_layer_except_layers_that()/be_accessed_by_any_layer_except_layers_that()/access_anything()/be_accessed_by_anything()
+    .are_named("X"/["X", "Y"])
+    .assert_applies(evaluable, architecture)
+
+
+Layer 1 should import Layer 2                       - 1+ module from Layer 1 imports 1+ module from Layer 2
+Layer 1 should not import Layer 2                   - no module from Layer 1 imports any module from Layer 2
+Layer 1 should only import Layer 2                  - 1+ module from Layer 1 imports 1+ module from Layer 2; no module from Layer 1 imports something, that is not in Layer 2
+
+Layer 1 should import except Layer 2                - 1+ module from Layer 1 imports something, that is not in Layer 2
+Layer 1 should not import except Layer 2            - no module from Layer 1 imports something, that is not in Layer 2
+Layer 1 should only import except Layer 2           - 1+ module from Layer 1 imports something, that is not in Layer 2; no module from Layer 1 imports any module from Layer 2
+
+Layer 1 should be imported by Layer 2               - 1+ module from Layer 2 imports 1+ module from Layer 1
+Layer 1 should not be imported by Layer 2           - no module from Layer 1 imports any module from Layer 1
+Layer 1 should only be imported by Layer 2          - 1+ module from Layer 2 imports 1+ module from Layer 1; no module imports something from Layer 1, that is not in Layer 2
+
+Layer 1 should be imported except by Layer 2        - 1+ module imports something from Layer 1, that is not Layer 2
+Layer 1 should not be imported except by Layer 2    - no module imports something from Layer 1, that is not Layer 2
+Layer 1 should only be imported except by Layer 2   - 1+ module imports something from Layer 1, that is not Layer 2; no module from Layer 2 imports any module from Layer 1
+
+
+If multiple rule subjects are given, the rule has to apply to all of them. If multiple rule objects are given, the rule has to apply to all of them.
+
+## Rule Violation Messages
+All concrete modules are listed with "(LAYER X)" behind their name, such as "Violator1 (LAYER X) imports Violator2 (LAYER Y)".
+### One M2
+| type                                        | message                                                                                                              | note                   |
+|---------------------------------------------|----------------------------------------------------------------------------------------------------------------------|------------------------|
+| should import                               | LAYER M1 does not import LAYER M2                                                                                    | -                      |
+| should only import -- forbidden             | Violator1 imports Violator2. Subviolator1 imports Violator3                                                          | (submodule of M1)      |
+| should only import -- no import             | LAYER M1 does not import LAYER M2                                                                                    | -                      |
+| should only import -- both                  | Violator1 imports Violator2. Subviolator1 imports Violator3. LAYER M1 does not import LAYER M2                       | (submodule of M1)      |
+| should not import                           | Violator1 imports Violator2. Subviolator1 imports Subviolator2.                                                      | (submodules of M1, M2) |
+| should import except                        | LAYER M1 does not import any that is not LAYER M2                                                                    | -                      |
+| should only import except -- forbidden      | Violator1 imports Violator2. Subviolator1 imports Subviolator2.                                                      | (submodules of M1, M2) |
+| should only import except -- no import      | LAYER M1 does not import any that is not LAYER M2                                                                    | -                      |
+| should only import except -- both           | Violator1 imports Violator2. Subviolator1 imports Subviolator2. M1 does not import any that is not M2                | (submodules of M1, M2) |
+| should not import except                    | Violator1 imports Violator2. Subviolator1 imports Violator3.                                                         | (submodule of M1)      |
+| should be imported                          | LAYER M1 is not imported by LAYER M2                                                                                 | -                      |
+| should only be imported -- forbidden        | Violator2 imports Violator1. Violator3 imports Subviolator1                                                          | (submodule of M1)      |
+| should only be imported -- no import        | LAYER M1 is not imported by LAYER M2                                                                                 | -                      |
+| should only be imported -- both             | Violator2 imports Violator1. Violator3 imports Subviolator1. LAYER M1 is not imported by LAYER M2                    | (submodule of M1)      |
+| should not be imported                      | Violator2 imports Violator1. Violator 3 imports Subviolator1.                                                        | (submodules of M1, M2) |
+| should be imported except                   | LAYER M1 is not imported by any that is not LAYER M2                                                                 | -                      |
+| should only be imported except -- forbidden | Violator2 imports Violator1. Subviolator2 imports Subviolator1.                                                      | (submodules of M1, M2) |
+| should only be imported except -- no import | LAYER M1 is not imported by any that is not LAYER M2                                                                 | -                      |
+| should only be imported except -- both      | Violator2 imports Violator1. Subviolator2 imports Subviolator1. LAYER M1 is not imported by any that is not LAYER M2 | (submodules of M1, M2) |
+| should not be imported except               | Violator2 imports Violator1. Violator3 imports Subviolator1.                                                         | (submodule of M1)      |
+
+
+### Multiple M2s
+| type                                        | message                                                                                                                                                        | note                                                | diff to One M2 |
+|---------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------|---------------|
+| should import                               | LAYER M1 does not import LAYER M2, LAYER M3                                                                                                                    | concatentation with ","                             | list all M2s  |
+| should only import -- forbidden             | Violator1 imports Violator2. Subviolator1 imports Violator3.                                                                                                   | (submodule of M1)                                   | -             |
+| should only import -- no import             | LAYER M1 does not import LAYER M2(, LAYER M3)                                                                                                                  | concatentation with ","                             | -             |
+| should only import -- both                  | Violator1 imports Violator2. Subviolator1 imports Violator3. M1 does not import M2(, M3)                                                                       | (submodule of M1); concatentation with ","          | -             |
+| should not import                           | Violator1 imports Violator2. Subviolator1 imports Subviolator2. Subviolator1 imports Subviolator2. Subviolator1 imports Violator3                              | (submodules of M1, M2, M3); concatentation with "," | -             |
+| should import except                        | LAYER M1 does not import any that is not LAYER M2, LAYER M3                                                                                                    | concatentation with ","                             | list all M2s  |
+| should only import except -- forbidden      | Violator1 imports Violator2. Subviolator1 imports Subviolator2. Subviolator1 imports Violator3                                                                 | (submodules of M1, M2, M3); concatentation with "," | -             ||
+| should only import except -- no import      | LAYER M1 does not import any that is not LAYER M2, LAYER M3                                                                                                    | concatentation with ","                             | list all M2s  |
+| should only import except -- both           | Violator1 imports Violator2. Subviolator1 imports Subviolator2. Subviolator1 imports Violator3 . LAYER M1 does not import any that is not LAYER M2, LAYER M3   | (submodules of M1, M2, M3); concatentation with "," | list all M2s  |
+| should not import except                    | Violator1 imports Violator2. Subviolator1 imports Subviolator2. Subviolator1 imports Violator3                                                                 | (submodule of M1)                                   | -             |
+| should be imported                          | LAYER M1 is not imported by LAYER M2, LAYER M3                                                                                                                 | concatentation with ","                             | list all M2s  |
+| should only be imported -- forbidden        | Violator2 imports Violator1. Violator2 imports Subviolator1                                                                                                    | (submodule of M1)                                   | -             |
+| should only be imported -- no import        | LAYER M1 is not imported by LAYER M2, LAYER M3                                                                                                                 | concatentation with ","                             | -             |
+| should not be imported                      | Violator2 imports Violator1. Violator3 imports Subviolator1.                                                                                                   | (submodules of M1, M2, M3)                          | -             |
+| should be imported except                   | LAYER M1 is not imported by any that is not LAYER M2, LAYER M3                                                                                                 | concatentation with ","                             | list all M2s  |
+| should only be imported except -- forbidden | Violator2 imports Violator1. Subviolator2 imports Subviolator1. Violator3 imports Subviolator1.                                                                | (submodules of M1, M2, M3)                          | -             |
+| should only be imported except -- no import | LAYER M1 is not imported by any that is not LAYER M2, LAYER M3                                                                                                 | concatentation with ","                             | list all M2s  |
+| should only be imported except -- both      | Violator2 imports Violator1. Subviolator2 imports Subviolator1. Violator3 imports Subviolator1. LAYER M1 is not imported by any that is not LAYER M2, LAYER M3 | (submodules of M1, M2, M3); concatentation with "," | list all M2s  |
+| should not be imported except               | Violator2 imports Violator1. Violator3 imports Subviolator1                                                                                                    | (submodule of M1)                                   | -             |
+

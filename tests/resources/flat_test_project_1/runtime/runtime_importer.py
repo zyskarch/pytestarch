@@ -6,4 +6,4 @@ from flat_test_project_1.orchestration.orchestration_importee import (  # noqa: 
 )
 from flat_test_project_1.persistence.persistence_importee import p  # noqa: F401 E401
 from flat_test_project_1.services.services_importee import s  # noqa: F401 E401
-from flat_test_project_1.util.util_importer import u  # noqa: F401 E401
+from flat_test_project_1.util.util_importee import u  # noqa: F401 E401

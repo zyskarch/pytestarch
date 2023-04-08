@@ -5,6 +5,7 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 
 ## [Unreleased]
 ### Added
+- Support for layer architecture.
 - Batch support for rule subjects.
 
 ### Changed
