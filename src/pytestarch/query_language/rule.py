@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from typing import Callable, List, Optional, Type, Union
+from typing import Callable, List, Optional, Union
 
 from pytestarch import EvaluableArchitecture
 from pytestarch.eval_structure.evaluable_architecture import Module
@@ -49,7 +49,10 @@ class Rule(
     """
 
     def __init__(
-        self, rule_matcher_class: Type[RuleMatcher] = DefaultRuleMatcher
+        self,
+        rule_matcher_class: Callable[
+            [ModuleRequirement, BehaviorRequirement], RuleMatcher
+        ] = DefaultRuleMatcher,
     ) -> None:
         self._rule_matcher_class = rule_matcher_class
         self._modules_to_check_to_be_specified_next = None
@@ -256,9 +259,42 @@ class Rule(
 
         # should not import anything is equivalent to should not import except itself
         # should not be imported by anything is equivalent to should not be imported by anything except itself
+
+        modules_to_check_without_parent_and_submodule_combinations = (
+            cls._get_modules_to_check_without_parent_and_submodule_combinations(
+                configuration,
+            )
+        )
+
         return replace(
             configuration,
             rule_object_anything=False,
-            modules_to_check_against=configuration.modules_to_check,
+            modules_to_check=modules_to_check_without_parent_and_submodule_combinations,
+            modules_to_check_against=modules_to_check_without_parent_and_submodule_combinations,
             except_present=True,
         )
+
+    @classmethod
+    def _get_modules_to_check_without_parent_and_submodule_combinations(
+        cls, configuration: RuleConfiguration
+    ) -> Optional[List[Module]]:
+        # if modules_to_check contain a module and its submodule, this can throw off the breadth first search conducted
+        # on the dependency graph - and also, this setup does not really make sense
+        if configuration.modules_to_check is None:
+            return None
+
+        module_names = sorted(
+            map(lambda module: module.name, configuration.modules_to_check)
+        )
+
+        result = []
+        for module in configuration.modules_to_check:
+            parent_module_found = False
+            for module_name in module_names:
+                if module_name in module.name and module.name != module_name:
+                    parent_module_found = True
+
+            if not parent_module_found:
+                result.append(module)
+
+        return result

@@ -5,9 +5,6 @@ from pathlib import Path
 from typing import Generic, List, TypeVar, Union
 
 from pytestarch import EvaluableArchitecture
-from pytestarch.rule_assessment.rule_check.behavior_requirement import (
-    BehaviorRequirement,
-)
 
 
 class FileRule(ABC):
@@ -57,24 +54,31 @@ class RuleApplier(ABC):
         raise NotImplementedError()
 
 
-class BehaviorSpecification(ABC):
+U = TypeVar("U", bound="RelationshipSpecification")
+
+
+class BehaviorBaseSpecification(Generic[U], ABC):
     """Offers functionality to specify whether dependencies are expected or not."""
 
     @abstractmethod
-    def should(self) -> DependencySpecification:
+    def should(self) -> U:
         pass
 
     @abstractmethod
-    def should_only(self) -> DependencySpecification:
+    def should_only(self) -> U:
         pass
 
     @abstractmethod
-    def should_not(self) -> DependencySpecification:
+    def should_not(self) -> U:
         pass
+
+
+class BehaviorSpecification(BehaviorBaseSpecification["DependencySpecification"], ABC):
+    pass
 
 
 ModuleSpecificationSuccessor = TypeVar(
-    "ModuleSpecificationSuccessor", BehaviorRequirement, RuleApplier
+    "ModuleSpecificationSuccessor", BehaviorBaseSpecification, RuleApplier
 )
 
 
@@ -110,7 +114,13 @@ class RuleSubject(ModuleSpecification[BehaviorSpecification], ABC):
     pass
 
 
-class DependencySpecification(ABC):
+class RelationshipSpecification(ABC):
+    """Base class for different types of relationships between modules, layers, etc."""
+
+    pass
+
+
+class DependencySpecification(RelationshipSpecification, ABC):
     """Offers functionality to specify which kind of dependencies are expected."""
 
     @abstractmethod
@@ -143,4 +153,102 @@ class RuleBase(ABC):
 
     @abstractmethod
     def modules_that(self) -> RuleSubject:
+        pass
+
+
+class LayerDefinition(ABC):
+    """Offers functionality to define which modules a layer contains. Can either be a single
+    or multiple modules."""
+
+    @abstractmethod
+    def containing_modules(
+        self, modules: Union[str, List[str]]
+    ) -> Union[LayerName, BaseLayeredArchitecture]:
+        """If a module is defined as belonging to layer X, then its submodules are also assumed to be part of layer X."""
+        pass
+
+
+class LayerName(ABC):
+    """Offers functionality to specify the name of a yet to be defined layer."""
+
+    @abstractmethod
+    def layer(self, name: str) -> LayerDefinition:
+        pass
+
+
+class BaseLayeredArchitecture(ABC):
+    pass
+
+
+class AccessSpecification(RelationshipSpecification, ABC):
+    """Offers functionality to specify which kind of imports between layers in a layer architecture are expected.
+    Access is defined as the layer equivalent of import between modules, e.g. if layer L consists of module X, and
+    layer M of module Y, layer L accesses layer M if module X import module Y."""
+
+    @abstractmethod
+    def access_layers_that(self) -> LayerRuleObject:
+        pass
+
+    @abstractmethod
+    def be_accessed_by_layers_that(self) -> LayerRuleObject:
+        pass
+
+    @abstractmethod
+    def access_layers_except_layers_that(self) -> LayerRuleObject:
+        pass
+
+    @abstractmethod
+    def be_accessed_by_layers_except_layers_that(self) -> LayerRuleObject:
+        pass
+
+    @abstractmethod
+    def access_any_layer(self) -> RuleApplier:
+        pass
+
+    @abstractmethod
+    def be_accessed_by_any_layer(self) -> RuleApplier:
+        pass
+
+
+class LayerBehaviorSpecification(BehaviorBaseSpecification["AccessSpecification"], ABC):
+    pass
+
+
+LayerSpecificationSuccessor = TypeVar(
+    "LayerSpecificationSuccessor", LayerBehaviorSpecification, RuleApplier
+)
+
+InputTypes = TypeVar("InputTypes", str, Union[str, List[str]])
+
+
+class LayerSpecification(Generic[LayerSpecificationSuccessor, InputTypes], ABC):
+    """Offers functionality to specify detail information about Layer Rule Subjects or Objects."""
+
+    @abstractmethod
+    def are_named(self, names: InputTypes) -> LayerSpecificationSuccessor:
+        pass
+
+
+class LayerRuleObject(LayerSpecification[RuleApplier, Union[str, List[str]]], ABC):
+    pass
+
+
+class LayerRuleSubject(LayerSpecification[LayerBehaviorSpecification, str], ABC):
+    pass
+
+
+class LayerBase(ABC):
+    """Offers an entry point to specifying detailed information about Layer Rule
+    Subjects."""
+
+    @abstractmethod
+    def layers_that(self) -> LayerRuleSubject:
+        pass
+
+
+class LayerRuleBase(ABC):
+    """Entry point to defining a rule based on a layered architecture."""
+
+    @abstractmethod
+    def based_on(self, architecture: BaseLayeredArchitecture) -> LayerBase:
         pass

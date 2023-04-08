@@ -1,9 +1,82 @@
-"""Abstract types to specify the interface of evaluable objects."""
+"""Abstract interface of evaluable objects."""
 
 from __future__ import annotations
 
+from bisect import bisect
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Protocol, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Protocol, Tuple, Union
+
+from pytestarch.eval_structure.exceptions import LayerMismatch
+
+Layer = str
+ModuleName = str
+
+
+class LayerMapping:
+    def __init__(self, layer_mapping: Dict[Layer, List[Module]]) -> None:
+        self._layer_mapping = layer_mapping
+        self._module_mapping = {
+            module: layer
+            for layer, modules in layer_mapping.items()
+            for module in modules
+        }
+
+        self._sorted_module_names = sorted(
+            map(lambda module: module.name, self._module_mapping.keys())
+        )
+
+    def get_modules(self, layer: Layer) -> List[Module]:
+        return self._layer_mapping[layer]
+
+    def get_layer(self, module: Module) -> Optional[Layer]:
+        """Attempts to find the layer the given module belongs to. If the module does not appear in the
+        layer definition itself, it is checked whether the module is a submodule of one of the modules in the layer
+        definition. If so, the layer of the parent module is returned. Otherwise, None is returned.
+        This assumes that if a module is in layer X, all of its submodules are as well.
+        """
+        if not module.name:
+            return None
+
+        layer_candidate = self._module_mapping.get(module, None)
+
+        if layer_candidate is not None:
+            return layer_candidate
+
+        idx_of_module = (
+            bisect(self._sorted_module_names, module.name) - 1
+        )  # -1 since idx is after the insertion point
+
+        candidate_parent_modules = []
+        while idx_of_module >= 0:
+            parent_module_candidate = self._sorted_module_names[idx_of_module]
+            if module.name.startswith(parent_module_candidate):
+                candidate_parent_modules.append(Module(name=parent_module_candidate))
+            idx_of_module -= 1
+
+        candidate_layers = set(
+            map(lambda module: self._module_mapping[module], candidate_parent_modules)
+        )
+
+        if len(candidate_layers) > 1:
+            raise LayerMismatch(
+                f"Multiple possible parent modules found for module {module.name}."
+            )
+
+        if not candidate_layers:
+            return None
+        else:
+            return candidate_layers.pop()
+
+    def get_layer_for_module_name(self, module_name: str) -> Optional[Layer]:
+        return self.get_layer(Module(name=module_name))
+
+    @property
+    def all_modules(self) -> Iterable[Module]:
+        return self._module_mapping.keys()
+
+    @property
+    def all_layers(self) -> Iterable[Layer]:
+        return self._layer_mapping.keys()
 
 
 @dataclass(frozen=True)

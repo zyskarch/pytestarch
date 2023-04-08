@@ -2,12 +2,20 @@
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Set, Tuple
 
-from pytestarch.eval_structure.evaluable_architecture import Module, StrictDependency
+from pytestarch.eval_structure.evaluable_architecture import (
+    LayerMapping,
+    Module,
+    StrictDependency,
+)
 from pytestarch.rule_assessment.rule_check.rule_violations import RuleViolations
+
+LAYER_FIRST_LETTER = "l"
+LAYER_FIRST_LETTER_CAPITAL = "L"
 
 IMPORT = "import"
 IMPORTED_BY = "imported by"
@@ -16,6 +24,7 @@ THIRD_PERSON_SINGULAR = "s"
 
 RULE_OBJECT_IS_SUBMODULE_MARKER = "a sub module of "
 ANY_MODULE_THAT_IS_NOT = "any module that is not "
+ANY_LAYER_THAT_IS_NOT = "any layer that is not "
 
 
 @dataclass
@@ -39,27 +48,8 @@ PREFIX_MAPPING.update(
 )
 
 
-class RuleViolationMessageGenerator:
-    """Generates a message for each violated rule."""
-
-    def __init__(self, import_rule: bool) -> None:
-        """
-        Args:
-            import_rule: True if the underlying rule is an "import" instead of an "is imported" rule
-        """
-        self._import_rule = import_rule
-
-        self._base_verb = IMPORT if self._import_rule else IMPORTED_BY
-
+class RuleViolationMessageBaseGenerator(ABC):
     def create_rule_violation_message(self, rule_violations: RuleViolations) -> str:
-        """Create a message about all rule violations.
-
-        Args:
-            rule_violations: to convert to human-readable format
-
-        Returns:
-            message containing all individual rule violation messages
-        """
         return "\n".join(self.create_rule_violation_messages(rule_violations))
 
     def create_rule_violation_messages(
@@ -118,6 +108,55 @@ class RuleViolationMessageGenerator:
         if new_messages is not None:
             messages.extend(new_messages)
 
+    @abstractmethod
+    def _create_should_import_violated_messages(
+        self, rule_violations: RuleViolations
+    ) -> List[RuleViolatedMessage]:
+        pass
+
+    @abstractmethod
+    def _create_should_only_import_violated_messages(
+        self, rule_violations: RuleViolations
+    ) -> List[RuleViolatedMessage]:
+        pass
+
+    @abstractmethod
+    def _create_should_not_import_violated_messages(
+        self, rule_violations: RuleViolations
+    ) -> List[RuleViolatedMessage]:
+        pass
+
+    @abstractmethod
+    def _create_should_import_except_violated_messages(
+        self, rule_violations: RuleViolations
+    ) -> List[RuleViolatedMessage]:
+        pass
+
+    @abstractmethod
+    def _create_should_only_import_except_violated_messages(
+        self, rule_violations: RuleViolations
+    ) -> List[RuleViolatedMessage]:
+        pass
+
+    @abstractmethod
+    def _create_should_not_import_except_violated_messages(
+        self, rule_violations: RuleViolations
+    ) -> List[RuleViolatedMessage]:
+        pass
+
+
+class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
+    """Generates a user-friendly error message for each violated rule defined on modules (as compared to layers)."""
+
+    def __init__(self, import_rule: bool) -> None:
+        """
+        Args:
+            import_rule: True if the underlying rule is an "import" instead of an "is imported" rule
+        """
+        self._import_rule = import_rule
+
+        self._base_verb = IMPORT if self._import_rule else IMPORTED_BY
+
     def _create_should_import_violated_messages(
         self, rule_violations: RuleViolations
     ) -> List[RuleViolatedMessage]:
@@ -145,16 +184,25 @@ class RuleViolationMessageGenerator:
             for rule_object in rule_objects_for_rule_subject[rule_subject]:
                 rule_objects.append(self._get_rule_object(rule_object))
 
-            combined_rule_object = ", ".join(rule_objects)
-            if combined_rule_object:
-                rule_subject_formatted = self._get_rule_subject_formatted(rule_subject)
-                messages.append(
-                    RuleViolatedMessage(
-                        rule_subject_formatted, rule_verb, combined_rule_object
-                    )
-                )
+            rule_subject_formatted = self._get_rule_subject_formatted(rule_subject)
+            self._add_combined_rule_objects(
+                messages, rule_objects, rule_subject_formatted, rule_verb
+            )
 
         return messages
+
+    def _add_combined_rule_objects(
+        self,
+        messages: List[RuleViolatedMessage],
+        rule_objects: List[str],
+        rule_subject: str,
+        rule_verb: str,
+    ) -> None:
+        combined_rule_object = ", ".join(rule_objects)
+        if combined_rule_object:
+            messages.append(
+                RuleViolatedMessage(rule_subject, rule_verb, combined_rule_object)
+            )
 
     def _get_violating_rule_subjects_and_objects(
         self, rule_violation_dependency_names: List[StrictDependency]
@@ -267,16 +315,27 @@ class RuleViolationMessageGenerator:
                     self._get_rule_object(rule_object),
                 )
 
-            if rule_objects:
-                combined_rule_object = ANY_MODULE_THAT_IS_NOT + ", ".join(rule_objects)
-                rule_subject_formatted = self._get_rule_subject_formatted(rule_subject)
-                messages.append(
-                    RuleViolatedMessage(
-                        rule_subject_formatted, rule_verb, combined_rule_object
-                    )
-                )
+            rule_subject_formatted = self._get_rule_subject_formatted(rule_subject)
+            self._add_combined_any_rule_objects(
+                messages, rule_objects, rule_subject_formatted, rule_verb
+            )
 
         return messages
+
+    def _add_combined_any_rule_objects(
+        self,
+        messages: List[RuleViolatedMessage],
+        rule_objects: List[str],
+        rule_subject: str,
+        rule_verb: str,
+        rule_object_type: str = ANY_MODULE_THAT_IS_NOT,
+    ) -> None:
+        if rule_objects:
+            combined_rule_object = rule_object_type + ", ".join(rule_objects)
+
+            messages.append(
+                RuleViolatedMessage(rule_subject, rule_verb, combined_rule_object)
+            )
 
     def _create_should_only_import_except_violated_messages(
         self, rule_violations: RuleViolations
@@ -370,9 +429,16 @@ class RuleViolationMessageGenerator:
         rule_subject_name = self._get_module_name(dependency[0])
         rule_object_name = self._get_module_name(dependency[1])
 
-        return self._get_quoted_name(rule_subject_name), self._get_quoted_name(
+        rule_subject_name_formatted = self._get_quoted_name(rule_subject_name)
+        rule_object_name_formatted = self._get_quoted_name(rule_object_name)
+
+        complete_rule_subject_name = rule_subject_name_formatted + self._get_suffix(
+            rule_subject_name
+        )
+        complete_rule_object_name = rule_object_name_formatted + self._get_suffix(
             rule_object_name
         )
+        return complete_rule_subject_name, complete_rule_object_name
 
     def _get_verb_suffix(self, subject_singular: bool) -> str:
         if not subject_singular:
@@ -383,3 +449,128 @@ class RuleViolationMessageGenerator:
 
         # "is imported by" does not need an additional 's'
         return ""
+
+    def _get_suffix(self, xbject: str) -> str:
+        # no suffix needed here
+        return ""
+
+
+class LayerRuleViolationMessageGenerator(RuleViolationMessageGenerator):
+    """Generates a user-friendly error message for each violated rule defined on layers (as compared to modules).
+    These messages differ slightly from messages generated for rules based on modules:
+    1) For absent, but expected dependencies, the verb used mirrors the verb used in the rule itself ("access" instead of "import").
+    2) For unwanted dependencies, the regular syntax is used, but with an added hint on which layers the problematic modules
+     belong to, such as "module X (layer L) imports module Y (layer M)". If a module does not belong to any layer, (no layer)
+     will be used.
+    """
+
+    def __init__(self, import_rule: bool, layer_mapping: LayerMapping) -> None:
+        super().__init__(import_rule)
+        self._layer_mapping = layer_mapping
+
+    def _get_suffix(self, xbject: str) -> str:
+        layer = self._layer_mapping.get_layer_for_module_name(xbject)
+
+        if layer is None:
+            return " (no layer)"
+        else:
+            return f" (layer {self._get_quoted_name(layer)})"
+
+    def _create_no_import_between_original_subject_and_objects_message(
+        self, rule_violations: List[StrictDependency]
+    ) -> List[RuleViolatedMessage]:
+        messages = []
+
+        (
+            rule_object_layers_for_rule_subject_layer,
+            violating_rule_subject_layers,
+        ) = self._get_violating_rule_subject_and_objects_layers(rule_violations)
+
+        for rule_subject_layer in violating_rule_subject_layers:
+            verb_prefix = self._get_verb_prefix(
+                negated=True,
+                subject_singular=True,  # only singular rule subjects allowed for layer rules
+            )
+            rule_verb = self._concatenate_verb(prefix=verb_prefix, verb=self._base_verb)
+
+            rule_object_layers = []
+            for rule_object_layer in sorted(
+                rule_object_layers_for_rule_subject_layer[rule_subject_layer]
+            ):
+                rule_object_layer_formatted = self._prepend_prefix(
+                    self._get_quoted_name(rule_object_layer), False
+                )
+                rule_object_layers.append(rule_object_layer_formatted)
+
+            rule_subject_layer_formatted = self._prepend_prefix(
+                self._get_quoted_name(rule_subject_layer)
+            )
+            self._add_combined_rule_objects(
+                messages, rule_object_layers, rule_subject_layer_formatted, rule_verb
+            )
+
+        return messages
+
+    def _get_violating_rule_subject_and_objects_layers(
+        self, rule_violation_dependency_names: List[StrictDependency]
+    ) -> Tuple[Dict[str, Set[str]], Set[str]]:
+        violating_rule_subject_layers = set()
+        rule_object_layers_for_rule_subject_layer = defaultdict(set)
+
+        for rule_subject, rule_object in rule_violation_dependency_names:
+            rule_subject_layer = self._layer_mapping.get_layer(rule_subject)
+            rule_object_layer = self._layer_mapping.get_layer(rule_object)
+
+            violating_rule_subject_layers.add(rule_subject_layer)
+            rule_object_layers_for_rule_subject_layer[rule_subject_layer].add(
+                rule_object_layer
+            )
+
+        return rule_object_layers_for_rule_subject_layer, violating_rule_subject_layers
+
+    def _create_no_import_other_than_between_original_subject_and_objects_message(
+        self, rule_violations: List[StrictDependency]
+    ) -> List[RuleViolatedMessage]:
+        messages = []
+
+        (
+            rule_object_layers_for_rule_subject,
+            violating_rule_subject_layers,
+        ) = self._get_violating_rule_subject_and_objects_layers(rule_violations)
+
+        for rule_subject_layer in violating_rule_subject_layers:
+            verb_prefix = self._get_verb_prefix(
+                negated=True,
+                subject_singular=True,  # only singular rule subjects allowed for layer rules
+            )
+            rule_verb = self._concatenate_verb(prefix=verb_prefix, verb=self._base_verb)
+
+            rule_objects = []
+            for rule_object_layer in sorted(
+                rule_object_layers_for_rule_subject[rule_subject_layer]
+            ):
+                rule_object_layer_formatted = self._prepend_prefix(
+                    self._get_quoted_name(rule_object_layer), False
+                )
+                rule_objects.append(rule_object_layer_formatted)
+
+            rule_subject_layer_formatted = self._prepend_prefix(
+                self._get_quoted_name(rule_subject_layer)
+            )
+            self._add_combined_any_rule_objects(
+                messages,
+                rule_objects,
+                rule_subject_layer_formatted,
+                rule_verb,
+                rule_object_type=ANY_LAYER_THAT_IS_NOT,
+            )
+
+        return messages
+
+    def _prepend_prefix(self, xbject: str, capital: bool = True) -> str:
+        first_letter = LAYER_FIRST_LETTER_CAPITAL
+
+        if not capital:
+            first_letter = LAYER_FIRST_LETTER
+
+        return f"{first_letter}ayer {xbject}"

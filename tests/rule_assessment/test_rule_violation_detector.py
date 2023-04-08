@@ -48,7 +48,7 @@ MODULE_2 = Module(MODULE_NAME_2)
 MODULE_3 = Module(MODULE_NAME_3)
 
 
-def _get_behavior_requirement(**kwargs) -> BehaviorRequirement:
+def get_behavior_requirement(**kwargs) -> BehaviorRequirement:
     if SHOULD not in kwargs:
         kwargs[SHOULD] = False
 
@@ -64,7 +64,7 @@ def _get_behavior_requirement(**kwargs) -> BehaviorRequirement:
     return BehaviorRequirement(**kwargs)
 
 
-def _get_module_requirement(**kwargs) -> ModuleRequirement:
+def get_module_requirement(**kwargs) -> ModuleRequirement:
     if IMPORTERS not in kwargs:
         kwargs[IMPORTERS] = [MODULE_1]
 
@@ -352,8 +352,8 @@ test_cases = [
 def test_rule_violation_detection_as_expected(
     test_case: RuleViolationDetectorTestCase,
 ) -> None:
-    behavior_requirement = _get_behavior_requirement(**test_case.behavior)
-    module_requirement = _get_module_requirement(
+    behavior_requirement = get_behavior_requirement(**test_case.behavior)
+    module_requirement = get_module_requirement(
         **{IMPORTERS: [MODULE_1], IMPORTEES: [MODULE_2]}
     )
 

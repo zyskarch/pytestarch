@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import pytest
-from query_language.rule.conftest import MODULE_1, MODULE_2
 
 from pytestarch import Rule
-from pytestarch.eval_structure.evaluable_architecture import EvaluableArchitecture
+from pytestarch.eval_structure.evaluable_architecture import (
+    EvaluableArchitecture,
+    Module,
+)
 from pytestarch.query_language.exceptions import ImproperlyConfigured
+from pytestarch.query_language.rule import RuleConfiguration
+from query_language.rule.conftest import MODULE_1, MODULE_2
 
 
 def test_rule_to_str_as_expected() -> None:
@@ -103,3 +107,22 @@ def assert_rule_applies(rule: Rule, evaluable: EvaluableArchitecture) -> None:
 def assert_rule_does_not_apply(rule: Rule, evaluable: EvaluableArchitecture) -> None:
     with pytest.raises(AssertionError):
         rule.assert_applies(evaluable)
+
+
+def test_only_submodules_are_filtered_out() -> None:
+    module_names = ["X.a", "X.b", "X.a.a", "X.a.b", "Y"]
+    modules = [Module(name=name) for name in module_names]
+
+    rule_configuration = RuleConfiguration(modules_to_check=modules)
+
+    modules_without_submodules = (
+        Rule._get_modules_to_check_without_parent_and_submodule_combinations(
+            rule_configuration
+        )
+    )
+
+    assert list(map(lambda module: module.name, modules_without_submodules)) == [
+        "X.a",
+        "X.b",
+        "Y",
+    ]
