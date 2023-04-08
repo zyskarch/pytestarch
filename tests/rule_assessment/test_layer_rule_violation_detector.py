@@ -4,17 +4,6 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
 import pytest
-
-from pytestarch.eval_structure.evaluable_architecture import (
-    ExplicitlyRequestedDependenciesByBaseModules,
-    LayerMapping,
-    Module,
-    NotExplicitlyRequestedDependenciesByBaseModule,
-    StrictDependency,
-)
-from pytestarch.rule_assessment.rule_check.layer_rule_violation_detector import (
-    LayerRuleViolationDetector,
-)
 from rule_assessment.test_rule_violation_detector import (
     BEHAVIOR_EXCEPTION,
     IMPORTEES,
@@ -32,6 +21,17 @@ from rule_assessment.test_rule_violation_detector import (
     SHOULD_VIOLATIONS,
     get_behavior_requirement,
     get_module_requirement,
+)
+
+from pytestarch.eval_structure.evaluable_architecture import (
+    ExplicitlyRequestedDependenciesByBaseModules,
+    LayerMapping,
+    Module,
+    NotExplicitlyRequestedDependenciesByBaseModule,
+    StrictDependency,
+)
+from pytestarch.rule_assessment.rule_check.layer_rule_violation_detector import (
+    LayerRuleViolationDetector,
 )
 
 # layer 1

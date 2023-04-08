@@ -4,13 +4,13 @@ import re
 from typing import Dict, List
 
 import pytest
-
 from integration.interesting_rules_for_tests import (
     LayerRuleSetup,
     LayerRuleTestCase,
     fulfilled_layer_rule_test_cases,
     layer_rule_error_messages_test_cases,
 )
+
 from pytestarch import EvaluableArchitecture, LayeredArchitecture, LayerRule
 
 
