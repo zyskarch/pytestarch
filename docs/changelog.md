@@ -3,7 +3,7 @@
 This project uses semantic versioning and follows [keep a changelog](https://keepachangelog.com).
 
 
-## [Unreleased]
+## [1.4.0] -- 2023-04-09
 ### Added
 - Option to specify module names and file exclusions via regex.
 - Support for layer architecture.
