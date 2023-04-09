@@ -3,6 +3,10 @@
 This project uses semantic versioning and follows [keep a changelog](https://keepachangelog.com).
 
 
+## [1.4.1] -- 2023-04-09
+## Fixed 
+- Import paths in documentation.
+
 ## [1.4.0] -- 2023-04-09
 ### Added
 - Option to specify module names and file exclusions via regex.
