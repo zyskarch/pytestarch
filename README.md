@@ -12,7 +12,7 @@ Three steps are required to test an architectural rule:
 1) Create an evaluable representation of the source code you want to test
 
 ```
-from pytestarch.pytestarch import get_evaluable_architecture
+from pytestarch import get_evaluable_architecture
 
 evaluable = get_evaluable_architecture("/home/dummy/project", "/home/dummy/project/src")
 ```
@@ -23,7 +23,7 @@ you could use a fixture for this evaluable object.
 
 2) Define an architectural rule
 ```
-from pytestarch. import Rule
+from pytestarch import Rule
 
 rule = Rule() \
         .modules_that() \
