@@ -10,7 +10,7 @@ from eval_structure.evaluable_graph.conftest import (
     MODULE_F,
 )
 
-from pytestarch.eval_structure.breadth_first_searches import _get_all_submodules_of
+from pytestarch.eval_structure.breadth_first_searches import get_all_submodules_of
 from pytestarch.eval_structure.evaluable_architecture import Module
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.networkxgraph import NetworkxGraph
@@ -30,31 +30,25 @@ def submodule_evaluable() -> EvaluableArchitectureGraph:
 
 
 def test_submodule_calculation(submodule_evaluable: EvaluableArchitectureGraph) -> None:
-    assert _get_all_submodules_of(
-        submodule_evaluable._graph, Module(name=MODULE_A)
-    ) == {
+    assert get_all_submodules_of(submodule_evaluable._graph, Module(name=MODULE_A)) == {
         MODULE_A,
         MODULE_B,
     }  # D does not show up as it is not connected to any import
-    assert _get_all_submodules_of(
-        submodule_evaluable._graph, Module(name=MODULE_B)
-    ) == {
+    assert get_all_submodules_of(submodule_evaluable._graph, Module(name=MODULE_B)) == {
         MODULE_B
     }  # D does not show up as it is not connected to any import
-    assert _get_all_submodules_of(
-        submodule_evaluable._graph, Module(name=MODULE_C)
-    ) == {MODULE_C}
-    assert _get_all_submodules_of(
-        submodule_evaluable._graph, Module(name=MODULE_D)
-    ) == {MODULE_D}
-    assert _get_all_submodules_of(
-        submodule_evaluable._graph, Module(name=MODULE_E)
-    ) == {
+    assert get_all_submodules_of(submodule_evaluable._graph, Module(name=MODULE_C)) == {
+        MODULE_C
+    }
+    assert get_all_submodules_of(submodule_evaluable._graph, Module(name=MODULE_D)) == {
+        MODULE_D
+    }
+    assert get_all_submodules_of(submodule_evaluable._graph, Module(name=MODULE_E)) == {
         MODULE_E,
         MODULE_A,
         MODULE_B,
         MODULE_F,
     }  # D does not show up as it is not connected to any import
-    assert _get_all_submodules_of(
-        submodule_evaluable._graph, Module(name=MODULE_F)
-    ) == {MODULE_F}
+    assert get_all_submodules_of(submodule_evaluable._graph, Module(name=MODULE_F)) == {
+        MODULE_F
+    }

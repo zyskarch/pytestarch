@@ -8,17 +8,26 @@ from integration.interesting_rules_for_tests import (
     LayerRuleSetup,
     LayerRuleTestCase,
     fulfilled_layer_rule_test_cases,
+    layer_rule_error_messages_regex_module_specification_test_cases,
     layer_rule_error_messages_test_cases,
 )
 
 from pytestarch import EvaluableArchitecture, LayeredArchitecture, LayerRule
 
 
-def _get_layered_architecture(layers: Dict[str, List[str]]) -> LayeredArchitecture:
+def _get_layered_architecture(
+    layers: Dict[str, List[str]], module_regex: bool = False
+) -> LayeredArchitecture:
     arch = LayeredArchitecture()
 
+    module_specification_fn = "containing_modules"
+
+    if module_regex:
+        module_specification_fn = "have_modules_with_names_matching"
+
     for layer, modules in layers.items():
-        arch.layer(layer).containing_modules(modules)
+        arch = arch.layer(layer)
+        arch = getattr(arch, module_specification_fn)(modules)
 
     return arch
 
@@ -62,6 +71,23 @@ def test_rule_violated_raises_proper_error_message(
     flat_project_1: EvaluableArchitecture,
 ) -> None:
     arch = _get_layered_architecture(test_case.layers)
+    rule = _get_layer_rule(test_case.rule_setup, arch)
+
+    with pytest.raises(
+        AssertionError, match=re.escape(test_case.expected_error_message)
+    ):
+        rule.assert_applies(flat_project_1)
+
+
+@pytest.mark.parametrize(
+    "test_case",
+    layer_rule_error_messages_regex_module_specification_test_cases,
+)
+def test_rule_violated_modules_based_on_regex_raises_proper_error_message(
+    test_case: LayerRuleTestCase,
+    flat_project_1: EvaluableArchitecture,
+) -> None:
+    arch = _get_layered_architecture(test_case.layers, True)
     rule = _get_layer_rule(test_case.rule_setup, arch)
 
     with pytest.raises(

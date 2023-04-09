@@ -11,7 +11,7 @@ def get_dependency_between_modules(
     graph: AbstractGraph, dependent: Module, dependent_upon: Module
 ) -> List[StrictDependency]:
     dependent_node = get_node(dependent)
-    dependent_upon_nodes = _get_all_submodules_of(graph, dependent_upon)
+    dependent_upon_nodes = get_all_submodules_of(graph, dependent_upon)
 
     nodes_to_exclude = get_excluded_nodes([dependent, dependent_upon])
 
@@ -44,14 +44,14 @@ def get_dependency_between_modules(
 
 
 def any_dependency_to_module_other_than(  # noqa: C901
-    graph: AbstractGraph, dependent: Module, dependent_upons: List[Module]
+    graph: AbstractGraph, dependent: Module, dependent_upons: Set[Module]
 ) -> List[StrictDependency]:
     # nodes to exclude are nodes that once reached will not have their submodules analysed next
     nodes_to_exclude = set()
     for dependent_upon in dependent_upons:
         if dependent_upon == dependent:
             continue
-        nodes_to_exclude.update(_get_all_submodules_of(graph, dependent_upon))
+        nodes_to_exclude.update(get_all_submodules_of(graph, dependent_upon))
 
     nodes_fulfilling_criteria = []
 
@@ -62,7 +62,7 @@ def any_dependency_to_module_other_than(  # noqa: C901
     # however, this is not really an import of a module outside A, which is what we are actually looking for
 
     # should submodules of the dependent module import each other, this does not count as a dependency
-    nodes_that_do_not_fulfill_criterion = _get_all_submodules_of(graph, dependent)
+    nodes_that_do_not_fulfill_criterion = get_all_submodules_of(graph, dependent)
 
     if dependent.parent_module is not None:
         # if the parent module is set and has a dependency other than dependent upon, it should not count as only
@@ -109,7 +109,7 @@ def any_dependency_to_module_other_than(  # noqa: C901
 
 
 def any_other_dependency_to_module_than(  # noqa: C901
-    graph: AbstractGraph, dependents: List[Module], dependent_upon: Module
+    graph: AbstractGraph, dependents: Set[Module], dependent_upon: Module
 ) -> List[StrictDependency]:
     # submodules of the dependent upon module do not count as an import that is not the dependent upon module
     # submodules of and including the dependent do not count as allowed imports
@@ -119,7 +119,7 @@ def any_other_dependency_to_module_than(  # noqa: C901
     for dependent in dependents:
         if dependent == dependent_upon:
             continue
-        nodes_to_exclude.update(_get_all_submodules_of(graph, dependent))
+        nodes_to_exclude.update(get_all_submodules_of(graph, dependent))
 
     nodes_fulfilling_criteria = []
 
@@ -130,7 +130,7 @@ def any_other_dependency_to_module_than(  # noqa: C901
     # however, this is not really an import by a module outside A, which is what we are actually looking for
 
     # submodules of the dependent upon do not count as allowed imports e.g. if they import each other
-    nodes_that_count_as_not_fulfilling_criterion = _get_all_submodules_of(
+    nodes_that_count_as_not_fulfilling_criterion = get_all_submodules_of(
         graph, dependent_upon
     )
 
@@ -177,7 +177,7 @@ def any_other_dependency_to_module_than(  # noqa: C901
     return nodes_fulfilling_criteria  # type: ignore
 
 
-def _get_all_submodules_of(graph: AbstractGraph, module: Module) -> Set[AbstractNode]:
+def get_all_submodules_of(graph: AbstractGraph, module: Module) -> Set[AbstractNode]:
     """Returns all submodules of a given module.
 
     Args:

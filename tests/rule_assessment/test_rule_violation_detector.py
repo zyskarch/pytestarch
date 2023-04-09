@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional, Set
 
 import pytest
 
@@ -81,7 +81,7 @@ def get_module_requirement(**kwargs) -> ModuleRequirement:
 class RuleViolationDetectorTestCase:
     behavior: Dict[str, Any]
     expected_violation: Optional[str]
-    expected_violating_dependencies: List[StrictDependency]
+    expected_violating_dependencies: Set[StrictDependency]
     explicitly_requested_dependencies: Optional[
         ExplicitlyRequestedDependenciesByBaseModules
     ]
@@ -95,21 +95,23 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD: True},
             SHOULD_VIOLATIONS,
-            [],
+            set(),
             {(MODULE_1, MODULE_2): [(MODULE_1, MODULE_2)]},
             {MODULE_1: []},
         ),
         id="should_fulfilled",
     ),
     pytest.param(
-        RuleViolationDetectorTestCase({SHOULD: False}, SHOULD_VIOLATIONS, [], {}, {}),
+        RuleViolationDetectorTestCase(
+            {SHOULD: False}, SHOULD_VIOLATIONS, set(), {}, {}
+        ),
         id="should_violated_not_required",
     ),
     pytest.param(
         RuleViolationDetectorTestCase(
             {SHOULD: True},
             SHOULD_VIOLATIONS,
-            [(MODULE_1, MODULE_2)],
+            {(MODULE_1, MODULE_2)},
             {(MODULE_1, MODULE_2): []},
             {MODULE_1: []},
         ),
@@ -119,7 +121,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_NOT: True},
             SHOULD_NOT_VIOLATIONS,
-            [],
+            set(),
             {(MODULE_1, MODULE_2): []},
             {MODULE_1: []},
         ),
@@ -129,7 +131,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_NOT: False},
             SHOULD_NOT_VIOLATIONS,
-            [],
+            set(),
             {(MODULE_1, MODULE_2): [(MODULE_1, MODULE_2)]},
             {MODULE_1: []},
         ),
@@ -139,7 +141,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_NOT: True},
             SHOULD_NOT_VIOLATIONS,
-            [(MODULE_1, MODULE_2)],
+            {(MODULE_1, MODULE_2)},
             {(MODULE_1, MODULE_2): [(MODULE_1, MODULE_2)]},
             {MODULE_1: []},
         ),
@@ -149,7 +151,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: True},
             SHOULD_ONLY_VIOLATIONS_NO_IMPORT,
-            [],
+            set(),
             {(MODULE_1, MODULE_2): [(MODULE_1, MODULE_2)]},
             {MODULE_1: []},
         ),
@@ -159,7 +161,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: False},
             SHOULD_ONLY_VIOLATIONS_NO_IMPORT,
-            [],
+            set(),
             {(MODULE_1, MODULE_2): []},
             {MODULE_1: []},
         ),
@@ -169,7 +171,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: True},
             SHOULD_ONLY_VIOLATIONS_NO_IMPORT,
-            [(MODULE_1, MODULE_2)],
+            {(MODULE_1, MODULE_2)},
             {(MODULE_1, MODULE_2): []},
             {MODULE_1: []},
         ),
@@ -179,7 +181,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: False},
             SHOULD_ONLY_VIOLATIONS_FORBIDDEN_IMPORT,
-            [],
+            set(),
             {(MODULE_1, MODULE_2): [(MODULE_1, MODULE_2)]},
             {MODULE_1: [(MODULE_1, MODULE_3)]},
         ),
@@ -189,7 +191,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: True},
             SHOULD_ONLY_VIOLATIONS_FORBIDDEN_IMPORT,
-            [(MODULE_1, MODULE_3)],
+            {(MODULE_1, MODULE_3)},
             {(MODULE_1, MODULE_2): [(MODULE_1, MODULE_2)]},
             {MODULE_1: [(MODULE_1, MODULE_3)]},
         ),
@@ -199,7 +201,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_EXCEPT_VIOLATIONS,
-            [],
+            set(),
             {(MODULE_1, MODULE_2): [(MODULE_1, MODULE_2)]},
             {MODULE_1: [(MODULE_1, MODULE_3)]},
         ),
@@ -209,7 +211,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD: False, BEHAVIOR_EXCEPTION: True},
             SHOULD_EXCEPT_VIOLATIONS,
-            [],
+            set(),
             {(MODULE_1, MODULE_2): [(MODULE_1, MODULE_2)]},
             {MODULE_1: []},
         ),
@@ -219,7 +221,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD: True, BEHAVIOR_EXCEPTION: False},
             SHOULD_EXCEPT_VIOLATIONS,
-            [],
+            set(),
             {(MODULE_1, MODULE_2): [(MODULE_1, MODULE_2)]},
             {MODULE_1: []},
         ),
@@ -229,7 +231,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_EXCEPT_VIOLATIONS,
-            [(MODULE_1, MODULE_2)],
+            {(MODULE_1, MODULE_2)},
             {(MODULE_1, MODULE_2): [(MODULE_1, MODULE_2)]},
             {MODULE_1: []},
         ),
@@ -239,7 +241,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_NOT: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_NOT_EXCEPT_VIOLATIONS,
-            [],
+            set(),
             {(MODULE_1, MODULE_2): []},
             {MODULE_1: []},
         ),
@@ -249,7 +251,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_NOT: False, BEHAVIOR_EXCEPTION: True},
             SHOULD_NOT_EXCEPT_VIOLATIONS,
-            [],
+            set(),
             {(MODULE_1, MODULE_2): []},
             {MODULE_1: [(MODULE_1, MODULE_3)]},
         ),
@@ -259,7 +261,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_NOT: True, BEHAVIOR_EXCEPTION: False},
             SHOULD_NOT_EXCEPT_VIOLATIONS,
-            [],
+            set(),
             {(MODULE_1, MODULE_2): []},
             {MODULE_1: [(MODULE_1, MODULE_3)]},
         ),
@@ -269,7 +271,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_NOT: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_NOT_EXCEPT_VIOLATIONS,
-            [(MODULE_1, MODULE_3)],
+            {(MODULE_1, MODULE_3)},
             {(MODULE_1, MODULE_2): []},
             {MODULE_1: [(MODULE_1, MODULE_3)]},
         ),
@@ -279,7 +281,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_ONLY_EXCEPT_VIOLATIONS_NO_IMPORT,
-            [],
+            set(),
             {(MODULE_1, MODULE_2): []},
             {MODULE_1: [(MODULE_1, MODULE_3)]},
         ),
@@ -289,7 +291,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: False, BEHAVIOR_EXCEPTION: True},
             SHOULD_ONLY_EXCEPT_VIOLATIONS_NO_IMPORT,
-            [],
+            set(),
             {(MODULE_1, MODULE_2): []},
             {MODULE_1: []},
         ),
@@ -299,7 +301,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: True, BEHAVIOR_EXCEPTION: False},
             SHOULD_ONLY_EXCEPT_VIOLATIONS_NO_IMPORT,
-            [],
+            set(),
             {(MODULE_1, MODULE_2): []},
             {MODULE_1: []},
         ),
@@ -309,7 +311,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_ONLY_EXCEPT_VIOLATIONS_NO_IMPORT,
-            [(MODULE_1, MODULE_2)],
+            {(MODULE_1, MODULE_2)},
             {(MODULE_1, MODULE_2): []},
             {MODULE_1: []},
         ),
@@ -319,7 +321,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: False, BEHAVIOR_EXCEPTION: True},
             SHOULD_ONLY_EXCEPT_VIOLATIONS_FORBIDDEN_IMPORT,
-            [],
+            set(),
             {(MODULE_1, MODULE_2): [(MODULE_1, MODULE_2)]},
             {MODULE_1: [(MODULE_1, MODULE_3)]},
         ),
@@ -329,7 +331,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: True, BEHAVIOR_EXCEPTION: False},
             SHOULD_ONLY_EXCEPT_VIOLATIONS_FORBIDDEN_IMPORT,
-            [],
+            set(),
             {(MODULE_1, MODULE_2): [(MODULE_1, MODULE_2)]},
             {MODULE_1: [(MODULE_1, MODULE_3)]},
         ),
@@ -339,7 +341,7 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_ONLY_EXCEPT_VIOLATIONS_FORBIDDEN_IMPORT,
-            [(MODULE_1, MODULE_2)],
+            {(MODULE_1, MODULE_2)},
             {(MODULE_1, MODULE_2): [(MODULE_1, MODULE_2)]},
             {MODULE_1: [(MODULE_1, MODULE_3)]},
         ),

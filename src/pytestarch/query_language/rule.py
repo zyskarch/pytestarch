@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from typing import Callable, List, Optional, Union
+from typing import Callable, List, Optional, Tuple, Union
 
 from pytestarch import EvaluableArchitecture
 from pytestarch.eval_structure.evaluable_architecture import Module
@@ -21,6 +21,10 @@ from pytestarch.rule_assessment.rule_check.module_requirement import ModuleRequi
 from pytestarch.rule_assessment.rule_check.rule_matcher import (
     DefaultRuleMatcher,
     RuleMatcher,
+)
+from pytestarch.utils.decorators import deprecated
+from pytestarch.utils.partial_match_to_regex_converter import (
+    convert_partial_match_to_regex,
 )
 
 
@@ -76,12 +80,21 @@ class Rule(
         self._set_modules(names, lambda name: Module(name=name))
         return self
 
+    @deprecated
     def have_name_containing(
         self, partial_names: Union[str, List[str]]
     ) -> BehaviorSpecification:
         self._set_modules(
-            partial_names, lambda name: Module(name=name, partial_match=True)
+            partial_names,
+            lambda name: Module(name=convert_partial_match_to_regex(name), regex=True),
         )
+        return self
+
+    def have_name_matching(
+        self,
+        regex: str,
+    ) -> BehaviorSpecification:
+        self._set_modules(regex, lambda name: Module(name=name, regex=True))
         return self
 
     def _set_modules(
@@ -100,6 +113,36 @@ class Rule(
             self._configuration.modules_to_check = modules
         else:
             self._configuration.modules_to_check_against = modules
+
+    def _add_modules(self, modules: List[Tuple[str, bool]]) -> BehaviorSpecification:
+        module_names = []
+        module_creation_fn = []
+
+        for module, name_is_regex in modules:
+            module_names.append(module)
+            module_creation_fn.append(
+                lambda name: Module(name=name, regex=name_is_regex)
+            )
+
+        self._append_modules(module_names, module_creation_fn)
+        return self
+
+    def _append_modules(
+        self,
+        module_names: List[str],
+        create_module_fns: List[Callable[[str], Module]],
+    ) -> None:
+        modules = [fn(n) for n, fn in zip(module_names, create_module_fns)]
+        if self._modules_to_check_to_be_specified_next:
+            if self._configuration.modules_to_check is None:
+                self._configuration.modules_to_check = []
+
+            self._configuration.modules_to_check.extend(modules)
+        else:
+            if self._configuration.modules_to_check_against is None:
+                self._configuration.modules_to_check_against = []
+
+            self._configuration.modules_to_check_against.extend(modules)
 
     def should(self) -> DependencySpecification:
         self._configuration.should = True

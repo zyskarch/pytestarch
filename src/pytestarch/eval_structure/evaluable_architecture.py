@@ -71,10 +71,6 @@ class LayerMapping:
         return self.get_layer(Module(name=module_name))
 
     @property
-    def all_modules(self) -> Iterable[Module]:
-        return self._module_mapping.keys()
-
-    @property
     def all_layers(self) -> Iterable[Layer]:
         return self._layer_mapping.keys()
 
@@ -87,12 +83,12 @@ class Module:
     Attributes:
         name: full name of the module
         parent_module: full name of the parent module
-        partial_match: if True, the name may only represent a single part of the actual module name
+        regex: if True, the name represents a regex pattern that matches potentially multiple modules
     """
 
     name: Optional[str] = None
     parent_module: Optional[str] = None
-    partial_match: bool = False
+    regex: bool = False
 
 
 StrictDependency = Tuple[Module, Module]
@@ -186,4 +182,9 @@ class EvaluableArchitecture(Protocol):
                 available backend.
                 Exception: If 'spacing' is set, this will be interpreted as the parameter 'k' of the spring layout (https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.spring_layout.html#networkx.drawing.layout.spring_layout).
         """
+        raise NotImplementedError()
+
+    @property
+    def modules(self) -> List[str]:
+        """Return names of all modules that are present in this architecture."""
         raise NotImplementedError()

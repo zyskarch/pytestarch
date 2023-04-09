@@ -29,6 +29,7 @@ STRUCTURE = f"{BASE_MODULE}.eval_structure"
 GENERATION = f"{BASE_MODULE}.eval_structure_generation"
 LANGUAGE = f"{BASE_MODULE}.query_language"
 ASSESSMENT = f"{BASE_MODULE}.rule_assessment"
+UTILS = f"{BASE_MODULE}.utils"
 
 
 top_level_rules = [
@@ -60,7 +61,7 @@ top_level_rules = [
         .are_named(LANGUAGE)
         .should_only()
         .import_modules_that()
-        .are_named([STRUCTURE, ASSESSMENT]),
+        .are_named([STRUCTURE, ASSESSMENT, UTILS]),
         id="query_language",
     ),
     pytest.param(

@@ -39,6 +39,8 @@ arch = LayeredArchitecture() \
 ```
 In this layered architecture, the modules M and N belong to layer 'import'; while module O belongs to layer 'model'.
 
+Modules can also be specified via a regex, using the method "have_modules_with_names_matching".
+
 
 ⚠ Note that PyTestArch assumes that all submodules of a module belong to the same layer as their parent module!
 

@@ -184,6 +184,8 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
             for rule_object in rule_objects_for_rule_subject[rule_subject]:
                 rule_objects.append(self._get_rule_object(rule_object))
 
+            rule_objects.sort()
+
             rule_subject_formatted = self._get_rule_subject_formatted(rule_subject)
             self._add_combined_rule_objects(
                 messages, rule_objects, rule_subject_formatted, rule_verb
@@ -270,6 +272,8 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
             ) = self._get_rule_subject_and_object_of_dependency(dependency)
             messages.append(RuleViolatedMessage(rule_subject, rule_verb, rule_object))
 
+        messages.sort(key=lambda m: (m.rule_subject, m.rule_object))
+
         return messages
 
     def _create_should_only_import_no_import_violated_messages(
@@ -314,6 +318,8 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
                 rule_objects.append(
                     self._get_rule_object(rule_object),
                 )
+
+            rule_objects.sort()
 
             rule_subject_formatted = self._get_rule_subject_formatted(rule_subject)
             self._add_combined_any_rule_objects(

@@ -55,7 +55,7 @@ if we want to exclude `util_test.py`, we could use:
 ```
 from pytestarch.pytestarch import get_evaluable_architecture
 
-evaluable = get_evaluable_architecture("/home/my_project", "/home/my_project/src", ("*_test.py"))
+evaluable = get_evaluable_architecture("/home/my_project", "/home/my_project/src", regex_exclusions=(".*_test\.py"))
 ```
 This will exclude all files with names ending in "_test.py". It is also possible to exclude directories.
 

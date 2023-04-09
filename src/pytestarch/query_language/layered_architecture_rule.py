@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import List, Type, Union
+from typing import List, Tuple, Type, Union
 
 from pytestarch import EvaluableArchitecture, Rule
 from pytestarch.eval_structure.evaluable_architecture import LayerMapping, Module
@@ -93,6 +93,22 @@ class LayeredArchitecture(BaseLayeredArchitecture, LayerName, LayerDefinition):
 
         return self
 
+    def have_modules_with_names_matching(
+        self,
+        regex: str,
+    ) -> Union[LayerName, BaseLayeredArchitecture]:
+        layers_without_modules = self._get_layers_without_modules()
+        if not layers_without_modules or len(layers_without_modules) > 1:
+            raise ImproperlyConfigured(
+                "Specify layer name before specifying its modules."
+            )
+
+        self._modules_by_layer_name[
+            layers_without_modules[0]
+        ] = self._from_regex_to_module_objects(regex)
+
+        return self
+
     def __str__(self) -> str:
         layers = [
             f"Layer {layer}: [{', '.join(map(lambda m: m.name, modules))}]"
@@ -105,6 +121,9 @@ class LayeredArchitecture(BaseLayeredArchitecture, LayerName, LayerDefinition):
 
     def _to_module_objects(self, modules: List[str]) -> List[Module]:
         return [Module(name=module) for module in modules]
+
+    def _from_regex_to_module_objects(self, regex: str) -> List[Module]:
+        return [Module(name=regex, regex=True)]
 
 
 class LayerRule(
@@ -155,7 +174,7 @@ class LayerRule(
         layers = self._listify(layers)
         modules = self._get_all_modules_in_layers(layers)
 
-        self._rule = self._rule.are_named(modules)
+        self._rule = self._rule._add_modules(modules)
         return self
 
     def should(self) -> LayerBehaviorSpecification:
@@ -201,5 +220,9 @@ class LayerRule(
     def _listify(cls, layers: Union[str, List[str]]) -> List[str]:
         return layers if isinstance(layers, List) else [layers]
 
-    def _get_all_modules_in_layers(self, layers: List[str]) -> List[str]:
-        return [module.name for layer in layers for module in self._architecture[layer]]
+    def _get_all_modules_in_layers(self, layers: List[str]) -> List[Tuple[str, bool]]:
+        return [
+            (module.name, module.regex)
+            for layer in layers
+            for module in self._architecture[layer]
+        ]
