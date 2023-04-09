@@ -33,10 +33,12 @@ def test_submodule_calculation(submodule_evaluable: EvaluableArchitectureGraph) 
     assert get_all_submodules_of(submodule_evaluable._graph, Module(name=MODULE_A)) == {
         MODULE_A,
         MODULE_B,
-    }  # D does not show up as it is not connected to any import
+        MODULE_D,
+    }
     assert get_all_submodules_of(submodule_evaluable._graph, Module(name=MODULE_B)) == {
-        MODULE_B
-    }  # D does not show up as it is not connected to any import
+        MODULE_B,
+        MODULE_D,
+    }
     assert get_all_submodules_of(submodule_evaluable._graph, Module(name=MODULE_C)) == {
         MODULE_C
     }
@@ -48,7 +50,8 @@ def test_submodule_calculation(submodule_evaluable: EvaluableArchitectureGraph) 
         MODULE_A,
         MODULE_B,
         MODULE_F,
-    }  # D does not show up as it is not connected to any import
+        MODULE_D,
+    }
     assert get_all_submodules_of(submodule_evaluable._graph, Module(name=MODULE_F)) == {
         MODULE_F
     }

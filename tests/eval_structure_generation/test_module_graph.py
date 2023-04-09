@@ -62,8 +62,8 @@ def module_graph(all_modules: List[str], imports: List[Import]) -> NetworkxGraph
 
 
 def test_node_edge_count_as_expected(module_graph: NetworkxGraph) -> None:
-    assert module_graph.nodes_number == 34
-    assert module_graph.edges_number == 30
+    assert module_graph.nodes_number == 36
+    assert module_graph.edges_number == 43
 
 
 def test_expected_nodes_present(module_graph: NetworkxGraph) -> None:

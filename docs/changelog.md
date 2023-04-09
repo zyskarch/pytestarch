@@ -5,10 +5,12 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 
 ## [Unreleased]
 ### Added
+- Option to specify module names and file exclusions via regex.
 - Support for layer architecture.
 - Batch support for rule subjects.
 
 ### Changed
+- Complete module hierarchy present in graph, instead of only for modules that are part of an import dependency.
 - Error message only lists violated rule objects when multiple rule objects are defined.
 
 ## [1.3.1] -- 2023-01-27

@@ -36,7 +36,7 @@ class ModuleNameConverter:
         never_matched = {module.name for module in modules_that_need_converting}
 
         converted_modules = set()
-        conversion_mapping = defaultdict(set)
+        conversion_mapping = defaultdict(list)
         matching_submodules = set()
 
         module_names_that_need_to_be_matched = list(
@@ -44,15 +44,12 @@ class ModuleNameConverter:
         )
 
         for actually_present_module in arch.modules:
-            if actually_present_module in matching_submodules:
-                continue
-
             for module_to_match in module_names_that_need_to_be_matched:
                 if cls._name_matches_pattern(module_to_match, actually_present_module):
                     converted_module = Module(name=actually_present_module)
 
                     converted_modules.add(converted_module)
-                    conversion_mapping[module_to_match].add(converted_module)
+                    conversion_mapping[module_to_match].append(converted_module)
 
                     if module_to_match in never_matched:
                         never_matched.remove(module_to_match)
@@ -69,15 +66,6 @@ class ModuleNameConverter:
             raise ImpossibleMatch(
                 f'No modules found that match: {", ".join(never_matched)}'
             )
-
-        # remove all submodules of parent modules that also match
-        converted_modules = [
-            module for module in converted_modules if module not in matching_submodules
-        ]
-        conversion_mapping = {
-            regex: [module for module in modules if module not in matching_submodules]
-            for regex, modules in conversion_mapping.items()
-        }
 
         return list(converted_modules) + other_modules, conversion_mapping
 

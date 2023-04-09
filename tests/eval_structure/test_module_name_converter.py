@@ -11,11 +11,24 @@ from pytestarch.eval_structure.module_name_converter import ModuleNameConverter
 
 test_cases = [
     pytest.param(
-        f"{PROJECT_ROOT}\\.ut[ia]l", [f"{PROJECT_ROOT}.util"], id="single_match"
+        f"{PROJECT_ROOT}\\.ut[ia]l",
+        [
+            f"{PROJECT_ROOT}.util",
+            f"{PROJECT_ROOT}.util.util_importee",
+            f"{PROJECT_ROOT}.util.util_importer",
+        ],
+        id="single_match",
     ),
     pytest.param(
         f"{PROJECT_ROOT}\\.(util|services)",
-        [f"{PROJECT_ROOT}.services", f"{PROJECT_ROOT}.util"],
+        [
+            f"{PROJECT_ROOT}.services",
+            f"{PROJECT_ROOT}.services.services_importee",
+            f"{PROJECT_ROOT}.services.services_importer",
+            f"{PROJECT_ROOT}.util",
+            f"{PROJECT_ROOT}.util.util_importee",
+            f"{PROJECT_ROOT}.util.util_importer",
+        ],
         id="multiple_matches",
     ),
 ]

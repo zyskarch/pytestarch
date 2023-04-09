@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from typing import Tuple
 
 import pytest
 from integration.interesting_rules_for_tests import rules_for_level_limits
@@ -9,6 +10,7 @@ from resources.test_project.src import moduleA
 from resources.test_project.src.moduleA import submoduleA1
 
 from pytestarch import EvaluableArchitecture, Rule, get_evaluable_architecture
+from pytestarch.eval_structure.networkxgraph import NetworkxGraph
 
 
 @pytest.mark.parametrize(
@@ -109,7 +111,23 @@ def test_edges_correctly_calculated_for_level_2_module_path() -> None:
         ("*__pycache__", "*__init__.py", "*Test.py"),
     )
 
-    assert len(level_2_graph._graph._graph.edges) == 0  # no internal dependencies left
+    assert (
+        len(
+            list(
+                filter(
+                    lambda e: _not_inheritance_edge(e, level_2_graph._graph),
+                    level_2_graph._graph._graph.edges,
+                )
+            )
+        )
+        == 0
+    )  # no internal dependencies left
+
+    assert len(level_2_graph._graph._graph.edges) == 9  # only parent-submodule edges
+
+
+def _not_inheritance_edge(edge: Tuple[str, str], graph: NetworkxGraph) -> bool:
+    return not graph.parent_child_relationship(*edge)
 
 
 def test_edges_correctly_calculated_for_level_2_module_path_no_external_dependencies_modified() -> (
@@ -161,7 +179,18 @@ def test_edges_correctly_calculated_for_level_3_module_path() -> None:
         ("*__pycache__", "*__init__.py", "*Test.py"),
     )
 
-    assert len(level_3_graph._graph._graph.edges) == 0  # no internal dependencies left
+    assert (
+        len(
+            list(
+                filter(
+                    lambda e: _not_inheritance_edge(e, level_3_graph._graph),
+                    level_3_graph._graph._graph.edges,
+                )
+            )
+        )
+        == 0
+    )  # no internal dependencies left
+    assert len(level_3_graph._graph._graph.edges) == 6
 
 
 def test_edges_correctly_calculated_for_level_3_module_path_no_external_dependencies_modified() -> (
@@ -174,7 +203,7 @@ def test_edges_correctly_calculated_for_level_3_module_path_no_external_dependen
         exclude_external_libraries=False,
     )
 
-    assert len(level_3_graph._graph._graph.edges) == 12
+    assert len(level_3_graph._graph._graph.edges) == 14
 
     for edge in [
         ("src", "src.moduleB"),

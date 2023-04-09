@@ -29,7 +29,12 @@ Currently, the following markers are supported by PyTestArch:
 ### RULE_SUBJECT
 * are_named("X"): applies to module named "X" (and also to its submodules)
 * are_submodules_of("Y"): applies to submodules of module named "Y", but not "Y" itself
-* have_name_matching(regex): applies to module with names that match the given regex.
+* have_name_matching(regex): applies to module with names that match the given regex. 
+
+⚠ When using the `have_name_matching` functionality, the regex should ideally only match the module one wants to test, not
+also its submodules. For example, if a module named src.moduleA should be matched, the regex should not also match 
+src.moduleA.submoduleAA, as this can increase the runtime of the rule assertion check. This has no effect on the 
+result of the check itself, as submodules are automatically considered when checking rules.
 
 ### RULE_OBJECT
 same as RULE_SUBJECT, with an additional

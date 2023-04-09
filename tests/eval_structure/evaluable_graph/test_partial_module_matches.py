@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import List
 
 import pytest
-from eval_structure.evaluable_graph.conftest import MODULE_A, MODULE_D
+from eval_structure.evaluable_graph.conftest import MODULE_A, MODULE_B, MODULE_D
 from integration.interesting_rules_for_tests import A, B, C
 
 from pytestarch import Rule
@@ -62,23 +62,20 @@ def test_module_matches(
         module_matches, submodule_evaluable
     )
 
-    assert len(calculated_matches) == 2
+    assert len(calculated_matches) == 3
 
     module_a = Module(name=MODULE_A)
-    module_d = Module(
-        name=MODULE_D
-    )  # TODO: not currently listed as a submodule of module A in graph
+    module_b = Module(name=MODULE_B)
+    module_d = Module(name=MODULE_D)
 
     assert module_a in calculated_matches
+    assert module_b in calculated_matches
     assert module_d in calculated_matches
 
     assert len(conversion_mapping.keys()) == 2
 
     assert conversion_mapping[module_matches[0].name] == [module_d]
-    assert sorted(conversion_mapping[module_matches[1].name], key=lambda m: m.name) == [
-        module_a,
-        module_d,
-    ]
+    assert conversion_mapping[module_matches[1].name] == [module_a, module_b, module_d]
 
 
 def test_never_matched_match_raises_error(
