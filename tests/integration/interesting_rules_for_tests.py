@@ -848,7 +848,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .should()
         .import_modules_except_modules_that()
         .are_sub_modules_of([C, B]),
-        f'"{FILE_A2}" does not import any module that is not a sub module of "{C}", a sub module of "{B}".',
+        f'"{FILE_A2}" does not import any module that is not a sub module of "{B}", a sub module of "{C}".',
         id="named should import except submodule",
     ),
     pytest.param(
@@ -2708,7 +2708,43 @@ layer_rule_error_messages_test_cases_submodule_and_module_in_layer_be_accessed =
     for parameter_set in layer_rule_error_messages_test_cases_be_accessed
 ]
 
-# layer_rule_error_messages_test_cases = layer_rule_error_messages_test_cases_access + layer_rule_error_messages_test_cases_be_accessed + layer_rule_error_messages_test_cases_submodule_and_module_in_layer_access + layer_rule_error_messages_test_cases_submodule_and_module_in_layer_be_accessed
 layer_rule_error_messages_test_cases = (
-    layer_rule_error_messages_test_cases_submodule_and_module_in_layer_access
+    layer_rule_error_messages_test_cases_access
+    + layer_rule_error_messages_test_cases_be_accessed
+    + layer_rule_error_messages_test_cases_submodule_and_module_in_layer_access
+    + layer_rule_error_messages_test_cases_submodule_and_module_in_layer_be_accessed
 )
+
+layer_rule_error_messages_regex_module_specification_test_cases = [
+    pytest.param(
+        LayerRuleTestCase(
+            {LAYER_1: f"{PROJECT_ROOT}\\.ut[ia]l", LAYER_2: f"{PROJECT_ROOT}\\.model"},
+            layer_1_should_only_access_layer_2,
+            layer_1_does_not_import_layer_2,
+        ),
+        id="regex_with_options_in_middle_of_word",
+    ),
+    pytest.param(
+        LayerRuleTestCase(
+            {
+                LAYER_1: ".*_1\\.persistence",
+                LAYER_2: f"{PROJECT_ROOT}\\.(util|runtime)",
+            },
+            layer_1_should_not_be_accessed_by_layer_2,
+            f'"{PERSISTENCE_IMPORTEE}" (layer "{LAYER_1}") is imported by "{RUNTIME_IMPORTER}" (layer "{LAYER_2}").',
+        ),
+        id="regex_with_options_at_start_of_word",
+    ),
+    pytest.param(
+        LayerRuleTestCase(
+            {
+                LAYER_1: f"{PROJECT_ROOT}\\.(imp.*|services)",
+                LAYER_2: f"{PROJECT_ROOT}\\.model",
+                LAYER_3: f"{PROJECT_ROOT}\\.runtime",
+            },
+            layer_1_should_only_access_except_layer_2_and_3,
+            f'"{IMPORTER_IMPORTER}" (layer "{LAYER_1}") imports "{MODEL_IMPORTEE}" (layer "{LAYER_2}").',
+        ),
+        id="regex_with_options_at_end_of_word",
+    ),
+]

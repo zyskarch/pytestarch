@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Dict, List, Optional
 
 from pytestarch.eval_structure.evaluable_architecture import (
     EvaluableArchitecture,
     ExplicitlyRequestedDependenciesByBaseModules,
+    Layer,
     LayerMapping,
+    Module,
     NotExplicitlyRequestedDependenciesByBaseModule,
 )
+from pytestarch.eval_structure.module_name_converter import ModuleNameConverter
 from pytestarch.rule_assessment.error_message.message_generator import (
     LayerRuleViolationMessageGenerator,
     RuleViolationMessageBaseGenerator,
@@ -49,6 +52,7 @@ class RuleMatcher(ABC):
         Raises:
             AssertionError
         """
+        self._updated_module_requirements(evaluable)
         rule_violations = self._find_rule_violations(evaluable)
 
         if rule_violations:
@@ -64,13 +68,19 @@ class RuleMatcher(ABC):
             self._get_not_explicitly_requested_dependencies(evaluable)
         )
 
-        return self._get_rule_violation_detector().get_rule_violation(
+        regex_conversion_mapping = self._create_module_name_regex_conversion_mapping()
+
+        return self._get_rule_violation_detector(
+            regex_conversion_mapping
+        ).get_rule_violation(
             explicitly_requested_dependencies,
             not_explicitly_requested_dependencies,
         )
 
     @abstractmethod
-    def _get_rule_violation_detector(self) -> RuleViolationBaseDetector:
+    def _get_rule_violation_detector(
+        self, module_name_conversion_mapping: Dict[str, List[Module]]
+    ) -> RuleViolationBaseDetector:
         pass
 
     def _create_rule_violation_message(self, rule_violations: RuleViolations) -> str:
@@ -90,7 +100,9 @@ class RuleMatcher(ABC):
             self._behavior_requirement.not_explicitly_requested_dependency_required
             or self._behavior_requirement.not_explicitly_requested_dependency_not_allowed
         ):
-            if not self._module_requirement.rule_specified_with_importer_as_rule_object:
+            if (
+                not self._updated_module_requirement.rule_specified_with_importer_as_rule_object
+            ):
                 not_explicitly_requested_dependency_check_method = (
                     evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons
                 )
@@ -100,8 +112,8 @@ class RuleMatcher(ABC):
                 )
 
             return not_explicitly_requested_dependency_check_method(
-                self._module_requirement.importers,
-                self._module_requirement.importees,
+                self._updated_module_requirement.importers,
+                self._updated_module_requirement.importees,
             )
 
         return None
@@ -115,24 +127,64 @@ class RuleMatcher(ABC):
             or self._behavior_requirement.explicitly_requested_dependency_not_allowed
         ):
             return evaluable.get_dependencies(
-                self._module_requirement.importers,
-                self._module_requirement.importees,
+                self._updated_module_requirement.importers,
+                self._updated_module_requirement.importees,
             )
 
         return None
+
+    def _updated_module_requirements(self, evaluable: EvaluableArchitecture) -> None:
+        """There may be modules specified via regexes. Before starting the evaluation of the rule, convert these regexes
+        to actual module names."""
+        (
+            converted_importers,
+            self._conversion_mapping_importers,
+        ) = ModuleNameConverter.convert(
+            self._module_requirement.importers_as_specified_by_user, evaluable
+        )
+        (
+            converted_importees,
+            self._conversion_mapping_importees,
+        ) = ModuleNameConverter.convert(
+            self._module_requirement.importees_as_specified_by_user, evaluable
+        )
+
+        self._updated_module_requirement = ModuleRequirement(
+            converted_importers,
+            converted_importees,
+            self._module_requirement.rule_specified_with_importer_as_rule_subject,
+        )
+
+    def _create_module_name_regex_conversion_mapping(self) -> Dict[str, List[Module]]:
+        result = {
+            key: values for key, values in self._conversion_mapping_importers.items()
+        }
+
+        for key, values in self._conversion_mapping_importees.items():
+            if key not in result:
+                result[key] = values
+            else:
+                existing_values = set(result[key])
+                existing_values.update(set(values))
+
+                result[key] = list[existing_values]
+
+        return result
 
 
 class DefaultRuleMatcher(RuleMatcher):
     """To be used for rules that operate on modules, such as "module X should not import module Y."""
 
-    def _get_rule_violation_detector(self) -> RuleViolationBaseDetector:
+    def _get_rule_violation_detector(
+        self, _: Dict[str, List[Module]]
+    ) -> RuleViolationBaseDetector:
         return RuleViolationDetector(
-            self._module_requirement, self._behavior_requirement
+            self._updated_module_requirement, self._behavior_requirement
         )
 
     def _create_rule_violation_message_generator(self) -> RuleViolationMessageGenerator:
         return RuleViolationMessageGenerator(
-            self._module_requirement.rule_specified_with_importer_as_rule_subject,
+            self._updated_module_requirement.rule_specified_with_importer_as_rule_subject,
         )
 
 
@@ -154,15 +206,56 @@ class LayerRuleMatcher(RuleMatcher):
         super().__init__(module_requirement, behavior_requirement)
         self._layer_mapping = layer_mapping
 
-    def _get_rule_violation_detector(self) -> RuleViolationBaseDetector:
+    def _get_rule_violation_detector(
+        self, module_name_conversion_mapping: Dict[str, List[Module]]
+    ) -> RuleViolationBaseDetector:
+        self._updated_layer_mapping = self._update_layer_mapping(
+            self._layer_mapping, module_name_conversion_mapping
+        )
         return LayerRuleViolationDetector(
-            self._module_requirement, self._behavior_requirement, self._layer_mapping
+            self._updated_module_requirement,
+            self._behavior_requirement,
+            self._updated_layer_mapping,
         )
 
     def _create_rule_violation_message_generator(
         self,
     ) -> LayerRuleViolationMessageGenerator:
         return LayerRuleViolationMessageGenerator(
-            self._module_requirement.rule_specified_with_importer_as_rule_subject,
-            self._layer_mapping,
+            self._updated_module_requirement.rule_specified_with_importer_as_rule_subject,
+            self._updated_layer_mapping,
         )
+
+    @classmethod
+    def _update_layer_mapping(
+        cls,
+        layer_mapping: LayerMapping,
+        module_name_conversion_mapping: Dict[str, List[Module]],
+    ) -> LayerMapping:
+        return LayerMapping(
+            {
+                layer: LayerRuleMatcher._replace_regex_specified_modules_with_actual_modules(
+                    layer, layer_mapping, module_name_conversion_mapping
+                )
+                for layer in layer_mapping.all_layers
+            }
+        )
+
+    @classmethod
+    def _replace_regex_specified_modules_with_actual_modules(
+        cls,
+        layer: Layer,
+        layer_mapping: LayerMapping,
+        module_name_conversion_mapping: Dict[str, List[Module]],
+    ) -> List[Module]:
+        modules_potentially_with_regexes = layer_mapping.get_modules(layer)
+
+        result = []
+        for module in modules_potentially_with_regexes:
+            if not module.regex:
+                result.append(module)
+
+            else:
+                result.extend(module_name_conversion_mapping[module.name])
+
+        return result

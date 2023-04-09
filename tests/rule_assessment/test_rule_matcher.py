@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import fields
-from typing import List
+from typing import List, Set
 
 import pytest
 
@@ -33,7 +33,7 @@ multiple_violations_test_cases = [
         .import_modules_that()
         .are_named([MODULE_2, MODULE_3]),
         [],
-        [],
+        set(),
         id="should import -- true",
     ),
     pytest.param(
@@ -48,10 +48,10 @@ multiple_violations_test_cases = [
         .are_named([MODULE_2, MODULE_3]),
         ["should_violations"],
         [
-            [
+            {
                 (Module(name=MODULE_1), Module(name=MODULE_2)),
                 (Module(name=MODULE_1), Module(name=MODULE_3)),
-            ],
+            },
         ],
         id="should import -- false",
     ),
@@ -67,7 +67,7 @@ multiple_violations_test_cases = [
         .be_imported_by_modules_that()
         .are_named([MODULE_2, MODULE_3]),
         [],
-        [],
+        set(),
         id="should be imported -- true",
     ),
     pytest.param(
@@ -82,10 +82,10 @@ multiple_violations_test_cases = [
         .are_named([MODULE_2, MODULE_3]),
         ["should_violations"],
         [
-            [
+            {
                 (Module(name=MODULE_1), Module(name=MODULE_2)),
                 (Module(name=MODULE_1), Module(name=MODULE_3)),
-            ],
+            },
         ],
         id="should be imported -- false",
     ),
@@ -102,7 +102,7 @@ multiple_violations_test_cases = [
         .import_modules_that()
         .are_named([MODULE_2, MODULE_3]),
         [],
-        [],
+        set(),
         id="should only import -- true",
     ),
     pytest.param(
@@ -120,7 +120,7 @@ multiple_violations_test_cases = [
         .are_named([MODULE_2, MODULE_3]),
         ["should_only_violations_by_forbidden_import"],
         [
-            [(Module(name=MODULE_1), Module(name=MODULE_4))],
+            {(Module(name=MODULE_1), Module(name=MODULE_4))},
         ],
         id="should only import -- false forbidden",
     ),
@@ -136,10 +136,10 @@ multiple_violations_test_cases = [
         .are_named([MODULE_2, MODULE_3]),
         ["should_only_violations_by_no_import"],
         [
-            [
+            {
                 (Module(name=MODULE_1), Module(name=MODULE_2)),
                 (Module(name=MODULE_1), Module(name=MODULE_3)),
-            ],
+            },
         ],
         id="should only import -- false no import",
     ),
@@ -159,11 +159,11 @@ multiple_violations_test_cases = [
             "should_only_violations_by_no_import",
         ],
         [
-            [(Module(name=MODULE_1), Module(name=MODULE_4))],
-            [
+            {(Module(name=MODULE_1), Module(name=MODULE_4))},
+            {
                 (Module(name=MODULE_1), Module(name=MODULE_2)),
                 (Module(name=MODULE_1), Module(name=MODULE_3)),
-            ],
+            },
         ],
         id="should only import -- false forbidden and no import",
     ),
@@ -180,7 +180,7 @@ multiple_violations_test_cases = [
         .be_imported_by_modules_that()
         .are_named([MODULE_2, MODULE_3]),
         [],
-        [],
+        set(),
         id="should only be imported -- true",
     ),
     pytest.param(
@@ -198,7 +198,7 @@ multiple_violations_test_cases = [
         .are_named([MODULE_2, MODULE_3]),
         ["should_only_violations_by_forbidden_import"],
         [
-            [(Module(name=MODULE_1), Module(name=MODULE_4))],
+            {(Module(name=MODULE_1), Module(name=MODULE_4))},
         ],
         id="should only be imported -- false forbidden",
     ),
@@ -214,10 +214,10 @@ multiple_violations_test_cases = [
         .are_named([MODULE_2, MODULE_3]),
         ["should_only_violations_by_no_import"],
         [
-            [
+            {
                 (Module(name=MODULE_1), Module(name=MODULE_2)),
                 (Module(name=MODULE_1), Module(name=MODULE_3)),
-            ],
+            },
         ],
         id="should only be imported -- false no import",
     ),
@@ -237,11 +237,11 @@ multiple_violations_test_cases = [
             "should_only_violations_by_no_import",
         ],
         [
-            [(Module(name=MODULE_1), Module(name=MODULE_4))],
-            [
+            {(Module(name=MODULE_1), Module(name=MODULE_4))},
+            {
                 (Module(name=MODULE_1), Module(name=MODULE_2)),
                 (Module(name=MODULE_1), Module(name=MODULE_3)),
-            ],
+            },
         ],
         id="should only be imported  -- false forbidden and no import",
     ),
@@ -256,7 +256,7 @@ multiple_violations_test_cases = [
         .import_modules_that()
         .are_named([MODULE_2, MODULE_3]),
         [],
-        [],
+        set(),
         id="should not import -- true",
     ),
     pytest.param(
@@ -272,7 +272,7 @@ multiple_violations_test_cases = [
         .are_named([MODULE_2, MODULE_3]),
         ["should_not_violations"],
         [
-            [(Module(name=MODULE_1), Module(name=MODULE_2))],
+            {(Module(name=MODULE_1), Module(name=MODULE_2))},
         ],
         id="should not import -- false",
     ),
@@ -287,7 +287,7 @@ multiple_violations_test_cases = [
         .be_imported_by_modules_that()
         .are_named([MODULE_2, MODULE_3]),
         [],
-        [],
+        set(),
         id="should not be imported -- true",
     ),
     pytest.param(
@@ -302,7 +302,7 @@ multiple_violations_test_cases = [
         .be_imported_by_modules_that()
         .are_named([MODULE_2, MODULE_3]),
         ["should_not_violations"],
-        [[(Module(name=MODULE_1), Module(name=MODULE_2))]],
+        [{(Module(name=MODULE_1), Module(name=MODULE_2))}],
         id="should not be imported -- false",
     ),
     pytest.param(
@@ -317,7 +317,7 @@ multiple_violations_test_cases = [
         .import_modules_except_modules_that()
         .are_named([MODULE_2, MODULE_3]),
         [],
-        [],
+        set(),
         id="should import except -- true",
     ),
     pytest.param(
@@ -332,10 +332,10 @@ multiple_violations_test_cases = [
         .are_named([MODULE_2, MODULE_3]),
         ["should_except_violations"],
         [
-            [
+            {
                 (Module(name=MODULE_1), Module(name=MODULE_2)),
                 (Module(name=MODULE_1), Module(name=MODULE_3)),
-            ],
+            },
         ],
         id="should import except -- false",
     ),
@@ -351,7 +351,7 @@ multiple_violations_test_cases = [
         .be_imported_by_modules_except_modules_that()
         .are_named([MODULE_2, MODULE_3]),
         [],
-        [],
+        set(),
         id="should be imported except -- true",
     ),
     pytest.param(
@@ -366,10 +366,10 @@ multiple_violations_test_cases = [
         .are_named([MODULE_2, MODULE_3]),
         ["should_except_violations"],
         [
-            [
+            {
                 (Module(name=MODULE_1), Module(name=MODULE_2)),
                 (Module(name=MODULE_1), Module(name=MODULE_3)),
-            ],
+            },
         ],
         id="should be imported except -- false",
     ),
@@ -385,7 +385,7 @@ multiple_violations_test_cases = [
         .import_modules_except_modules_that()
         .are_named([MODULE_2, MODULE_3]),
         [],
-        [],
+        set(),
         id="should only import except -- true",
     ),
     pytest.param(
@@ -402,7 +402,7 @@ multiple_violations_test_cases = [
         .are_named([MODULE_2, MODULE_3]),
         ["should_only_except_violations_by_forbidden_import"],
         [
-            [(Module(name=MODULE_1), Module(name=MODULE_2))],
+            {(Module(name=MODULE_1), Module(name=MODULE_2))},
         ],
         id="should only import except -- false forbidden",
     ),
@@ -418,10 +418,10 @@ multiple_violations_test_cases = [
         .are_named([MODULE_2, MODULE_3]),
         ["should_only_except_violations_by_no_import"],
         [
-            [
+            {
                 (Module(name=MODULE_1), Module(name=MODULE_2)),
                 (Module(name=MODULE_1), Module(name=MODULE_3)),
-            ],
+            },
         ],
         id="should only import except -- false no import",
     ),
@@ -441,11 +441,11 @@ multiple_violations_test_cases = [
             "should_only_except_violations_by_no_import",
         ],
         [
-            [(Module(name=MODULE_1), Module(name=MODULE_2))],
-            [
+            {(Module(name=MODULE_1), Module(name=MODULE_2))},
+            {
                 (Module(name=MODULE_1), Module(name=MODULE_2)),
                 (Module(name=MODULE_1), Module(name=MODULE_3)),
-            ],
+            },
         ],
         id="should only import except  -- false forbidden and no import",
     ),
@@ -461,7 +461,7 @@ multiple_violations_test_cases = [
         .be_imported_by_modules_except_modules_that()
         .are_named([MODULE_2, MODULE_3]),
         [],
-        [],
+        set(),
         id="should only be imported except -- true",
     ),
     pytest.param(
@@ -478,7 +478,7 @@ multiple_violations_test_cases = [
         .are_named([MODULE_2, MODULE_3]),
         ["should_only_except_violations_by_forbidden_import"],
         [
-            [(Module(name=MODULE_1), Module(name=MODULE_2))],
+            {(Module(name=MODULE_1), Module(name=MODULE_2))},
         ],
         id="should only be imported except -- false forbidden",
     ),
@@ -494,10 +494,10 @@ multiple_violations_test_cases = [
         .are_named([MODULE_2, MODULE_3]),
         ["should_only_except_violations_by_no_import"],
         [
-            [
+            {
                 (Module(name=MODULE_1), Module(name=MODULE_2)),
                 (Module(name=MODULE_1), Module(name=MODULE_3)),
-            ],
+            },
         ],
         id="should only be imported except -- false no import",
     ),
@@ -517,11 +517,11 @@ multiple_violations_test_cases = [
             "should_only_except_violations_by_no_import",
         ],
         [
-            [(Module(name=MODULE_1), Module(name=MODULE_2))],
-            [
+            {(Module(name=MODULE_1), Module(name=MODULE_2))},
+            {
                 (Module(name=MODULE_1), Module(name=MODULE_2)),
                 (Module(name=MODULE_1), Module(name=MODULE_3)),
-            ],
+            },
         ],
         id="should only be imported except  -- false forbidden and no import",
     ),
@@ -538,7 +538,7 @@ multiple_violations_test_cases = [
         .be_imported_by_modules_except_modules_that()
         .are_named([MODULE_2, MODULE_3]),
         [],
-        [],
+        set(),
         id="should not be imported except -- true",
     ),
     pytest.param(
@@ -555,7 +555,7 @@ multiple_violations_test_cases = [
         .be_imported_by_modules_except_modules_that()
         .are_named([MODULE_2, MODULE_3]),
         ["should_not_except_violations"],
-        [[(Module(name=MODULE_1), Module(name=MODULE_4))]],
+        [{(Module(name=MODULE_1), Module(name=MODULE_4))}],
         id="should not be imported except -- false",
     ),
 ]
@@ -569,10 +569,11 @@ def test_multiple_violations_due_to_multiple_rule_objects(
     imports: List[AbsoluteImport],
     rule: Rule,
     expected_violations: List[str],
-    expected_violating_dependencies: List[StrictDependency],
+    expected_violating_dependencies: List[Set[StrictDependency]],
 ) -> None:
     evaluable = EvaluableArchitectureGraph(NetworkxGraph(ALL_MODULES, imports))
     matcher = rule._prepare_rule_matcher()
+    matcher._updated_module_requirements(evaluable)
     violations = matcher._find_rule_violations(evaluable)
 
     field_names = [field.name for field in fields(violations)]

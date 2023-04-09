@@ -15,6 +15,9 @@ from pytestarch.eval_structure_generation.file_import.importee_module_calculator
     ImporteeModuleCalculator,
 )
 from pytestarch.eval_structure_generation.file_import.parser import Parser
+from pytestarch.utils.partial_match_to_regex_converter import (
+    convert_partial_match_to_regex,
+)
 
 ROOT_PATH = Path(__file__).parent.parent.parent.resolve()
 
@@ -24,9 +27,17 @@ def modules_and_ast(
     root_path: Path = ROOT_PATH,
     search_path: Path = Path(ROOT_PATH / "tests/resources/importer"),
 ) -> Tuple[List[str], List[NamedModule]]:
-    return Parser(FileFilter(Config(("*__pycache__", "*__init__"))), root_path).parse(
-        search_path
-    )
+    return Parser(
+        FileFilter(
+            Config(
+                map(
+                    lambda s: convert_partial_match_to_regex(s),
+                    ("*__pycache__", "*__init__"),
+                )
+            )
+        ),
+        root_path,
+    ).parse(search_path)
 
 
 @pytest.fixture(scope="module")
@@ -51,8 +62,8 @@ def module_graph(all_modules: List[str], imports: List[Import]) -> NetworkxGraph
 
 
 def test_node_edge_count_as_expected(module_graph: NetworkxGraph) -> None:
-    assert module_graph.nodes_number == 34
-    assert module_graph.edges_number == 30
+    assert module_graph.nodes_number == 36
+    assert module_graph.edges_number == 43
 
 
 def test_expected_nodes_present(module_graph: NetworkxGraph) -> None:

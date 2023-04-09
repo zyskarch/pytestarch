@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Generic, List, TypeVar, Union
 
 from pytestarch import EvaluableArchitecture
+from pytestarch.utils.decorators import deprecated
 
 
 class FileRule(ABC):
@@ -98,9 +99,21 @@ class ModuleSpecification(Generic[ModuleSpecificationSuccessor], ABC):
         """If multiple rule subjects are specified, this has the same effect as defining a rule per rule subject."""
         pass
 
+    @deprecated
     @abstractmethod
     def have_name_containing(
         self, partial_name: Union[str, List[str]]
+    ) -> ModuleSpecificationSuccessor:
+        """
+        [DEPRECATED] Use have_name_matching instead; method will be removed in upcoming releases.
+        If multiple rule subjects are specified, this has the same effect as defining a rule per rule subject.
+        """
+        pass
+
+    @abstractmethod
+    def have_name_matching(
+        self,
+        regex: str,
     ) -> ModuleSpecificationSuccessor:
         """If multiple rule subjects are specified, this has the same effect as defining a rule per rule subject."""
         pass
@@ -165,6 +178,16 @@ class LayerDefinition(ABC):
         self, modules: Union[str, List[str]]
     ) -> Union[LayerName, BaseLayeredArchitecture]:
         """If a module is defined as belonging to layer X, then its submodules are also assumed to be part of layer X."""
+        pass
+
+    @abstractmethod
+    def have_modules_with_names_matching(
+        self,
+        regex: str,
+    ) -> Union[LayerName, BaseLayeredArchitecture]:
+        """If a module is defined as belonging to layer X, then its submodules are also assumed to be part of layer X.
+        Note that no attempt will be made to ensure that the regex patterns for different layers are mutually exclusive.
+        """
         pass
 
 

@@ -8,7 +8,7 @@ import networkx as nx
 from networkx import draw_networkx, has_path, spring_layout
 
 from pytestarch.eval_structure.evaluable_structures import AbstractGraph, AbstractNode
-from pytestarch.eval_structure.types import Import
+from pytestarch.eval_structure.types import Import, get_parent_modules
 
 EXPECTED_EDGE_AND_NODE_TYPES = "Only str and tuple of two str supported."
 
@@ -77,6 +77,11 @@ class NetworkxGraph(AbstractGraph):
         for module in self._all_modules:
             self._create_node(module)
 
+            self._add_edges_within_module_hierarchy(
+                get_parent_modules(module),
+                module,
+            )
+
     def _add_edges_within_module_hierarchy(
         self,
         parent_modules: List[Node],
@@ -90,6 +95,7 @@ class NetworkxGraph(AbstractGraph):
         """
         all_modules = parent_modules + [child]
         for parent, child in zip(all_modules[:-1], all_modules[1:]):
+            self._create_node(parent)
             self._create_edge(parent, child, inherits=True)
 
     def _create_node(self, node: Node) -> None:
@@ -127,7 +133,7 @@ class NetworkxGraph(AbstractGraph):
         if (
             self._graph.has_node(node_start)
             and self._graph.has_node(node_end)
-            and not self._graph.has_edge(node_start, node_end)
+            and not self._edge_already_present(node_start, node_end, inherits)
         ):
             self._graph.add_edge(node_start, node_end, inherits=inherits)
 
@@ -298,3 +304,11 @@ class NetworkxGraph(AbstractGraph):
 
         node_parts = node.split(".")
         return ".".join(node_parts[: self._level_limit + 1])
+
+    def _edge_already_present(
+        self, node_start: Node, node_end: Node, inherits: bool
+    ) -> bool:
+        if not self._graph.has_edge(node_start, node_end):
+            return False
+
+        return self.parent_child_relationship(node_start, node_end) == inherits

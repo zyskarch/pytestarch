@@ -4,7 +4,7 @@ import ast
 from dataclasses import dataclass
 from typing import List, Optional
 
-from pytestarch.eval_structure.types import Import
+from pytestarch.eval_structure.types import Import, get_parent_modules
 from pytestarch.eval_structure_generation.file_import.exceptions import ImportException
 
 
@@ -27,7 +27,7 @@ class AbsoluteImport(Import):
     def __init__(self, importer: str, module_name: str) -> None:
         super().__init__(importer)
         self._module_name = module_name
-        self._importee_module_hierarchy = self._get_parent_modules(self._module_name)
+        self._importee_module_hierarchy = get_parent_modules(self._module_name)
 
     def importee(self) -> str:
         return self._module_name
@@ -57,7 +57,7 @@ class RelativeImport(Import):
 
         self._importee = self._calculate_importee()
 
-        self._importee_module_hierarchy = self._get_parent_modules(self._module_name)
+        self._importee_module_hierarchy = get_parent_modules(self._module_name)
 
     def importee(self) -> str:
         return self._importee

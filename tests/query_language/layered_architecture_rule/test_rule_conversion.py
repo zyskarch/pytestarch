@@ -30,8 +30,8 @@ def test_layer_rule_subject_converted_to_layer_modules() -> None:
     rule_config = rule._rule._configuration
 
     expected_modules_to_check = [
-        Module(name=MODULE_1, parent_module=None, partial_match=False),
-        Module(name=MODULE_2, parent_module=None, partial_match=False),
+        Module(name=MODULE_1, parent_module=None),
+        Module(name=MODULE_2, parent_module=None),
     ]
 
     assert rule_config.modules_to_check == expected_modules_to_check
@@ -51,9 +51,9 @@ def test_layer_rule_object_converted_to_layer_modules() -> None:
     rule_config = rule._rule._configuration
 
     expected_modules_to_check = [
-        Module(name=MODULE_3, parent_module=None, partial_match=False),
-        Module(name=MODULE_4, parent_module=None, partial_match=False),
-        Module(name=MODULE_5, parent_module=None, partial_match=False),
+        Module(name=MODULE_3, parent_module=None),
+        Module(name=MODULE_4, parent_module=None),
+        Module(name=MODULE_5, parent_module=None),
     ]
 
     assert rule_config.modules_to_check_against == expected_modules_to_check
