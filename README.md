@@ -30,7 +30,7 @@ rule = Rule() \
         .are_named("src.moduleB") \
         .should_not() \
         .be_imported_by_modules_that() \
-        .are_sub_modules_of("src.moduleA") \
+        .are_sub_modules_of("src.moduleA") 
 ```
 
 This rule represents the architectural requirements that a module named "src.moduleB" should not be imported by any module
