@@ -6,10 +6,11 @@ from typing import Any, Dict, Optional, Set
 import pytest
 
 from pytestarch.eval_structure.evaluable_architecture import (
+    Dependency,
     ExplicitlyRequestedDependenciesByBaseModules,
     Module,
+    ModuleFilter,
     NotExplicitlyRequestedDependenciesByBaseModule,
-    StrictDependency,
 )
 from pytestarch.rule_assessment.rule_check.behavior_requirement import (
     BehaviorRequirement,
@@ -43,6 +44,10 @@ MODULE_NAME_1 = "M1"
 MODULE_NAME_2 = "M2"
 MODULE_NAME_3 = "M3"
 
+MODULE_FILTER_1 = ModuleFilter(MODULE_NAME_1)
+MODULE_FILTER_2 = ModuleFilter(MODULE_NAME_2)
+MODULE_FILTER_3 = ModuleFilter(MODULE_NAME_3)
+
 MODULE_1 = Module(MODULE_NAME_1)
 MODULE_2 = Module(MODULE_NAME_2)
 MODULE_3 = Module(MODULE_NAME_3)
@@ -66,10 +71,10 @@ def get_behavior_requirement(**kwargs) -> BehaviorRequirement:
 
 def get_module_requirement(**kwargs) -> ModuleRequirement:
     if IMPORTERS not in kwargs:
-        kwargs[IMPORTERS] = [MODULE_1]
+        kwargs[IMPORTERS] = [MODULE_FILTER_1]
 
     if IMPORTEES not in kwargs:
-        kwargs[IMPORTEES] = [MODULE_2]
+        kwargs[IMPORTEES] = [MODULE_FILTER_2]
 
     if IMPORTER_SPECIFIED_AS_RULE_SUBJECT not in kwargs:
         kwargs[IMPORTER_SPECIFIED_AS_RULE_SUBJECT] = True
@@ -81,7 +86,7 @@ def get_module_requirement(**kwargs) -> ModuleRequirement:
 class RuleViolationDetectorTestCase:
     behavior: Dict[str, Any]
     expected_violation: Optional[str]
-    expected_violating_dependencies: Set[StrictDependency]
+    expected_violating_dependencies: Set[Dependency]
     explicitly_requested_dependencies: Optional[
         ExplicitlyRequestedDependenciesByBaseModules
     ]
@@ -356,7 +361,7 @@ def test_rule_violation_detection_as_expected(
 ) -> None:
     behavior_requirement = get_behavior_requirement(**test_case.behavior)
     module_requirement = get_module_requirement(
-        **{IMPORTERS: [MODULE_1], IMPORTEES: [MODULE_2]}
+        **{IMPORTERS: [MODULE_FILTER_1], IMPORTEES: [MODULE_FILTER_2]}
     )
 
     detector = RuleViolationDetector(module_requirement, behavior_requirement)

@@ -6,7 +6,7 @@ from typing import List, Set
 import pytest
 
 from pytestarch import Rule
-from pytestarch.eval_structure.evaluable_architecture import Module, StrictDependency
+from pytestarch.eval_structure.evaluable_architecture import Dependency, Module
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.networkxgraph import NetworkxGraph
 from pytestarch.eval_structure_generation.file_import.import_types import AbsoluteImport
@@ -569,7 +569,7 @@ def test_multiple_violations_due_to_multiple_rule_objects(
     imports: List[AbsoluteImport],
     rule: Rule,
     expected_violations: List[str],
-    expected_violating_dependencies: List[Set[StrictDependency]],
+    expected_violating_dependencies: List[Set[Dependency]],
 ) -> None:
     evaluable = EvaluableArchitectureGraph(NetworkxGraph(ALL_MODULES, imports))
     matcher = rule._prepare_rule_matcher()

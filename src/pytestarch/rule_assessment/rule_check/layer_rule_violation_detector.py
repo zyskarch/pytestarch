@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from pytestarch.eval_structure.evaluable_architecture import (
+    Dependency,
     ExplicitlyRequestedDependenciesByBaseModules,
     Layer,
     LayerMapping,
     Module,
     NotExplicitlyRequestedDependenciesByBaseModule,
-    StrictDependency,
 )
 from pytestarch.rule_assessment.rule_check.behavior_requirement import (
     BehaviorRequirement,
@@ -42,7 +42,7 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
         explicitly_requested_dependencies: Optional[
             ExplicitlyRequestedDependenciesByBaseModules
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         if (
             explicitly_requested_dependencies is None
             or not explicitly_requested_dependencies_should_not_be_present
@@ -57,7 +57,7 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
         explicitly_requested_dependencies: Optional[
             ExplicitlyRequestedDependenciesByBaseModules
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         if (
             explicitly_requested_dependencies is None
             or not explicitly_requested_dependencies_should_be_present
@@ -74,7 +74,7 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
         explicitly_requested_dependencies: Optional[
             ExplicitlyRequestedDependenciesByBaseModules
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         if (
             explicitly_requested_dependencies is None
             or not explicitly_requested_dependencies_and_no_other_should_be_present
@@ -91,7 +91,7 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
         not_explicitly_requested_dependencies: Optional[
             NotExplicitlyRequestedDependenciesByBaseModule
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         if (
             not_explicitly_requested_dependencies is None
             or not explicitly_requested_dependencies_and_no_other_should_be_present
@@ -106,7 +106,7 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
         not_explicitly_requested_dependencies: Optional[
             NotExplicitlyRequestedDependenciesByBaseModule
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         if (
             not_explicitly_requested_dependencies is None
             or not at_least_one_not_explicitly_requested_dependency_should_be_present
@@ -123,7 +123,7 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
         not_explicitly_requested_dependencies: Optional[
             NotExplicitlyRequestedDependenciesByBaseModule
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         if (
             not_explicitly_requested_dependencies is None
             or not explicitly_requested_dependency_should_not_but_others_should_be_present
@@ -140,7 +140,7 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
         explicitly_requested_dependencies: Optional[
             ExplicitlyRequestedDependenciesByBaseModules
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         if (
             explicitly_requested_dependencies is None
             or not explicitly_requested_dependency_should_not_but_others_should_be_present
@@ -155,7 +155,7 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
         not_explicitly_requested_dependencies: Optional[
             NotExplicitlyRequestedDependenciesByBaseModule
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         if (
             not_explicitly_requested_dependencies is None
             or not not_explicitly_requested_dependencies_should_not_be_present
@@ -166,10 +166,8 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
 
     def _get_abstract_dependencies_without_any_realisations(
         self,
-        explicitly_requested_dependencies: Dict[
-            StrictDependency, List[StrictDependency]
-        ],
-    ) -> Set[StrictDependency]:
+        explicitly_requested_dependencies: Dict[Dependency, List[Dependency]],
+    ) -> Set[Dependency]:
         """If there is any explicitly requested dependency for each rule object, an empty list will be returned. If there is none at all for at least one rule object,
         all dependencies will be returned."""
         explicitly_requested_dependencies_by_layers = (
@@ -178,7 +176,7 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
             )
         )
 
-        result = set()
+        result: Set[Tuple[Module, Module]] = set()  # type: ignore
 
         for layer in self._layer_to_module_mapping.all_layers:
             explicitly_requested_dependencies_for_layer = (
@@ -207,20 +205,18 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
     def _get_any_missing_dependencies_in_user_specified_order(
         self,
         not_explicitly_requested_dependencies: NotExplicitlyRequestedDependenciesByBaseModule,
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         """If no not explicitly requested dependency is present, all possible not present dependencies will be
         returned. If there is one dependency per rule subject, an empty list will be returned.
         """
-        dependencies = []
-
         if any(
             len(not_explicitly_requested_dependencies_of_module) > 0
             for not_explicitly_requested_dependencies_of_module in not_explicitly_requested_dependencies.values()
         ):
             return set()
 
-        self._append_missing_dependencies(
-            dependencies, not_explicitly_requested_dependencies
+        dependencies = self._append_missing_dependencies(
+            not_explicitly_requested_dependencies
         )
 
         return {
@@ -230,26 +226,25 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
 
     def _append_missing_dependencies(
         self,
-        dependencies: List[StrictDependency],
         not_explicitly_requested_dependencies: NotExplicitlyRequestedDependenciesByBaseModule,
-    ) -> None:
+    ) -> List[Dependency]:
+        dependencies = []
+
         for (
             module_with_missing_dependencies
         ) in not_explicitly_requested_dependencies.keys():
             if self._module_requirement.rule_specified_with_importer_as_rule_subject:
-                for (
-                    other_module
-                ) in self._module_requirement.importees_as_specified_by_user:
+                for other_module in self._get_importee_modules_as_specified_by_user():
                     dependencies.append(
                         (module_with_missing_dependencies, other_module)
                     )
             else:
-                for (
-                    other_module
-                ) in self._module_requirement.importees_as_specified_by_user:
+                for other_module in self._get_importee_modules_as_specified_by_user():
                     dependencies.append(
                         (other_module, module_with_missing_dependencies)
                     )
+
+        return dependencies
 
     def _group_explicitly_requested_dependencies_by_layers(
         self,
@@ -270,18 +265,18 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
 
         return result
 
-    def _get_module_relevant_for_layer(self, dependency: StrictDependency) -> Module:
+    def _get_module_relevant_for_layer(self, dependency: Dependency) -> Module:
         if self._module_requirement.rule_specified_with_importer_as_rule_subject:
             return dependency[1]
 
         return dependency[0]
 
     def _get_layer_for_module(self, module: Module) -> Layer:
-        return self._layer_to_module_mapping.get_layer(module)
+        return self._layer_to_module_mapping.get_layer_for_module_name(module.name)
 
     def _get_realised_dependencies(
-        self, explicitly_requested_dependencies: Dict[Any, List[StrictDependency]]
-    ) -> Set[StrictDependency]:
+        self, explicitly_requested_dependencies: Dict[Any, List[Dependency]]
+    ) -> Set[Dependency]:
         """Removes all dependencies between modules of the same layer, as these are one logical unit."""
         violating_dependencies = super()._get_realised_dependencies(
             explicitly_requested_dependencies
@@ -289,8 +284,14 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
 
         violating_dependencies_in_different_layers = set()
         for dependency in violating_dependencies:
-            rule_subject_layer = self._layer_to_module_mapping.get_layer(dependency[0])
-            rule_object_layer = self._layer_to_module_mapping.get_layer(dependency[1])
+            rule_subject_layer = (
+                self._layer_to_module_mapping.get_layer_for_module_name(
+                    dependency[0].name
+                )
+            )
+            rule_object_layer = self._layer_to_module_mapping.get_layer_for_module_name(
+                dependency[1].name
+            )
 
             if rule_subject_layer != rule_object_layer:
                 violating_dependencies_in_different_layers.add(dependency)

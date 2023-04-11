@@ -13,9 +13,9 @@ from integration.interesting_rules_for_tests import (
 
 from pytestarch import Rule
 from pytestarch.eval_structure.evaluable_architecture import (
+    Dependency,
     EvaluableArchitecture,
     Module,
-    StrictDependency,
 )
 from pytestarch.rule_assessment.error_message.message_generator import (
     RuleViolationMessageGenerator,
@@ -215,8 +215,8 @@ def test_rule_violation_message_content(
 
 
 def _get_rule_violations_initialisation_dict(
-    violation: Dict[str, List[StrictDependency]]
-) -> Dict[str, List[StrictDependency]]:
+    violation: Dict[str, List[Dependency]]
+) -> Dict[str, List[Dependency]]:
     kwargs = {
         "should_violations": [],
         "should_only_violations_by_forbidden_import": [],
@@ -349,7 +349,7 @@ message_only_present_if_rule_violated_test_cases = [
 )
 def test_violated_message_only_present_if_rule_actually_violated(
     generator: RuleViolationMessageGenerator,
-    violation: Dict[str, List[StrictDependency]],
+    violation: Dict[str, List[Dependency]],
 ) -> None:
     kwargs = _get_rule_violations_initialisation_dict(violation)
     violations = RuleViolations(
@@ -460,7 +460,7 @@ multiple_objects_in_one_message_test_cases = [
 )
 def test_multiple_rule_objects_combined_in_one_message(
     generator: RuleViolationMessageGenerator,
-    violation: Dict[str, List[StrictDependency]],
+    violation: Dict[str, List[Dependency]],
     expected_message: str,
 ) -> None:
     kwargs = _get_rule_violations_initialisation_dict(violation)
@@ -601,7 +601,7 @@ multiple_objects_in_multiple_messages_test_cases = [
 )
 def test_multiple_rule_objects_in_multiple_message(
     generator: RuleViolationMessageGenerator,
-    violation: Dict[str, List[StrictDependency]],
+    violation: Dict[str, List[Dependency]],
     expected_message_count: int,
     expected_messages: List[str],
 ) -> None:
@@ -652,7 +652,7 @@ forbidden_and_no_import_test_cases = [
     forbidden_and_no_import_test_cases,
 )
 def test_multiple_messages_if_forbidden_and_no_import_both_present(
-    violation: Dict[str, List[StrictDependency]],
+    violation: Dict[str, List[Dependency]],
     expected_messages: List[str],
 ) -> None:
     kwargs = _get_rule_violations_initialisation_dict(violation)

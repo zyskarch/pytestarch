@@ -6,7 +6,7 @@ from query_language.rule.conftest import MODULE_1, MODULE_2
 from pytestarch import Rule
 from pytestarch.eval_structure.evaluable_architecture import (
     EvaluableArchitecture,
-    Module,
+    ModuleFilter,
 )
 from pytestarch.query_language.exceptions import ImproperlyConfigured
 from pytestarch.query_language.rule import RuleConfiguration
@@ -111,7 +111,7 @@ def assert_rule_does_not_apply(rule: Rule, evaluable: EvaluableArchitecture) -> 
 
 def test_only_submodules_are_filtered_out() -> None:
     module_names = ["X.a", "X.b", "X.a.a", "X.a.b", "Y"]
-    modules = [Module(name=name) for name in module_names]
+    modules = [ModuleFilter(name=name) for name in module_names]
 
     rule_configuration = RuleConfiguration(modules_to_check=modules)
 

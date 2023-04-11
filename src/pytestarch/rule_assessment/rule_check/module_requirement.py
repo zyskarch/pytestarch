@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List
 
-from pytestarch.eval_structure.evaluable_architecture import Module
+from pytestarch.eval_structure.evaluable_architecture import ModuleFilter
 
 
 class ModuleRequirement:
@@ -10,8 +10,8 @@ class ModuleRequirement:
 
     def __init__(
         self,
-        importers: List[Module],
-        importees: List[Module],
+        importers: List[ModuleFilter],
+        importees: List[ModuleFilter],
         importer_specified_as_rule_subject: bool,
     ) -> None:
         self._importer_as_specified_by_user = importers
@@ -29,19 +29,19 @@ class ModuleRequirement:
             )
 
     @property
-    def importers(self) -> List[Module]:
+    def importers(self) -> List[ModuleFilter]:
         return self._importers
 
     @property
-    def importees(self) -> List[Module]:
+    def importees(self) -> List[ModuleFilter]:
         return self._importees
 
     @property
-    def importers_as_specified_by_user(self) -> list[Module]:
+    def importers_as_specified_by_user(self) -> list[ModuleFilter]:
         return self._importer_as_specified_by_user
 
     @property
-    def importees_as_specified_by_user(self) -> List[Module]:
+    def importees_as_specified_by_user(self) -> List[ModuleFilter]:
         return self._importees_as_specified_by_user
 
     @property

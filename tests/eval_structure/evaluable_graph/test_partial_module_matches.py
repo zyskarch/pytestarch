@@ -10,6 +10,7 @@ from pytestarch import Rule
 from pytestarch.eval_structure.evaluable_architecture import (
     EvaluableArchitecture,
     Module,
+    ModuleFilter,
 )
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.exceptions import ImpossibleMatch
@@ -46,17 +47,17 @@ def test_partial_match(match: str, expected_result: bool) -> None:
     "module_matches",
     [
         [
-            Module(name=convert_partial_match_to_regex("*D"), regex=True),
-            Module(name=convert_partial_match_to_regex("*A*"), regex=True),
+            ModuleFilter(name=convert_partial_match_to_regex("*D"), regex=True),
+            ModuleFilter(name=convert_partial_match_to_regex("*A*"), regex=True),
         ],
         [
-            Module(name=".*D", regex=True),
-            Module(name=".*A.*", regex=True),
+            ModuleFilter(name=".*D", regex=True),
+            ModuleFilter(name=".*A.*", regex=True),
         ],
     ],
 )
 def test_module_matches(
-    module_matches: List[Module], submodule_evaluable: EvaluableArchitectureGraph
+    module_matches: List[ModuleFilter], submodule_evaluable: EvaluableArchitectureGraph
 ) -> None:
     calculated_matches, conversion_mapping = ModuleNameConverter.convert(
         module_matches, submodule_evaluable
@@ -68,9 +69,13 @@ def test_module_matches(
     module_b = Module(name=MODULE_B)
     module_d = Module(name=MODULE_D)
 
-    assert module_a in calculated_matches
-    assert module_b in calculated_matches
-    assert module_d in calculated_matches
+    module_filter_a = ModuleFilter(name=MODULE_A)
+    module_filter_b = ModuleFilter(name=MODULE_B)
+    module_filter_d = ModuleFilter(name=MODULE_D)
+
+    assert module_filter_a in calculated_matches
+    assert module_filter_b in calculated_matches
+    assert module_filter_d in calculated_matches
 
     assert len(conversion_mapping.keys()) == 2
 
@@ -81,7 +86,7 @@ def test_module_matches(
 def test_never_matched_match_raises_error(
     evaluable: EvaluableArchitectureGraph,
 ) -> None:
-    module_matches = [Module(name="I will not match", regex=True)]
+    module_matches = [ModuleFilter(name="I will not match", regex=True)]
     with pytest.raises(
         ImpossibleMatch, match="No modules found that match: I will not match"
     ):

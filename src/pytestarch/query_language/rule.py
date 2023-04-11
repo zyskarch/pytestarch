@@ -4,7 +4,7 @@ from dataclasses import dataclass, replace
 from typing import Callable, List, Optional, Tuple, Union
 
 from pytestarch import EvaluableArchitecture
-from pytestarch.eval_structure.evaluable_architecture import Module
+from pytestarch.eval_structure.evaluable_architecture import ModuleFilter
 from pytestarch.query_language.base_language import (
     BehaviorSpecification,
     DependencySpecification,
@@ -30,8 +30,8 @@ from pytestarch.utils.partial_match_to_regex_converter import (
 
 @dataclass
 class RuleConfiguration:
-    modules_to_check: Optional[List[Module]] = None
-    modules_to_check_against: Optional[List[Module]] = None
+    modules_to_check: Optional[List[ModuleFilter]] = None
+    modules_to_check_against: Optional[List[ModuleFilter]] = None
     should: bool = False
     should_only: bool = False
     should_not: bool = False
@@ -63,7 +63,7 @@ class Rule(
         self._configuration = RuleConfiguration()
 
     @property
-    def rule_subjects(self) -> Optional[List[Module]]:
+    def rule_subjects(self) -> Optional[List[ModuleFilter]]:
         return self._configuration.modules_to_check
 
     def modules_that(self) -> RuleSubject:
@@ -73,11 +73,11 @@ class Rule(
     def are_sub_modules_of(
         self, modules: Union[str, List[str]]
     ) -> BehaviorSpecification:
-        self._set_modules(modules, lambda name: Module(parent_module=name))
+        self._set_modules(modules, lambda name: ModuleFilter(parent_module=name))
         return self
 
     def are_named(self, names: Union[str, List[str]]) -> BehaviorSpecification:
-        self._set_modules(names, lambda name: Module(name=name))
+        self._set_modules(names, lambda name: ModuleFilter(name=name))
         return self
 
     @deprecated
@@ -86,7 +86,9 @@ class Rule(
     ) -> BehaviorSpecification:
         self._set_modules(
             partial_names,
-            lambda name: Module(name=convert_partial_match_to_regex(name), regex=True),
+            lambda name: ModuleFilter(
+                name=convert_partial_match_to_regex(name), regex=True
+            ),
         )
         return self
 
@@ -94,13 +96,13 @@ class Rule(
         self,
         regex: str,
     ) -> BehaviorSpecification:
-        self._set_modules(regex, lambda name: Module(name=name, regex=True))
+        self._set_modules(regex, lambda name: ModuleFilter(name=name, regex=True))
         return self
 
     def _set_modules(
         self,
         module_names: Union[str, List[str]],
-        create_module_fn: Callable[[str], Module],
+        create_module_fn: Callable[[str], ModuleFilter],
     ) -> None:
         if self._modules_to_check_to_be_specified_next is None:
             raise ImproperlyConfigured("Specify a RuleSubject or RuleObject first.")
@@ -121,7 +123,7 @@ class Rule(
         for module, name_is_regex in modules:
             module_names.append(module)
             module_creation_fn.append(
-                lambda name: Module(name=name, regex=name_is_regex)
+                lambda name: ModuleFilter(name=name, regex=name_is_regex)
             )
 
         self._append_modules(module_names, module_creation_fn)
@@ -130,7 +132,7 @@ class Rule(
     def _append_modules(
         self,
         module_names: List[str],
-        create_module_fns: List[Callable[[str], Module]],
+        create_module_fns: List[Callable[[str], ModuleFilter]],
     ) -> None:
         modules = [fn(n) for n, fn in zip(module_names, create_module_fns)]
         if self._modules_to_check_to_be_specified_next:
@@ -240,12 +242,12 @@ class Rule(
             f'"{combined_rule_objects}".'
         )
 
-    def _combine_names(self, modules: list[Module]) -> str:
+    def _combine_names(self, modules: list[ModuleFilter]) -> str:
         return ", ".join(
             sorted(map(lambda module: self._get_module_name(module), modules))
         )
 
-    def _get_module_name(self, module: Module) -> str:
+    def _get_module_name(self, module: ModuleFilter) -> str:
         return module.name if module.name is not None else module.parent_module
 
     def _assert_required_configuration_present(self) -> None:
@@ -320,7 +322,7 @@ class Rule(
     @classmethod
     def _get_modules_to_check_without_parent_and_submodule_combinations(
         cls, configuration: RuleConfiguration
-    ) -> Optional[List[Module]]:
+    ) -> Optional[List[ModuleFilter]]:
         # if modules_to_check contain a module and its submodule, this can throw off the breadth first search conducted
         # on the dependency graph - and also, this setup does not really make sense
         if configuration.modules_to_check is None:

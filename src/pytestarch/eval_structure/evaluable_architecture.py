@@ -13,20 +13,22 @@ ModuleName = str
 
 
 class LayerMapping:
-    def __init__(self, layer_mapping: Dict[Layer, List[Module]]) -> None:
-        self._layer_mapping = layer_mapping
-        self._module_mapping = {
+    def __init__(
+        self, layer_mapping_for_module_filters: Dict[Layer, List[ModuleFilter]]
+    ) -> None:
+        self._layer_mapping_for_module_filters = layer_mapping_for_module_filters
+        self._module_filter_mapping = {
             module: layer
-            for layer, modules in layer_mapping.items()
+            for layer, modules in layer_mapping_for_module_filters.items()
             for module in modules
         }
 
-        self._sorted_module_names = sorted(
-            map(lambda module: module.name, self._module_mapping.keys())
+        self._sorted_module_filter_names = sorted(
+            map(lambda module: module.name, self._module_filter_mapping.keys())
         )
 
-    def get_modules(self, layer: Layer) -> List[Module]:
-        return self._layer_mapping[layer]
+    def get_module_filters(self, layer: Layer) -> List[ModuleFilter]:
+        return self._layer_mapping_for_module_filters[layer]
 
     def get_layer(self, module: Module) -> Optional[Layer]:
         """Attempts to find the layer the given module belongs to. If the module does not appear in the
@@ -37,24 +39,29 @@ class LayerMapping:
         if not module.name:
             return None
 
-        layer_candidate = self._module_mapping.get(module, None)
+        layer_candidate = self._module_filter_mapping.get(module, None)
 
         if layer_candidate is not None:
             return layer_candidate
 
         idx_of_module = (
-            bisect(self._sorted_module_names, module.name) - 1
+            bisect(self._sorted_module_filter_names, module.name) - 1
         )  # -1 since idx is after the insertion point
 
         candidate_parent_modules = []
         while idx_of_module >= 0:
-            parent_module_candidate = self._sorted_module_names[idx_of_module]
+            parent_module_candidate = self._sorted_module_filter_names[idx_of_module]
             if module.name.startswith(parent_module_candidate):
-                candidate_parent_modules.append(Module(name=parent_module_candidate))
+                candidate_parent_modules.append(
+                    ModuleFilter(name=parent_module_candidate)
+                )
             idx_of_module -= 1
 
         candidate_layers = set(
-            map(lambda module: self._module_mapping[module], candidate_parent_modules)
+            map(
+                lambda module: self._module_filter_mapping[module],
+                candidate_parent_modules,
+            )
         )
 
         if len(candidate_layers) > 1:
@@ -72,18 +79,20 @@ class LayerMapping:
 
     @property
     def all_layers(self) -> Iterable[Layer]:
-        return self._layer_mapping.keys()
+        return self._layer_mapping_for_module_filters.keys()
 
 
 @dataclass(frozen=True)
-class Module:
-    """Represents a python module.
+class ModuleFilter:
+    """Represents a way to identify a python module in the dependency graph.
     The module can either be identified by its name or by the name of a parent module.
 
     Attributes:
         name: full name of the module
         parent_module: full name of the parent module
         regex: if True, the name represents a regex pattern that matches potentially multiple modules
+
+    Either name or parent_module can be specified, but not both.
     """
 
     name: Optional[str] = None
@@ -91,23 +100,50 @@ class Module:
     regex: bool = False
 
 
-StrictDependency = Tuple[Module, Module]
+@dataclass(frozen=True)
+class Module:
+    """Represents an actual python module found in the dependency graph."""
+
+    name: str
+
+    @property
+    def is_single_module(self) -> bool:
+        return True
+
+
+@dataclass(frozen=True)
+class ModuleGroup(Module):
+    """Represents a group of actual python module found in the dependency graph.
+    This is only needed if a group of modules is specified via their parent module's name, and only for not explicitly
+    requested dependencies. For these, the original module filter is not converted to actual modules, as this would
+    clutter the return type and the user output.
+    Instead, this filter will be converted to a module group.
+
+    The name is the name of the parent module of all modules in this group.
+    """
+
+    name: str
+
+    @property
+    def is_single_module(self) -> bool:
+        return False
+
+
+Dependency = Tuple[Module, Module]
 # key: user-requested dependency
 # values: list of exact modules that show this dependency
-ExplicitlyRequestedDependenciesByBaseModules = Dict[
-    StrictDependency, List[StrictDependency]
-]
+ExplicitlyRequestedDependenciesByBaseModules = Dict[Dependency, List[Dependency]]
 # key: module that either has dependencies or that others are dependent on that were not explicitly requested
 # via the rule the user has specified
 # value: importer and importee that were not found
-NotExplicitlyRequestedDependenciesByBaseModule = Dict[Module, List[StrictDependency]]
+NotExplicitlyRequestedDependenciesByBaseModule = Dict[Module, List[Dependency]]
 
 
 class EvaluableArchitecture(Protocol):
     def get_dependencies(
         self,
-        dependents: Union[Module, list[Module]],
-        dependent_upons: Union[Module, list[Module]],
+        dependents: Union[ModuleFilter, list[ModuleFilter]],
+        dependent_upons: Union[ModuleFilter, list[ModuleFilter]],
     ) -> ExplicitlyRequestedDependenciesByBaseModules:
         """Returns tuple of importer and importee per dependent and depending module if the dependent module is indeed
         depending on the dependent_upon module. In short: find all dependencies between dependent and dependent_upons.
@@ -131,8 +167,8 @@ class EvaluableArchitecture(Protocol):
 
     def any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         self,
-        dependents: List[Module],
-        dependent_upons: List[Module],
+        dependents: List[ModuleFilter],
+        dependent_upons: List[ModuleFilter],
     ) -> NotExplicitlyRequestedDependenciesByBaseModule:
         """Returns list of depending modules per dependent module if the dependent module has any
         dependency to a module other than the dependent_upon modules
@@ -154,8 +190,8 @@ class EvaluableArchitecture(Protocol):
 
     def any_other_dependencies_on_dependent_upons_than_from_dependents(
         self,
-        dependents: List[Module],
-        dependent_upons: List[Module],
+        dependents: List[ModuleFilter],
+        dependent_upons: List[ModuleFilter],
     ) -> NotExplicitlyRequestedDependenciesByBaseModule:
         """Returns list of depending modules per dependent_upon module if any module other than the dependent
         module and its submodules has any dependency to the

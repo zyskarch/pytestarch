@@ -4,7 +4,7 @@ from functools import partial
 from typing import List, Tuple, Type, Union
 
 from pytestarch import EvaluableArchitecture, Rule
-from pytestarch.eval_structure.evaluable_architecture import LayerMapping, Module
+from pytestarch.eval_structure.evaluable_architecture import LayerMapping, ModuleFilter
 from pytestarch.query_language.base_language import (
     AccessSpecification,
     BaseLayeredArchitecture,
@@ -116,14 +116,14 @@ class LayeredArchitecture(BaseLayeredArchitecture, LayerName, LayerDefinition):
         ]
         return f'Layered Architecture: {"; ".join(layers)}'
 
-    def __getitem__(self, layer: str) -> List[Module]:
+    def __getitem__(self, layer: str) -> List[ModuleFilter]:
         return self._modules_by_layer_name[layer]
 
-    def _to_module_objects(self, modules: List[str]) -> List[Module]:
-        return [Module(name=module) for module in modules]
+    def _to_module_objects(self, modules: List[str]) -> List[ModuleFilter]:
+        return [ModuleFilter(name=module) for module in modules]
 
-    def _from_regex_to_module_objects(self, regex: str) -> List[Module]:
-        return [Module(name=regex, regex=True)]
+    def _from_regex_to_module_objects(self, regex: str) -> List[ModuleFilter]:
+        return [ModuleFilter(name=regex, regex=True)]
 
 
 class LayerRule(
