@@ -28,6 +28,7 @@ from pytestarch.eval_structure.evaluable_architecture import (
     ExplicitlyRequestedDependenciesByBaseModules,
     LayerMapping,
     Module,
+    ModuleFilter,
     NotExplicitlyRequestedDependenciesByBaseModule,
 )
 from pytestarch.rule_assessment.rule_check.layer_rule_violation_detector import (
@@ -54,16 +55,27 @@ MODULE_NAME_9 = "M9"
 # layer 5
 MODULE_NAME_10 = "M10"
 
+MODULE_FILTER_1 = ModuleFilter(MODULE_NAME_1)
+MODULE_FILTER_2 = ModuleFilter(MODULE_NAME_2)
+MODULE_FILTER_3 = ModuleFilter(MODULE_NAME_3)
+
+MODULE_FILTER_4 = ModuleFilter(MODULE_NAME_4)
+MODULE_FILTER_5 = ModuleFilter(MODULE_NAME_5)
+MODULE_FILTER_6 = ModuleFilter(MODULE_NAME_6)
+
+MODULE_FILTER_7 = ModuleFilter(MODULE_NAME_7)
+
+MODULE_FILTER_8 = ModuleFilter(MODULE_NAME_8)
+MODULE_FILTER_9 = ModuleFilter(MODULE_NAME_9)
+
+
 MODULE_1 = Module(MODULE_NAME_1)
 MODULE_2 = Module(MODULE_NAME_2)
 MODULE_3 = Module(MODULE_NAME_3)
-
 MODULE_4 = Module(MODULE_NAME_4)
 MODULE_5 = Module(MODULE_NAME_5)
 MODULE_6 = Module(MODULE_NAME_6)
-
 MODULE_7 = Module(MODULE_NAME_7)
-
 MODULE_8 = Module(MODULE_NAME_8)
 MODULE_9 = Module(MODULE_NAME_9)
 
@@ -75,10 +87,10 @@ LAYER_4 = "L4"
 
 LAYER_MAPPING = LayerMapping(
     {
-        LAYER_1: [MODULE_1, MODULE_2, MODULE_3],
-        LAYER_2: [MODULE_4, MODULE_5, MODULE_6],
-        LAYER_3: [MODULE_7],
-        LAYER_4: [MODULE_8, MODULE_9],
+        LAYER_1: [MODULE_FILTER_1, MODULE_FILTER_2, MODULE_FILTER_3],
+        LAYER_2: [MODULE_FILTER_4, MODULE_FILTER_5, MODULE_FILTER_6],
+        LAYER_3: [MODULE_FILTER_7],
+        LAYER_4: [MODULE_FILTER_8, MODULE_FILTER_9],
     }
 )
 
@@ -142,10 +154,10 @@ def _get_all_violating_dependencies(
     objects: Tuple[str] = (LAYER_2,),
 ) -> List[Dependency]:
     return [
-        (single_subject, single_object)
+        (Module(name=single_subject.name), Module(name=single_object.name))
         for o in objects
-        for single_subject in LAYER_MAPPING.get_modules(LAYER_1)
-        for single_object in LAYER_MAPPING.get_modules(o)
+        for single_subject in LAYER_MAPPING.get_module_filters(LAYER_1)
+        for single_object in LAYER_MAPPING.get_module_filters(o)
     ]
 
 
@@ -950,14 +962,14 @@ def test_rule_violation_detection_as_expected(
     test_case: RuleViolationDetectorTestCase,
 ) -> None:
     behavior_requirement = get_behavior_requirement(**test_case.behavior)
-    importees = [MODULE_4, MODULE_5, MODULE_6]
+    importees = [MODULE_FILTER_4, MODULE_FILTER_5, MODULE_FILTER_6]
 
     if test_case.multiple_rule_objects:
-        importees.extend([MODULE_8, MODULE_9])
+        importees.extend([MODULE_FILTER_8, MODULE_FILTER_9])
 
     module_requirement = get_module_requirement(
         **{
-            IMPORTERS: [MODULE_1, MODULE_2, MODULE_3],
+            IMPORTERS: [MODULE_FILTER_1, MODULE_FILTER_2, MODULE_FILTER_3],
             IMPORTEES: importees,
         }
     )

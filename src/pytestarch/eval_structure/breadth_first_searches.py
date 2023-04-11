@@ -2,18 +2,18 @@ from __future__ import annotations
 
 from typing import List, Set
 
-from pytestarch.eval_structure.evaluable_architecture import Dependency, Module
+from pytestarch.eval_structure.evaluable_architecture import Dependency, ModuleFilter
 from pytestarch.eval_structure.evaluable_structures import AbstractGraph, AbstractNode
-from pytestarch.eval_structure.utils import get_excluded_nodes, get_node, to_modules
+from pytestarch.eval_structure.utils import get_node, get_parent_nodes, to_modules
 
 
 def get_dependency_between_modules(
-    graph: AbstractGraph, dependent: Module, dependent_upon: Module
+    graph: AbstractGraph, dependent: ModuleFilter, dependent_upon: ModuleFilter
 ) -> List[Dependency]:
     dependent_node = get_node(dependent)
     dependent_upon_nodes = get_all_submodules_of(graph, dependent_upon)
 
-    nodes_to_exclude = get_excluded_nodes([dependent, dependent_upon])
+    nodes_to_exclude = get_parent_nodes([dependent, dependent_upon])
 
     nodes_to_check = [dependent_node]
     checked_nodes = set()
@@ -44,7 +44,7 @@ def get_dependency_between_modules(
 
 
 def any_dependency_to_module_other_than(  # noqa: C901
-    graph: AbstractGraph, dependent: Module, dependent_upons: Set[Module]
+    graph: AbstractGraph, dependent: ModuleFilter, dependent_upons: Set[ModuleFilter]
 ) -> List[Dependency]:
     # nodes to exclude are nodes that once reached will not have their submodules analysed next
     nodes_to_exclude = set()
@@ -109,7 +109,7 @@ def any_dependency_to_module_other_than(  # noqa: C901
 
 
 def any_other_dependency_to_module_than(  # noqa: C901
-    graph: AbstractGraph, dependents: Set[Module], dependent_upon: Module
+    graph: AbstractGraph, dependents: Set[ModuleFilter], dependent_upon: ModuleFilter
 ) -> List[Dependency]:
     # submodules of the dependent upon module do not count as an import that is not the dependent upon module
     # submodules of and including the dependent do not count as allowed imports
@@ -177,7 +177,9 @@ def any_other_dependency_to_module_than(  # noqa: C901
     return nodes_fulfilling_criteria  # type: ignore
 
 
-def get_all_submodules_of(graph: AbstractGraph, module: Module) -> Set[AbstractNode]:
+def get_all_submodules_of(
+    graph: AbstractGraph, module: ModuleFilter
+) -> Set[AbstractNode]:
     """Returns all submodules of a given module.
 
     Args:

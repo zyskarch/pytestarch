@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from pytestarch.eval_structure.evaluable_architecture import (
     Dependency,
@@ -176,7 +176,7 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
             )
         )
 
-        result = set()
+        result: Set[Tuple[Module, Module]] = set()  # type: ignore
 
         for layer in self._layer_to_module_mapping.all_layers:
             explicitly_requested_dependencies_for_layer = (
@@ -209,16 +209,14 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
         """If no not explicitly requested dependency is present, all possible not present dependencies will be
         returned. If there is one dependency per rule subject, an empty list will be returned.
         """
-        dependencies = []
-
         if any(
             len(not_explicitly_requested_dependencies_of_module) > 0
             for not_explicitly_requested_dependencies_of_module in not_explicitly_requested_dependencies.values()
         ):
             return set()
 
-        self._append_missing_dependencies(
-            dependencies, not_explicitly_requested_dependencies
+        dependencies = self._append_missing_dependencies(
+            not_explicitly_requested_dependencies
         )
 
         return {
@@ -228,26 +226,25 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
 
     def _append_missing_dependencies(
         self,
-        dependencies: List[Dependency],
         not_explicitly_requested_dependencies: NotExplicitlyRequestedDependenciesByBaseModule,
-    ) -> None:
+    ) -> List[Dependency]:
+        dependencies = []
+
         for (
             module_with_missing_dependencies
         ) in not_explicitly_requested_dependencies.keys():
             if self._module_requirement.rule_specified_with_importer_as_rule_subject:
-                for (
-                    other_module
-                ) in self._module_requirement.importees_as_specified_by_user:
+                for other_module in self._get_importee_modules_as_specified_by_user():
                     dependencies.append(
                         (module_with_missing_dependencies, other_module)
                     )
             else:
-                for (
-                    other_module
-                ) in self._module_requirement.importees_as_specified_by_user:
+                for other_module in self._get_importee_modules_as_specified_by_user():
                     dependencies.append(
                         (other_module, module_with_missing_dependencies)
                     )
+
+        return dependencies
 
     def _group_explicitly_requested_dependencies_by_layers(
         self,
@@ -275,7 +272,7 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
         return dependency[0]
 
     def _get_layer_for_module(self, module: Module) -> Layer:
-        return self._layer_to_module_mapping.get_layer(module)
+        return self._layer_to_module_mapping.get_layer_for_module_name(module.name)
 
     def _get_realised_dependencies(
         self, explicitly_requested_dependencies: Dict[Any, List[Dependency]]
@@ -287,8 +284,14 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
 
         violating_dependencies_in_different_layers = set()
         for dependency in violating_dependencies:
-            rule_subject_layer = self._layer_to_module_mapping.get_layer(dependency[0])
-            rule_object_layer = self._layer_to_module_mapping.get_layer(dependency[1])
+            rule_subject_layer = (
+                self._layer_to_module_mapping.get_layer_for_module_name(
+                    dependency[0].name
+                )
+            )
+            rule_object_layer = self._layer_to_module_mapping.get_layer_for_module_name(
+                dependency[1].name
+            )
 
             if rule_subject_layer != rule_object_layer:
                 violating_dependencies_in_different_layers.add(dependency)

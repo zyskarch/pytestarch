@@ -14,10 +14,11 @@ from pytestarch.eval_structure.breadth_first_searches import (
 from pytestarch.eval_structure.evaluable_architecture import (
     EvaluableArchitecture,
     ExplicitlyRequestedDependenciesByBaseModules,
-    Module,
+    ModuleFilter,
     NotExplicitlyRequestedDependenciesByBaseModule,
 )
 from pytestarch.eval_structure.evaluable_structures import AbstractGraph
+from pytestarch.eval_structure.utils import filter_to_module
 
 
 class EvaluableArchitectureGraph(EvaluableArchitecture):
@@ -28,8 +29,8 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
 
     def get_dependencies(
         self,
-        dependents: List[Module],
-        dependent_upons: List[Module],
+        dependents: List[ModuleFilter],
+        dependent_upons: List[ModuleFilter],
     ) -> ExplicitlyRequestedDependenciesByBaseModules:
         result = {}
 
@@ -41,14 +42,16 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
             dependency = get_dependency_between_modules(
                 self._graph, dependent, dependent_upon
             )
-            result[(dependent, dependent_upon)] = dependency
+            result[
+                (filter_to_module(dependent), filter_to_module(dependent_upon))
+            ] = dependency
 
         return result
 
     def any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         self,
-        dependents: List[Module],
-        dependent_upons: List[Module],
+        dependents: List[ModuleFilter],
+        dependent_upons: List[ModuleFilter],
     ) -> NotExplicitlyRequestedDependenciesByBaseModule:
         # remove any duplicates
         dependents = set(dependents)
@@ -60,14 +63,14 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
             dependencies = any_dependency_to_module_other_than(
                 self._graph, dependent, dependent_upons
             )
-            result[dependent] = dependencies
+            result[filter_to_module(dependent)] = dependencies
 
         return result
 
     def any_other_dependencies_on_dependent_upons_than_from_dependents(
         self,
-        dependents: List[Module],
-        dependent_upons: List[Module],
+        dependents: List[ModuleFilter],
+        dependent_upons: List[ModuleFilter],
     ) -> NotExplicitlyRequestedDependenciesByBaseModule:
         # remove any duplicates
         dependents = set(dependents)
@@ -79,7 +82,7 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
             dependencies = any_other_dependency_to_module_than(
                 self._graph, dependents, dependent_upon
             )
-            result[dependent_upon] = dependencies
+            result[filter_to_module(dependent_upon)] = dependencies
 
         return result
 

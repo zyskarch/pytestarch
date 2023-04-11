@@ -156,6 +156,8 @@ class RuleMatcher(ABC):
         )
 
     def _create_module_name_regex_conversion_mapping(self) -> Dict[str, List[Module]]:
+        """Maps between a regex and the actual modules it represents."""
+
         result = {
             key: values for key, values in self._conversion_mapping_importers.items()
         }
@@ -248,7 +250,7 @@ class LayerRuleMatcher(RuleMatcher):
         layer_mapping: LayerMapping,
         module_name_conversion_mapping: Dict[str, List[Module]],
     ) -> List[Module]:
-        modules_potentially_with_regexes = layer_mapping.get_modules(layer)
+        modules_potentially_with_regexes = layer_mapping.get_module_filters(layer)
 
         result = []
         for module in modules_potentially_with_regexes:

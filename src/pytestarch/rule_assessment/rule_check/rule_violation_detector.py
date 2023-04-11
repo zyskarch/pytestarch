@@ -9,6 +9,7 @@ from pytestarch.eval_structure.evaluable_architecture import (
     ExplicitlyRequestedDependenciesByBaseModules,
     NotExplicitlyRequestedDependenciesByBaseModule,
 )
+from pytestarch.eval_structure.utils import filter_to_module
 from pytestarch.rule_assessment.rule_check.behavior_requirement import (
     BehaviorRequirement,
 )
@@ -228,6 +229,12 @@ class RuleViolationBaseDetector(ABC):
             ),
         )
 
+    def _get_importee_modules_as_specified_by_user(self):
+        return [
+            filter_to_module(filter)
+            for filter in self._module_requirement.importees_as_specified_by_user
+        ]
+
 
 class RuleViolationDetector(RuleViolationBaseDetector):
     """Based on the behavior requirement and the dependencies that have actually been (not) found in the graph,
@@ -239,11 +246,11 @@ class RuleViolationDetector(RuleViolationBaseDetector):
     NotExplicitlyRequestedDependenciesByBaseModule on the other hand are structured like this:
     {Module for which not explicitly requested dependencies (either from or to this module) were found: [list of such dependencies]}.
 
-    The output is a rule violation object which for each type of rule contains a list of (rule subject, rule object) which violate the rule. These are ordered according
+    The output is a rule violation object which for each type of rule contains a list of (rule subject, rule object) modules which violate the rule. These are ordered according
     to the order the user used when specifying the rule, i.e. the rule subject is the original rule subject no matter if the rule is an import
     or be imported rule.
 
-    If multiple rule subjects have been specified, the rule needs to apply to each and every one of them in order not
+    If multiple rule subjects have been specified, the rule needs to apply to each one of them in order not
     to count as being violated.
     """
 
@@ -402,16 +409,12 @@ class RuleViolationDetector(RuleViolationBaseDetector):
                 continue
 
             if self._module_requirement.rule_specified_with_importer_as_rule_subject:
-                for (
-                    other_module
-                ) in self._module_requirement.importees_as_specified_by_user:
+                for other_module in self._get_importee_modules_as_specified_by_user():
                     dependencies.append(
                         (module_with_missing_dependencies, other_module)
                     )
             else:
-                for (
-                    other_module
-                ) in self._module_requirement.importees_as_specified_by_user:
+                for other_module in self._get_importee_modules_as_specified_by_user():
                     dependencies.append(
                         (other_module, module_with_missing_dependencies)
                     )

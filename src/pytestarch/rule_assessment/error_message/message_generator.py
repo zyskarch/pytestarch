@@ -5,7 +5,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, Iterable, List, Optional, Set, Tuple
 
 from pytestarch.eval_structure.evaluable_architecture import (
     Dependency,
@@ -165,7 +165,7 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
         )
 
     def _create_no_import_between_original_subject_and_objects_message(
-        self, rule_violations: List[Dependency]
+        self, rule_violations: Iterable[Dependency]
     ) -> List[RuleViolatedMessage]:
         messages = []
 
@@ -207,11 +207,11 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
             )
 
     def _get_violating_rule_subjects_and_objects(
-        self, rule_violation_dependency_names: List[Dependency]
+        self, rule_violation_dependencies: Iterable[Dependency]
     ) -> Tuple[Dict[Module, List[Module]], Set[Module]]:
         violating_rule_subjects = set()
         rule_objects_for_rule_subject = defaultdict(list)
-        for rule_subject, rule_object in rule_violation_dependency_names:
+        for rule_subject, rule_object in rule_violation_dependencies:
             violating_rule_subjects.add(rule_subject)
             rule_objects_for_rule_subject[rule_subject].append(rule_object)
 
@@ -254,7 +254,7 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
 
     def _create_other_violating_dependencies_message(
         self,
-        violating_dependencies: List[Dependency],
+        violating_dependencies: Iterable[Dependency],
     ) -> List[RuleViolatedMessage]:
         # messages are always of the type "module x imports module y"
         messages = []
@@ -298,7 +298,7 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
         )
 
     def _create_no_import_other_than_between_original_subject_and_objects_message(
-        self, rule_violations: List[Dependency]
+        self, rule_violations: Iterable[Dependency]
     ) -> List[RuleViolatedMessage]:
         messages = []
 
@@ -384,27 +384,14 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
             rule_violations.should_not_except_violations
         )
 
-    def _generate_rule_xbject_names_and_count(
-        self, original_rule_xbjects: List[Module]
-    ) -> Tuple[List[str], Dict[str, bool]]:
-        names = []
-        is_singular = {}
-
-        for rule_object in original_rule_xbjects:
-            module_name = self._get_module_name(rule_object)
-            names.append(module_name)
-            is_singular[module_name] = self._is_singular_module(rule_object)
-
-        return names, is_singular
-
     def _get_module_name(self, module: Module) -> str:
-        return module.name if module.name is not None else module.parent_module
+        return module.name
 
     def _is_singular_module(self, module: Module) -> bool:
-        return module.name is not None
+        return module.is_single_module
 
     def _get_verb_prefix(self, negated: bool, subject_singular: bool) -> str:
-        return PREFIX_MAPPING[(self._import_rule, negated, subject_singular)]
+        return PREFIX_MAPPING[(self._import_rule, negated, subject_singular)]  # type: ignore
 
     def _concatenate_verb(self, verb: str, prefix: str = "", suffix="") -> str:
         return f"{prefix}{verb}{suffix}"
@@ -518,14 +505,18 @@ class LayerRuleViolationMessageGenerator(RuleViolationMessageGenerator):
         return messages
 
     def _get_violating_rule_subject_and_objects_layers(
-        self, rule_violation_dependency_names: List[Dependency]
+        self, rule_violation_dependencies: List[Dependency]
     ) -> Tuple[Dict[str, Set[str]], Set[str]]:
         violating_rule_subject_layers = set()
         rule_object_layers_for_rule_subject_layer = defaultdict(set)
 
-        for rule_subject, rule_object in rule_violation_dependency_names:
-            rule_subject_layer = self._layer_mapping.get_layer(rule_subject)
-            rule_object_layer = self._layer_mapping.get_layer(rule_object)
+        for rule_subject, rule_object in rule_violation_dependencies:
+            rule_subject_layer = self._layer_mapping.get_layer_for_module_name(
+                rule_subject.name
+            )
+            rule_object_layer = self._layer_mapping.get_layer_for_module_name(
+                rule_object.name
+            )
 
             violating_rule_subject_layers.add(rule_subject_layer)
             rule_object_layers_for_rule_subject_layer[rule_subject_layer].add(
