@@ -91,16 +91,14 @@ class Module:
     regex: bool = False
 
 
-StrictDependency = Tuple[Module, Module]
+Dependency = Tuple[Module, Module]
 # key: user-requested dependency
 # values: list of exact modules that show this dependency
-ExplicitlyRequestedDependenciesByBaseModules = Dict[
-    StrictDependency, List[StrictDependency]
-]
+ExplicitlyRequestedDependenciesByBaseModules = Dict[Dependency, List[Dependency]]
 # key: module that either has dependencies or that others are dependent on that were not explicitly requested
 # via the rule the user has specified
 # value: importer and importee that were not found
-NotExplicitlyRequestedDependenciesByBaseModule = Dict[Module, List[StrictDependency]]
+NotExplicitlyRequestedDependenciesByBaseModule = Dict[Module, List[Dependency]]
 
 
 class EvaluableArchitecture(Protocol):

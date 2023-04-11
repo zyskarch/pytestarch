@@ -8,9 +8,9 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional, Set, Tuple
 
 from pytestarch.eval_structure.evaluable_architecture import (
+    Dependency,
     LayerMapping,
     Module,
-    StrictDependency,
 )
 from pytestarch.rule_assessment.rule_check.rule_violations import RuleViolations
 
@@ -165,7 +165,7 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
         )
 
     def _create_no_import_between_original_subject_and_objects_message(
-        self, rule_violations: List[StrictDependency]
+        self, rule_violations: List[Dependency]
     ) -> List[RuleViolatedMessage]:
         messages = []
 
@@ -207,7 +207,7 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
             )
 
     def _get_violating_rule_subjects_and_objects(
-        self, rule_violation_dependency_names: List[StrictDependency]
+        self, rule_violation_dependency_names: List[Dependency]
     ) -> Tuple[Dict[Module, List[Module]], Set[Module]]:
         violating_rule_subjects = set()
         rule_objects_for_rule_subject = defaultdict(list)
@@ -218,7 +218,7 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
         return rule_objects_for_rule_subject, violating_rule_subjects
 
     def _convert_to_names(
-        self, violating_dependencies: List[StrictDependency]
+        self, violating_dependencies: List[Dependency]
     ) -> List[Tuple[str, str]]:
         return [
             (dependency[0].name, dependency[1].name)
@@ -254,7 +254,7 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
 
     def _create_other_violating_dependencies_message(
         self,
-        violating_dependencies: List[StrictDependency],
+        violating_dependencies: List[Dependency],
     ) -> List[RuleViolatedMessage]:
         # messages are always of the type "module x imports module y"
         messages = []
@@ -298,7 +298,7 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
         )
 
     def _create_no_import_other_than_between_original_subject_and_objects_message(
-        self, rule_violations: List[StrictDependency]
+        self, rule_violations: List[Dependency]
     ) -> List[RuleViolatedMessage]:
         messages = []
 
@@ -430,7 +430,7 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
         return f'"{name}"'
 
     def _get_rule_subject_and_object_of_dependency(
-        self, dependency: StrictDependency
+        self, dependency: Dependency
     ) -> Tuple[str, str]:
         rule_subject_name = self._get_module_name(dependency[0])
         rule_object_name = self._get_module_name(dependency[1])
@@ -483,7 +483,7 @@ class LayerRuleViolationMessageGenerator(RuleViolationMessageGenerator):
             return f" (layer {self._get_quoted_name(layer)})"
 
     def _create_no_import_between_original_subject_and_objects_message(
-        self, rule_violations: List[StrictDependency]
+        self, rule_violations: List[Dependency]
     ) -> List[RuleViolatedMessage]:
         messages = []
 
@@ -518,7 +518,7 @@ class LayerRuleViolationMessageGenerator(RuleViolationMessageGenerator):
         return messages
 
     def _get_violating_rule_subject_and_objects_layers(
-        self, rule_violation_dependency_names: List[StrictDependency]
+        self, rule_violation_dependency_names: List[Dependency]
     ) -> Tuple[Dict[str, Set[str]], Set[str]]:
         violating_rule_subject_layers = set()
         rule_object_layers_for_rule_subject_layer = defaultdict(set)
@@ -535,7 +535,7 @@ class LayerRuleViolationMessageGenerator(RuleViolationMessageGenerator):
         return rule_object_layers_for_rule_subject_layer, violating_rule_subject_layers
 
     def _create_no_import_other_than_between_original_subject_and_objects_message(
-        self, rule_violations: List[StrictDependency]
+        self, rule_violations: List[Dependency]
     ) -> List[RuleViolatedMessage]:
         messages = []
 

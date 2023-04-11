@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Set
 
 from pytestarch.eval_structure.evaluable_architecture import (
+    Dependency,
     ExplicitlyRequestedDependenciesByBaseModules,
     NotExplicitlyRequestedDependenciesByBaseModule,
-    StrictDependency,
 )
 from pytestarch.rule_assessment.rule_check.behavior_requirement import (
     BehaviorRequirement,
@@ -99,7 +99,7 @@ class RuleViolationBaseDetector(ABC):
         explicitly_requested_dependencies: Optional[
             ExplicitlyRequestedDependenciesByBaseModules
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         pass
 
     @abstractmethod
@@ -109,7 +109,7 @@ class RuleViolationBaseDetector(ABC):
         explicitly_requested_dependencies: Optional[
             ExplicitlyRequestedDependenciesByBaseModules
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         pass
 
     @abstractmethod
@@ -119,7 +119,7 @@ class RuleViolationBaseDetector(ABC):
         explicitly_requested_dependencies: Optional[
             ExplicitlyRequestedDependenciesByBaseModules
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         pass
 
     @abstractmethod
@@ -129,7 +129,7 @@ class RuleViolationBaseDetector(ABC):
         not_explicitly_requested_dependencies: Optional[
             NotExplicitlyRequestedDependenciesByBaseModule
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         pass
 
     @abstractmethod
@@ -139,7 +139,7 @@ class RuleViolationBaseDetector(ABC):
         not_explicitly_requested_dependencies: Optional[
             NotExplicitlyRequestedDependenciesByBaseModule
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         pass
 
     @abstractmethod
@@ -149,7 +149,7 @@ class RuleViolationBaseDetector(ABC):
         not_explicitly_requested_dependencies: Optional[
             NotExplicitlyRequestedDependenciesByBaseModule
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         pass
 
     @abstractmethod
@@ -159,7 +159,7 @@ class RuleViolationBaseDetector(ABC):
         explicitly_requested_dependencies: Optional[
             ExplicitlyRequestedDependenciesByBaseModules
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         pass
 
     @abstractmethod
@@ -169,12 +169,12 @@ class RuleViolationBaseDetector(ABC):
         not_explicitly_requested_dependencies: Optional[
             NotExplicitlyRequestedDependenciesByBaseModule
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         pass
 
     def _get_realised_dependencies(
-        self, explicitly_requested_dependencies: Dict[Any, List[StrictDependency]]
-    ) -> Set[StrictDependency]:
+        self, explicitly_requested_dependencies: Dict[Any, List[Dependency]]
+    ) -> Set[Dependency]:
         violating_dependencies = explicitly_requested_dependencies.values()
 
         violating_dependencies_in_user_specified_rule_subject_object_order = set()
@@ -193,8 +193,8 @@ class RuleViolationBaseDetector(ABC):
         return violating_dependencies_in_user_specified_rule_subject_object_order
 
     def _get_rule_subject_and_object_in_user_specified_order(
-        self, dependency: StrictDependency
-    ) -> StrictDependency:
+        self, dependency: Dependency
+    ) -> Dependency:
         if self._module_requirement.rule_specified_with_importer_as_rule_subject:
             return dependency
 
@@ -253,7 +253,7 @@ class RuleViolationDetector(RuleViolationBaseDetector):
         explicitly_requested_dependencies: Optional[
             ExplicitlyRequestedDependenciesByBaseModules
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         if (
             explicitly_requested_dependencies is None
             or not explicitly_requested_dependencies_should_not_be_present
@@ -268,7 +268,7 @@ class RuleViolationDetector(RuleViolationBaseDetector):
         explicitly_requested_dependencies: Optional[
             ExplicitlyRequestedDependenciesByBaseModules
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         if (
             explicitly_requested_dependencies is None
             or not explicitly_requested_dependencies_should_be_present
@@ -285,7 +285,7 @@ class RuleViolationDetector(RuleViolationBaseDetector):
         explicitly_requested_dependencies: Optional[
             ExplicitlyRequestedDependenciesByBaseModules
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         if (
             explicitly_requested_dependencies is None
             or not explicitly_requested_dependencies_and_no_other_should_be_present
@@ -302,7 +302,7 @@ class RuleViolationDetector(RuleViolationBaseDetector):
         not_explicitly_requested_dependencies: Optional[
             NotExplicitlyRequestedDependenciesByBaseModule
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         if (
             not_explicitly_requested_dependencies is None
             or not explicitly_requested_dependencies_and_no_other_should_be_present
@@ -317,7 +317,7 @@ class RuleViolationDetector(RuleViolationBaseDetector):
         not_explicitly_requested_dependencies: Optional[
             NotExplicitlyRequestedDependenciesByBaseModule
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         if (
             not_explicitly_requested_dependencies is None
             or not at_least_one_not_explicitly_requested_dependency_should_be_present
@@ -334,7 +334,7 @@ class RuleViolationDetector(RuleViolationBaseDetector):
         not_explicitly_requested_dependencies: Optional[
             NotExplicitlyRequestedDependenciesByBaseModule
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         if (
             not_explicitly_requested_dependencies is None
             or not explicitly_requested_dependency_should_not_but_others_should_be_present
@@ -351,7 +351,7 @@ class RuleViolationDetector(RuleViolationBaseDetector):
         explicitly_requested_dependencies: Optional[
             ExplicitlyRequestedDependenciesByBaseModules
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         if (
             explicitly_requested_dependencies is None
             or not explicitly_requested_dependency_should_not_but_others_should_be_present
@@ -366,7 +366,7 @@ class RuleViolationDetector(RuleViolationBaseDetector):
         not_explicitly_requested_dependencies: Optional[
             NotExplicitlyRequestedDependenciesByBaseModule
         ],
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         if (
             not_explicitly_requested_dependencies is None
             or not not_explicitly_requested_dependencies_should_not_be_present
@@ -376,8 +376,8 @@ class RuleViolationDetector(RuleViolationBaseDetector):
         return self._get_realised_dependencies(not_explicitly_requested_dependencies)
 
     def _get_abstract_dependencies_without_realisations(
-        self, explicitly_requested_dependencies: Dict[Any, List[StrictDependency]]
-    ) -> Set[StrictDependency]:
+        self, explicitly_requested_dependencies: Dict[Any, List[Dependency]]
+    ) -> Set[Dependency]:
         violating_dependencies = [
             abstract_dependency
             for abstract_dependency, concrete_dependency in explicitly_requested_dependencies.items()
@@ -391,7 +391,7 @@ class RuleViolationDetector(RuleViolationBaseDetector):
     def _get_missing_dependencies_in_user_specified_order(
         self,
         not_explicitly_requested_dependencies: NotExplicitlyRequestedDependenciesByBaseModule,
-    ) -> Set[StrictDependency]:
+    ) -> Set[Dependency]:
         dependencies = []
 
         for (

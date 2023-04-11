@@ -6,10 +6,10 @@ from typing import Any, Dict, Optional, Set
 import pytest
 
 from pytestarch.eval_structure.evaluable_architecture import (
+    Dependency,
     ExplicitlyRequestedDependenciesByBaseModules,
     Module,
     NotExplicitlyRequestedDependenciesByBaseModule,
-    StrictDependency,
 )
 from pytestarch.rule_assessment.rule_check.behavior_requirement import (
     BehaviorRequirement,
@@ -81,7 +81,7 @@ def get_module_requirement(**kwargs) -> ModuleRequirement:
 class RuleViolationDetectorTestCase:
     behavior: Dict[str, Any]
     expected_violation: Optional[str]
-    expected_violating_dependencies: Set[StrictDependency]
+    expected_violating_dependencies: Set[Dependency]
     explicitly_requested_dependencies: Optional[
         ExplicitlyRequestedDependenciesByBaseModules
     ]

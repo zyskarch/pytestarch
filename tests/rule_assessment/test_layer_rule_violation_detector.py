@@ -24,11 +24,11 @@ from rule_assessment.test_rule_violation_detector import (
 )
 
 from pytestarch.eval_structure.evaluable_architecture import (
+    Dependency,
     ExplicitlyRequestedDependenciesByBaseModules,
     LayerMapping,
     Module,
     NotExplicitlyRequestedDependenciesByBaseModule,
-    StrictDependency,
 )
 from pytestarch.rule_assessment.rule_check.layer_rule_violation_detector import (
     LayerRuleViolationDetector,
@@ -87,7 +87,7 @@ LAYER_MAPPING = LayerMapping(
 class RuleViolationDetectorTestCase:
     behavior: Dict[str, Any]
     expected_violation: Optional[str]
-    expected_violating_dependencies: List[StrictDependency]
+    expected_violating_dependencies: List[Dependency]
     explicitly_requested_dependencies: Optional[
         ExplicitlyRequestedDependenciesByBaseModules
     ]
@@ -128,7 +128,7 @@ def _get_no_explicitly_requested_dependencies(
 
 
 def _get_explicitly_requested_dependencies(
-    dependencies: List[StrictDependency], multiple_rule_objects: bool = False
+    dependencies: List[Dependency], multiple_rule_objects: bool = False
 ) -> ExplicitlyRequestedDependenciesByBaseModules:
     no_dependencies = _get_no_explicitly_requested_dependencies(multiple_rule_objects)
 
@@ -140,7 +140,7 @@ def _get_explicitly_requested_dependencies(
 
 def _get_all_violating_dependencies(
     objects: Tuple[str] = (LAYER_2,),
-) -> List[StrictDependency]:
+) -> List[Dependency]:
     return [
         (single_subject, single_object)
         for o in objects
@@ -156,7 +156,7 @@ def _get_no_not_explicitly_requested_dependencies() -> (
 
 
 def _get_not_explicitly_requested_dependencies(
-    dependencies: List[StrictDependency],
+    dependencies: List[Dependency],
 ) -> NotExplicitlyRequestedDependenciesByBaseModule:
     no_dependencies = _get_no_not_explicitly_requested_dependencies()
 
