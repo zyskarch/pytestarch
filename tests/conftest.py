@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 import pytest
-from resources import flat_test_project_1, flat_test_project_2
+from resources import flat_test_project_1, flat_test_project_2, regex_project
 from resources.test_project import src
 
 from pytestarch import EvaluableArchitecture
@@ -91,4 +91,16 @@ def flat_project_2() -> EvaluableArchitecture:
         os.path.dirname(flat_test_project_2.__file__),
         os.path.dirname(flat_test_project_2.__file__),
         ("*__pycache__", "*__init__.py", "*Test.py"),
+    )
+
+
+@pytest.fixture(scope="module")
+def regex_project_arch() -> EvaluableArchitecture:
+    return get_evaluable_architecture(
+        os.path.dirname(regex_project.__file__),
+        os.path.dirname(regex_project.__file__),
+        (
+            "*__pycache__",
+            "*__init__.py",
+        ),
     )

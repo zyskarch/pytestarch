@@ -115,7 +115,10 @@ class ModuleSpecification(Generic[ModuleSpecificationSuccessor], ABC):
         self,
         regex: str,
     ) -> ModuleSpecificationSuccessor:
-        """If multiple rule subjects are specified, this has the same effect as defining a rule per rule subject."""
+        """Note that regex expressions can have unexpected results if predicates apply to modules, but not their submodules.
+        This is often the case for regex expressions with negations. Refer to the documentation of the module import feature for more details.
+        If multiple rule subjects are specified, this has the same effect as defining a rule per rule subject.
+        """
         pass
 
 
@@ -187,6 +190,8 @@ class LayerDefinition(ABC):
     ) -> Union[LayerName, BaseLayeredArchitecture]:
         """If a module is defined as belonging to layer X, then its submodules are also assumed to be part of layer X.
         Note that no attempt will be made to ensure that the regex patterns for different layers are mutually exclusive.
+        Also note that regex expressions can have unexpected results if predicates apply to modules, but not their submodules.
+        This is often the case for regex expressions with negations. Refer to the documentation of the module import feature for more details.
         """
         pass
 
