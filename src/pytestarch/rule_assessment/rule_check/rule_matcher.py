@@ -169,7 +169,7 @@ class RuleMatcher(ABC):
                 existing_values = set(result[key])
                 existing_values.update(set(values))
 
-                result[key] = list[existing_values]
+                result[key] = list(existing_values)
 
         return result
 
