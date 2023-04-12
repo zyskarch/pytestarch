@@ -2,6 +2,9 @@
 
 This project uses semantic versioning and follows [keep a changelog](https://keepachangelog.com).
 
+## [1.5.0] -- 2023-04-12
+## Added
+- More extensive documentation for the regex matching features.
 
 ## [1.4.1] -- 2023-04-09
 ## Fixed 

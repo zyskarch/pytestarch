@@ -27,14 +27,38 @@ from the "B" module is "fileA11", which is a submodule of "A".
 Currently, the following markers are supported by PyTestArch:
 
 ### RULE_SUBJECT
-* are_named("X"): applies to module named "X" (and also to its submodules)
+* are_named("X"): applies to module named "X" (and also considers its submodules, as submodules are considered to be part of their parent module)
 * are_submodules_of("Y"): applies to submodules of module named "Y", but not "Y" itself
 * have_name_matching(regex): applies to module with names that match the given regex. 
 
-⚠ When using the `have_name_matching` functionality, the regex should ideally only match the module one wants to test, not
+⚠ When using the `have_name_matching` functionality, the regex should ideally only directly match the module one wants to test, not
 also its submodules. For example, if a module named src.moduleA should be matched, the regex should not also match 
 src.moduleA.submoduleAA, as this can increase the runtime of the rule assertion check. This has no effect on the 
-result of the check itself, as submodules are automatically considered when checking rules.
+result of the check itself, as submodules are considered to be part of their parent module - for example, if the parent
+module has to import from module X, this condition is fulfilled if at least one of its submodules imports X.
+
+⚠ Regex expressions that want to apply a predicate on a module, but not its submodules are not currently supported. 
+This often happens with regex expressions that contain negations.
+Consider the following example:
+```
+foo/
+    bar_test.py (imports from util_test.py)
+    util_test.py
+```
+We want to express that no production code (not ending with _test) may import from test code (ending in _test).
+A rule with a negation in a regex could look like this:
+`Rule().modules_that().have_name_matching(r"^((?!test$).)*$").should_not().import_modules_that().have_name_matching(r".*test$")`
+PyTestArch calculates which modules match the first regex - which in this case, is only "foo". The second expression matches the two
+test files. The rule then gets converted to 
+```Rule().modules_that().are_named("foo").should_not().import_modules_that().have_name_matching(["foo.bar_test", "util_test"])```
+"Foo" itself does not import any of the other files. However, the string "foo" matches not only "foo" itself, but also its
+submodules, as these are considered to be part of their parent module. In this case, "foo.bar_test" is then checked for imports
+of any test files - and bar_test does import util_test: The rule is marked as violated.
+
+Rules like this can usually be expressed without negations, often even by using the general API: An equivalent rule would be
+```Rule().modules_that().have_name_matching(".*test$").should_not().be_imported_by_modules_except_modules_that().have_name_matching(".*test$")```
+
+Note: If a regex resolves to multiple rule subjects, this is equivalent to specifying the rule independently for both.
 
 ### RULE_OBJECT
 same as RULE_SUBJECT, with an additional
@@ -50,7 +74,7 @@ specified, this has the same effect as defining a rule per rule subject.
 For example, the rule
 ```
 modules_that() \
-    .are_named("1", "2") \
+    .are_named(["1", "2"]) \
     .should_only() \
     .be_imported_by_modules_that() \
     .are_named(["3", "4"])
