@@ -1,6 +1,7 @@
 """Base class for different graph implementations of an evaluable structure. Delegates direct access to graph nodes
 and edges to its subclasses in a template pattern.
 """
+
 from __future__ import annotations
 
 from itertools import product
@@ -42,9 +43,9 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
             dependency = get_dependency_between_modules(
                 self._graph, dependent, dependent_upon
             )
-            result[
-                (filter_to_module(dependent), filter_to_module(dependent_upon))
-            ] = dependency
+            result[(filter_to_module(dependent), filter_to_module(dependent_upon))] = (
+                dependency
+            )
 
         return result
 
