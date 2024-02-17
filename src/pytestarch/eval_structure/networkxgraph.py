@@ -1,4 +1,5 @@
 """Encapsulation of networkx graph functionality."""
+
 from __future__ import annotations
 
 import re

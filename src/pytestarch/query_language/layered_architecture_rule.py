@@ -87,9 +87,9 @@ class LayeredArchitecture(BaseLayeredArchitecture, LayerName, LayerDefinition):
                 f'Module(s) {", ".join(duplicates)} already assigned to a layer.'
             )
 
-        self._modules_by_layer_name[
-            layers_without_modules[0]
-        ] = self._to_module_objects(modules_list)
+        self._modules_by_layer_name[layers_without_modules[0]] = (
+            self._to_module_objects(modules_list)
+        )
 
         return self
 
@@ -103,9 +103,9 @@ class LayeredArchitecture(BaseLayeredArchitecture, LayerName, LayerDefinition):
                 "Specify layer name before specifying its modules."
             )
 
-        self._modules_by_layer_name[
-            layers_without_modules[0]
-        ] = self._from_regex_to_module_objects(regex)
+        self._modules_by_layer_name[layers_without_modules[0]] = (
+            self._from_regex_to_module_objects(regex)
+        )
 
         return self
 
