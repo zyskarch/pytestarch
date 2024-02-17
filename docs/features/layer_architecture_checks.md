@@ -31,11 +31,13 @@ architecture, and then defining a rule based on it.
 The LayeredArchitecture object should be used to group modules into layers. Not all modules have to belong to a layer
 (for more details on how this influences layer rules, see below). A layered architecture can be defined like this:
 ```
-arch = LayeredArchitecture() \
-            .layer("import") \
-            .containing_modules(["M", "N"]) \
-            .layer("model") \
-            .containing_modules("O")
+arch = (
+    LayeredArchitecture() 
+    .layer("import") 
+    .containing_modules(["M", "N"]) 
+    .layer("model") 
+    .containing_modules("O")
+)
 ```
 In this layered architecture, the modules M and N belong to layer 'import'; while module O belongs to layer 'model'.
 
@@ -49,13 +51,15 @@ Modules can also be specified via a regex, using the method "have_modules_with_n
 After defining a layered architecture, layer rules can not be defined based on it. Using the `arch` object defined
 above, the dependency rule that could not properly be defined in the regular syntax can then be defined as:
 ```
-rule = LayerRule() \
-            .based_on(arch). \  # needs to be passed in first
-            .layers_that() \
-            .are_named("import") \
-            .should_only() \
-            .access_layers_that() \
-            .are_named("model")
+rule = (
+    LayerRule()
+    .based_on(arch).   # needs to be passed in first
+    .layers_that() 
+    .are_named("import") 
+    .should_only() 
+    .access_layers_that() 
+    .are_named("model")
+)
 ```
 All modules within one layer are treated as one entity. This means that this rule will apply to an evaluable
 architecture, as long either module M or module N imports module O, and neither imports anything else.

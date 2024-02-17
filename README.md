@@ -25,12 +25,14 @@ you could use a fixture for this evaluable object.
 ```
 from pytestarch import Rule
 
-rule = Rule() \
-        .modules_that() \
-        .are_named("src.moduleB") \
-        .should_not() \
-        .be_imported_by_modules_that() \
-        .are_sub_modules_of("src.moduleA") 
+rule = (
+    Rule() 
+    .modules_that() 
+    .are_named("src.moduleB") 
+    .should_not() 
+    .be_imported_by_modules_that() 
+    .are_sub_modules_of("src.moduleA") 
+)
 ```
 
 This rule represents the architectural requirements that a module named "src.moduleB" should not be imported by any module
