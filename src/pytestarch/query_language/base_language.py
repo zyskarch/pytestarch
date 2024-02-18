@@ -79,7 +79,7 @@ class BehaviorSpecification(BehaviorBaseSpecification["DependencySpecification"]
 
 
 ModuleSpecificationSuccessor = TypeVar(
-    "ModuleSpecificationSuccessor", BehaviorBaseSpecification, RuleApplier
+    "ModuleSpecificationSuccessor", BehaviorSpecification, RuleApplier
 )
 
 
