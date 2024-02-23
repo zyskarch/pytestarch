@@ -226,6 +226,13 @@ class NetworkxGraph(AbstractGraph):
             Remaining keyword args are passed to draw_networkx. Notably, "ax" can be
             used to draw the graph onto an existing matploblib Axis object.
         """
+        try:
+            import matplotlib  # noqa: F401
+        except ImportError:
+            raise Exception(
+                "Graph visualisations require matplotlib. Please install it, via pip install pytestarch[visualization]."
+            )
+
         if "spacing" in kwargs:
             spacing = kwargs.pop("spacing")
             pos = spring_layout(self._graph, k=spacing, iterations=20)

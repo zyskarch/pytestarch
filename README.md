@@ -4,7 +4,8 @@ PyTestArch is an open source library that allows users to define architectural r
 generally inspired by [ArchUnit](https://www.archunit.org/).
 
 ## Installation Guide
-PyTestArch is available via [PyPI](https://pypi.org/project/pytestarch/) and can be installed e.g. via pip: `pip install pytestarch`.
+PyTestArch is available via [PyPI](https://pypi.org/project/pytestarch/) and can be installed e.g. via pip: `pip install pytestarch`. To also install the
+optional dependency matplotlib, which is required to draw the created dependency graphs, install `pytestarch[visualization]`
 
 ## Usage Guide
 Three steps are required to test an architectural rule:

@@ -1,6 +1,6 @@
 ## Visualizing architecture
 The graph structure can be plotted with `evaluable_architecture.visualize()` (requires
-matplotlib), which plots the dependency graph.
+matplotlib - this is not installed as a dependency by default: please install `pytestarch[visualization]`), which plots the dependency graph.
 By default, the nodes are labeled with their module name. If a module name is long 
 and/or a module has many submodules, the labels may crowd the plot. This can be 
 addressed by specifying (short) aliases for the module names by using the keyword argument 
