@@ -4,7 +4,10 @@ import os
 from typing import Tuple
 
 import pytest
-from integration.interesting_rules_for_tests import rules_for_level_limits
+from integration.interesting_rules_for_tests import (
+    rules_for_level_limit_1,
+    rules_for_no_level_limits,
+)
 from resources.test_project import src
 from resources.test_project.src import moduleA
 from resources.test_project.src.moduleA import submoduleA1
@@ -14,7 +17,7 @@ from pytestarch.eval_structure.networkxgraph import NetworkxGraph
 
 
 @pytest.mark.parametrize(
-    "rule, expected_result, skip_with_level_limit", rules_for_level_limits
+    "rule, expected_result, skip_with_level_limit", rules_for_no_level_limits
 )
 def test_architecture_based_on_string_modules(
     rule: Rule,
@@ -30,7 +33,7 @@ def test_architecture_based_on_string_modules(
 
 
 @pytest.mark.parametrize(
-    "rule, expected_result, skip_with_level_limit", rules_for_level_limits
+    "rule, expected_result, skip_with_level_limit", rules_for_no_level_limits
 )
 def test_architecture_based_on_module_objects(
     rule: Rule,
@@ -70,7 +73,7 @@ def test_depending_on_module_does_not_imply_depending_on_submodule(
 
 
 @pytest.mark.parametrize(
-    "rule, expected_result, skip_with_level_limit", rules_for_level_limits
+    "rule, expected_result, skip_with_level_limit", rules_for_no_level_limits
 )
 def test_identical_source_and_module_path_do_not_lead_to_errors(
     rule: Rule,
@@ -86,7 +89,7 @@ def test_identical_source_and_module_path_do_not_lead_to_errors(
 
 
 @pytest.mark.parametrize(
-    "rule, expected_result, skip_with_level_limit", rules_for_level_limits
+    "rule, expected_result, skip_with_level_limit", rules_for_level_limit_1
 )
 def test_level_limit_flattens_dependencies_correctly(
     rule: Rule,

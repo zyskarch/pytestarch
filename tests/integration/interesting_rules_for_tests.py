@@ -29,7 +29,7 @@ FILE_B2 = f"{B1}.fileB2"
 FILE_C = f"{C}.fileC"
 
 
-rules_for_level_limits = [
+rules_for_no_level_limits = [
     (
         Rule()
         .modules_that()
@@ -50,17 +50,6 @@ rules_for_level_limits = [
         False,
         True,
     ),
-    # same rule, but adapted for flattened graph
-    (
-        Rule()
-        .modules_that()
-        .are_named(C)
-        .should_only()
-        .be_imported_by_modules_that()
-        .are_named(A),
-        False,
-        False,
-    ),
     (
         Rule()
         .modules_that()
@@ -70,17 +59,6 @@ rules_for_level_limits = [
         .are_sub_modules_of(B),
         True,
         True,
-    ),
-    # same rule, but adapted for flattened graph
-    (
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(A)
-        .should()
-        .import_modules_that()
-        .are_sub_modules_of(B),
-        False,  # there are no true sub modules left
-        False,
     ),
     (
         Rule()
@@ -112,7 +90,70 @@ rules_for_level_limits = [
         True,
         True,
     ),
-    # same rule, but adapted for flattened graph
+    (
+        Rule()
+        .modules_that()
+        .are_sub_modules_of(A)
+        .should_not()
+        .be_imported_by_modules_except_modules_that()
+        .are_sub_modules_of(B),
+        True,
+        False,
+    ),
+]
+
+rules_for_level_limit_1 = [
+    (
+        Rule()
+        .modules_that()
+        .are_named(C)
+        .should_not()
+        .import_modules_except_modules_that()
+        .are_named(A),
+        True,
+        False,
+    ),
+    (
+        Rule()
+        .modules_that()
+        .are_named(C)
+        .should_only()
+        .be_imported_by_modules_that()
+        .are_named(A2),
+        False,
+        True,
+    ),
+    (
+        Rule()
+        .modules_that()
+        .are_sub_modules_of(A1)
+        .should_only()
+        .import_modules_that()
+        .are_sub_modules_of(B),
+        True,
+        True,
+    ),
+    # currently fails --> needs to be fixed
+    # (
+    #     Rule()
+    #     .modules_that()
+    #     .are_named(C)
+    #     .should_only()
+    #     .be_imported_by_modules_that()
+    #     .are_named(A),
+    #     False,
+    #     False,
+    # ),
+    (
+        Rule()
+        .modules_that()
+        .are_sub_modules_of(A)
+        .should()
+        .import_modules_that()
+        .are_sub_modules_of(B),
+        False,  # there are no true sub modules left
+        False,
+    ),
     (
         Rule().modules_that().are_named(A).should().import_modules_that().are_named(B),
         True,
@@ -127,6 +168,26 @@ rules_for_level_limits = [
         .are_sub_modules_of(B),
         False,
         False,  # there are no true sub modules left
+    ),
+    (
+        Rule()
+        .modules_that()
+        .are_named(B)
+        .should_not()
+        .be_imported_by_modules_except_modules_that()
+        .are_sub_modules_of(A),
+        True,
+        True,
+    ),
+    (
+        Rule()
+        .modules_that()
+        .are_named(A11)
+        .should_not()
+        .import_modules_that()
+        .are_named(FILE_B2),
+        True,
+        True,
     ),
     (
         Rule()
