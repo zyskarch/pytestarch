@@ -28,11 +28,11 @@ ORIGINAL_OBJECT_2 = "C"
 OTHER_OBJECT_1 = "Y"
 OTHER_OBJECT_2 = "Z"
 
-ORIGINAL_SUBJECT_MODULE = Module(name=ORIGINAL_SUBJECT)
-ORIGINAL_OBJECT_MODULE_1 = Module(name=ORIGINAL_OBJECT_1)
-ORIGINAL_OBJECT_MODULE_2 = Module(name=ORIGINAL_OBJECT_2)
-OTHER_OBJECT_MODULE_1 = Module(name=OTHER_OBJECT_1)
-OTHER_OBJECT_MODULE_2 = Module(name=OTHER_OBJECT_2)
+ORIGINAL_SUBJECT_MODULE = Module(identifier=ORIGINAL_SUBJECT)
+ORIGINAL_OBJECT_MODULE_1 = Module(identifier=ORIGINAL_OBJECT_1)
+ORIGINAL_OBJECT_MODULE_2 = Module(identifier=ORIGINAL_OBJECT_2)
+OTHER_OBJECT_MODULE_1 = Module(identifier=OTHER_OBJECT_1)
+OTHER_OBJECT_MODULE_2 = Module(identifier=OTHER_OBJECT_2)
 
 single_object_import_generator = RuleViolationMessageGenerator(
     True,
@@ -203,11 +203,11 @@ message_content_test_cases = [
 )
 def test_rule_violation_message_content(
     generator: RuleViolationMessageGenerator,
-    violation: Dict[str, bool],
+    violation: Dict[str, List[Dependency]],
     expected_message: str,
 ) -> None:
     kwargs = _get_rule_violations_initialisation_dict(violation)
-    violations = RuleViolations(**kwargs)
+    violations = RuleViolations(**kwargs)  # type: ignore
     messages = generator.create_rule_violation_messages(violations)
 
     assert len(messages) == 1
@@ -217,7 +217,7 @@ def test_rule_violation_message_content(
 def _get_rule_violations_initialisation_dict(
     violation: Dict[str, List[Dependency]]
 ) -> Dict[str, List[Dependency]]:
-    kwargs = {
+    kwargs: Dict[str, List[Dependency]] = {
         "should_violations": [],
         "should_only_violations_by_forbidden_import": [],
         "should_only_violations_by_no_import": [],
@@ -353,7 +353,7 @@ def test_violated_message_only_present_if_rule_actually_violated(
 ) -> None:
     kwargs = _get_rule_violations_initialisation_dict(violation)
     violations = RuleViolations(
-        **kwargs,
+        **kwargs,  # type: ignore
     )
     messages = generator.create_rule_violation_messages(violations)
 
@@ -464,7 +464,7 @@ def test_multiple_rule_objects_combined_in_one_message(
     expected_message: str,
 ) -> None:
     kwargs = _get_rule_violations_initialisation_dict(violation)
-    violations = RuleViolations(**kwargs)
+    violations = RuleViolations(**kwargs)  # type: ignore
     messages = generator.create_rule_violation_messages(violations)
 
     assert len(messages) == 1
@@ -606,7 +606,7 @@ def test_multiple_rule_objects_in_multiple_message(
     expected_messages: List[str],
 ) -> None:
     kwargs = _get_rule_violations_initialisation_dict(violation)
-    violations = RuleViolations(**kwargs)
+    violations = RuleViolations(**kwargs)  # type: ignore
     messages = generator.create_rule_violation_messages(violations)
 
     assert len(messages) == expected_message_count
@@ -656,7 +656,7 @@ def test_multiple_messages_if_forbidden_and_no_import_both_present(
     expected_messages: List[str],
 ) -> None:
     kwargs = _get_rule_violations_initialisation_dict(violation)
-    violations = RuleViolations(**kwargs)
+    violations = RuleViolations(**kwargs)  # type: ignore
     messages = single_object_import_generator.create_rule_violation_messages(violations)
 
     assert len(messages) == 2

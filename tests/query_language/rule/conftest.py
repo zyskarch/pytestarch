@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from pytestarch import EvaluableArchitecture
-from pytestarch.eval_structure.evaluable_architecture import ModuleFilter
+from pytestarch.eval_structure.evaluable_architecture import ModuleNameFilter
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.networkxgraph import NetworkxGraph
 from pytestarch.eval_structure_generation.file_import.import_types import AbsoluteImport
@@ -18,7 +18,7 @@ SUB_MODULE_OF_7 = "Module7.SubModule1"
 MODULE_7 = "Module7"
 SUB_MODULE_OF_1 = "Module1.SubModule1"
 SUB_SUB_MODULE_OF_1 = "Module1.SubModule1.SubModule1"
-MODULE_A = ModuleFilter(name="A")
+MODULE_A = ModuleNameFilter(name="A")
 
 
 @pytest.fixture(scope="session")

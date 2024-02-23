@@ -2,11 +2,16 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from typing import Dict, List, Tuple
+from typing import Dict, List, Sequence, Tuple, cast
 
 from pytestarch import EvaluableArchitecture
 from pytestarch.eval_structure.breadth_first_searches import get_all_submodules_of
-from pytestarch.eval_structure.evaluable_architecture import Module, ModuleFilter
+from pytestarch.eval_structure.evaluable_architecture import (
+    Module,
+    ModuleFilter,
+    ModuleNameFilter,
+    ModuleNameRegexFilter,
+)
 from pytestarch.eval_structure.exceptions import ImpossibleMatch
 
 
@@ -16,8 +21,8 @@ class ModuleNameConverter:
 
     @classmethod
     def convert(
-        cls, modules: List[ModuleFilter], arch: EvaluableArchitecture
-    ) -> Tuple[List[ModuleFilter], Dict[str, List[Module]]]:
+        cls, modules: Sequence[ModuleFilter], arch: EvaluableArchitecture
+    ) -> Tuple[Sequence[ModuleFilter], Dict[str, List[Module]]]:
         """Converts each regex pattern that serves to identify module names into actual modules that match this pattern.
 
         Args:
@@ -33,21 +38,23 @@ class ModuleNameConverter:
             other_modules,
         ) = cls._split_modules_by_presence_of_regex_pattern(modules)
 
-        never_matched = {module.name for module in modules_that_need_converting}
+        never_matched = {module.identifier for module in modules_that_need_converting}
 
         converted_module_filters = set()
         conversion_mapping = defaultdict(list)
         matching_submodules = set()
 
         module_names_that_need_to_be_matched = list(
-            map(lambda module: module.name, modules_that_need_converting)
+            map(lambda module: module.identifier, modules_that_need_converting)
         )
 
         for actually_present_module in arch.modules:
             for module_to_match in module_names_that_need_to_be_matched:
                 if cls._name_matches_pattern(module_to_match, actually_present_module):
-                    converted_module = Module(name=actually_present_module)
-                    converted_module_filter = ModuleFilter(name=actually_present_module)
+                    converted_module = Module(identifier=actually_present_module)
+                    converted_module_filter = ModuleNameFilter(
+                        name=actually_present_module
+                    )
 
                     converted_module_filters.add(converted_module_filter)
                     conversion_mapping[module_to_match].append(converted_module)
@@ -56,7 +63,7 @@ class ModuleNameConverter:
                         never_matched.remove(module_to_match)
 
                     submodules_of_match = get_all_submodules_of(
-                        arch._graph, converted_module_filter
+                        arch._graph, converted_module_filter  # type: ignore
                     )
                     submodules_of_match.remove(
                         actually_present_module
@@ -68,7 +75,8 @@ class ModuleNameConverter:
                 f'No modules found that match: {", ".join(never_matched)}'
             )
 
-        return list(converted_module_filters) + other_modules, conversion_mapping
+        all_converted_modules = list(converted_module_filters) + other_modules  # type: ignore
+        return all_converted_modules, conversion_mapping
 
     @classmethod
     def _name_matches_pattern(cls, pattern_to_match: str, name: str) -> bool:
@@ -79,14 +87,15 @@ class ModuleNameConverter:
 
     @classmethod
     def _split_modules_by_presence_of_regex_pattern(
-        cls, modules: List[ModuleFilter]
-    ) -> Tuple[List[ModuleFilter], List[ModuleFilter]]:
-        modules_with_regex_name_pattern = []
+        cls, modules: Sequence[ModuleFilter]
+    ) -> Tuple[List[ModuleNameRegexFilter], Sequence[ModuleFilter]]:
+        modules_with_regex_name_pattern: List[ModuleNameRegexFilter] = []
         other_modules = []
 
         for module in modules:
-            if module.regex:
-                modules_with_regex_name_pattern.append(module)
+            if module.identifier_is_regex:
+                module = cast(ModuleNameRegexFilter, module)
+                modules_with_regex_name_pattern.append(module)  # type: ignore
             else:
                 other_modules.append(module)
 

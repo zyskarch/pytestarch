@@ -28,7 +28,7 @@ from pytestarch.eval_structure.evaluable_architecture import (
     ExplicitlyRequestedDependenciesByBaseModules,
     LayerMapping,
     Module,
-    ModuleFilter,
+    ModuleNameFilter,
     NotExplicitlyRequestedDependenciesByBaseModule,
 )
 from pytestarch.rule_assessment.rule_check.layer_rule_violation_detector import (
@@ -55,18 +55,18 @@ MODULE_NAME_9 = "M9"
 # layer 5
 MODULE_NAME_10 = "M10"
 
-MODULE_FILTER_1 = ModuleFilter(MODULE_NAME_1)
-MODULE_FILTER_2 = ModuleFilter(MODULE_NAME_2)
-MODULE_FILTER_3 = ModuleFilter(MODULE_NAME_3)
+MODULE_FILTER_1 = ModuleNameFilter(MODULE_NAME_1)
+MODULE_FILTER_2 = ModuleNameFilter(MODULE_NAME_2)
+MODULE_FILTER_3 = ModuleNameFilter(MODULE_NAME_3)
 
-MODULE_FILTER_4 = ModuleFilter(MODULE_NAME_4)
-MODULE_FILTER_5 = ModuleFilter(MODULE_NAME_5)
-MODULE_FILTER_6 = ModuleFilter(MODULE_NAME_6)
+MODULE_FILTER_4 = ModuleNameFilter(MODULE_NAME_4)
+MODULE_FILTER_5 = ModuleNameFilter(MODULE_NAME_5)
+MODULE_FILTER_6 = ModuleNameFilter(MODULE_NAME_6)
 
-MODULE_FILTER_7 = ModuleFilter(MODULE_NAME_7)
+MODULE_FILTER_7 = ModuleNameFilter(MODULE_NAME_7)
 
-MODULE_FILTER_8 = ModuleFilter(MODULE_NAME_8)
-MODULE_FILTER_9 = ModuleFilter(MODULE_NAME_9)
+MODULE_FILTER_8 = ModuleNameFilter(MODULE_NAME_8)
+MODULE_FILTER_9 = ModuleNameFilter(MODULE_NAME_9)
 
 
 MODULE_1 = Module(MODULE_NAME_1)
@@ -112,7 +112,7 @@ class RuleViolationDetectorTestCase:
 def _get_no_explicitly_requested_dependencies(
     multiple_rule_objects: bool = False,
 ) -> ExplicitlyRequestedDependenciesByBaseModules:
-    result = {
+    result: Dict[Tuple[Module, Module], List] = {
         (MODULE_1, MODULE_4): [],
         (MODULE_1, MODULE_5): [],
         (MODULE_1, MODULE_6): [],
@@ -151,10 +151,10 @@ def _get_explicitly_requested_dependencies(
 
 
 def _get_all_violating_dependencies(
-    objects: Tuple[str] = (LAYER_2,),
+    objects: Tuple[str, ...] = (LAYER_2,),
 ) -> List[Dependency]:
     return [
-        (Module(name=single_subject.name), Module(name=single_object.name))
+        (Module(identifier=single_subject.name), Module(identifier=single_object.name))  # type: ignore
         for o in objects
         for single_subject in LAYER_MAPPING.get_module_filters(LAYER_1)
         for single_object in LAYER_MAPPING.get_module_filters(o)
@@ -983,6 +983,6 @@ def test_rule_violation_detection_as_expected(
         test_case.not_explicitly_requested_dependencies,
     )
 
-    assert set(getattr(violations, test_case.expected_violation)) == set(
+    assert set(getattr(violations, test_case.expected_violation)) == set(  # type: ignore
         test_case.expected_violating_dependencies
     )

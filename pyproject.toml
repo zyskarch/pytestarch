@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "PyTestArch"
-version = "1.5.1"
+version = "1.6.0"
 description = "Test framework for software architecture based on imports between modules"
 authors = ["zyskarch <zyskarch@gmail.com>"]
 maintainers = ["zyskarch <zyskarch@gmail.com>"]
@@ -11,6 +11,7 @@ repository = "https://github.com/zyskarch/pytestarch"
 
 keywords = ["architecture", "test"]
 classifiers = [
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.9",

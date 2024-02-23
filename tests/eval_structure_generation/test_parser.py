@@ -15,7 +15,7 @@ RESOURCES_DIR = SOURCE_ROOT / "resources/importer"
 
 def test_parser_parses_all_files_in_directory() -> None:
     parser = Parser(
-        FileFilter(Config([convert_partial_match_to_regex("*__pycache__")])),
+        FileFilter(Config((convert_partial_match_to_regex("*__pycache__"),))),
         SOURCE_ROOT,
     )
 

@@ -22,9 +22,11 @@ test_cases = [
 @pytest.mark.parametrize("input_modules", test_cases)
 def test_import_filter(input_modules: List[str]) -> None:
     config = Config(
-        map(
-            lambda s: convert_partial_match_to_regex(s),
-            ("*main*", "*master", "development*", "dev"),
+        tuple(
+            map(
+                lambda s: convert_partial_match_to_regex(s),
+                ("*main*", "*master", "development*", "dev"),
+            )
         )
     )
     filter = FileFilter(config)

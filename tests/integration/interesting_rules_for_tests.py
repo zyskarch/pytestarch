@@ -29,7 +29,7 @@ FILE_B2 = f"{B1}.fileB2"
 FILE_C = f"{C}.fileC"
 
 
-rules_for_level_limits = [
+rules_for_no_level_limits = [
     (
         Rule()
         .modules_that()
@@ -50,17 +50,6 @@ rules_for_level_limits = [
         False,
         True,
     ),
-    # same rule, but adapted for flattened graph
-    (
-        Rule()
-        .modules_that()
-        .are_named(C)
-        .should_only()
-        .be_imported_by_modules_that()
-        .are_named(A),
-        False,
-        False,
-    ),
     (
         Rule()
         .modules_that()
@@ -70,17 +59,6 @@ rules_for_level_limits = [
         .are_sub_modules_of(B),
         True,
         True,
-    ),
-    # same rule, but adapted for flattened graph
-    (
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(A)
-        .should()
-        .import_modules_that()
-        .are_sub_modules_of(B),
-        False,  # there are no true sub modules left
-        False,
     ),
     (
         Rule()
@@ -112,7 +90,70 @@ rules_for_level_limits = [
         True,
         True,
     ),
-    # same rule, but adapted for flattened graph
+    (
+        Rule()
+        .modules_that()
+        .are_sub_modules_of(A)
+        .should_not()
+        .be_imported_by_modules_except_modules_that()
+        .are_sub_modules_of(B),
+        True,
+        False,
+    ),
+]
+
+rules_for_level_limit_1 = [
+    (
+        Rule()
+        .modules_that()
+        .are_named(C)
+        .should_not()
+        .import_modules_except_modules_that()
+        .are_named(A),
+        True,
+        False,
+    ),
+    (
+        Rule()
+        .modules_that()
+        .are_named(C)
+        .should_only()
+        .be_imported_by_modules_that()
+        .are_named(A2),
+        False,
+        True,
+    ),
+    (
+        Rule()
+        .modules_that()
+        .are_sub_modules_of(A1)
+        .should_only()
+        .import_modules_that()
+        .are_sub_modules_of(B),
+        True,
+        True,
+    ),
+    # currently fails --> needs to be fixed
+    # (
+    #     Rule()
+    #     .modules_that()
+    #     .are_named(C)
+    #     .should_only()
+    #     .be_imported_by_modules_that()
+    #     .are_named(A),
+    #     False,
+    #     False,
+    # ),
+    (
+        Rule()
+        .modules_that()
+        .are_sub_modules_of(A)
+        .should()
+        .import_modules_that()
+        .are_sub_modules_of(B),
+        False,  # there are no true sub modules left
+        False,
+    ),
     (
         Rule().modules_that().are_named(A).should().import_modules_that().are_named(B),
         True,
@@ -127,6 +168,26 @@ rules_for_level_limits = [
         .are_sub_modules_of(B),
         False,
         False,  # there are no true sub modules left
+    ),
+    (
+        Rule()
+        .modules_that()
+        .are_named(B)
+        .should_not()
+        .be_imported_by_modules_except_modules_that()
+        .are_sub_modules_of(A),
+        True,
+        True,
+    ),
+    (
+        Rule()
+        .modules_that()
+        .are_named(A11)
+        .should_not()
+        .import_modules_that()
+        .are_named(FILE_B2),
+        True,
+        True,
     ),
     (
         Rule()
@@ -1699,6 +1760,13 @@ class LayerRuleTestCase:
 
 
 @dataclass
+class LayerRuleSingleModulePerLayerTestCase:
+    layers: Dict[str, str]
+    rule_setup: LayerRuleSetup
+    expected_error_message: Optional[str] = None
+
+
+@dataclass
 class LayerRuleSetup:
     behavior: str
     access_type: str
@@ -2185,15 +2253,15 @@ fulfilled_layer_rule_test_cases_be_accessed = [
 
 
 def _add_submodule_of_layer_1_module(parameter_set: ParameterSet) -> ParameterSet:
-    id = parameter_set.id + "_submodule_and_parent_module_in_layer"
+    id = parameter_set.id + "_submodule_and_parent_module_in_layer"  # type: ignore
 
     values = deepcopy(parameter_set.values)
 
-    current_modules_in_layer_1 = values[0].layers[LAYER_1]
+    current_modules_in_layer_1 = values[0].layers[LAYER_1]  # type: ignore
 
     module_name_of_first_module = current_modules_in_layer_1[0].split(".")[1]
 
-    values[0].layers[LAYER_1] = current_modules_in_layer_1 + [
+    values[0].layers[LAYER_1] = current_modules_in_layer_1 + [  # type: ignore
         f"{current_modules_in_layer_1[0]}.{module_name_of_first_module}_importer"
     ]
 
@@ -2717,7 +2785,7 @@ layer_rule_error_messages_test_cases = (
 
 layer_rule_error_messages_regex_module_specification_test_cases = [
     pytest.param(
-        LayerRuleTestCase(
+        LayerRuleSingleModulePerLayerTestCase(
             {LAYER_1: f"{PROJECT_ROOT}\\.ut[ia]l", LAYER_2: f"{PROJECT_ROOT}\\.model"},
             layer_1_should_only_access_layer_2,
             layer_1_does_not_import_layer_2,
@@ -2725,7 +2793,7 @@ layer_rule_error_messages_regex_module_specification_test_cases = [
         id="regex_with_options_in_middle_of_word",
     ),
     pytest.param(
-        LayerRuleTestCase(
+        LayerRuleSingleModulePerLayerTestCase(
             {
                 LAYER_1: ".*_1\\.persistence",
                 LAYER_2: f"{PROJECT_ROOT}\\.(util|runtime)",
@@ -2736,7 +2804,7 @@ layer_rule_error_messages_regex_module_specification_test_cases = [
         id="regex_with_options_at_start_of_word",
     ),
     pytest.param(
-        LayerRuleTestCase(
+        LayerRuleSingleModulePerLayerTestCase(
             {
                 LAYER_1: f"{PROJECT_ROOT}\\.(imp.*|services)",
                 LAYER_2: f"{PROJECT_ROOT}\\.model",

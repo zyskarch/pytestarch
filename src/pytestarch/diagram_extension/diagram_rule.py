@@ -76,7 +76,7 @@ class DiagramRule(FileRule, BaseModuleSpecifier, RuleApplier):
 
     def assert_applies(self, evaluable: EvaluableArchitecture) -> None:
         self._assert_required_configuration_present()
-        dependencies: ParsedDependencies = PumlParser().parse(self._file_path)
+        dependencies: ParsedDependencies = PumlParser().parse(self._file_path)  # type: ignore
         dependencies_with_fully_qualified_names = self._add_base_module_path(
             dependencies
         )

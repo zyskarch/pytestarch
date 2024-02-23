@@ -6,7 +6,7 @@ import pytest
 from integration.interesting_rules_for_tests import PROJECT_ROOT
 
 from pytestarch import EvaluableArchitecture
-from pytestarch.eval_structure.evaluable_architecture import ModuleFilter
+from pytestarch.eval_structure.evaluable_architecture import ModuleNameRegexFilter
 from pytestarch.eval_structure.module_name_converter import ModuleNameConverter
 
 test_cases = [
@@ -38,7 +38,7 @@ test_cases = [
 def test_submodules_are_matched(
     regex: str, expected_matches: List[str], flat_project_1: EvaluableArchitecture
 ) -> None:
-    modules_to_convert = [ModuleFilter(name=regex, regex=True)]
+    modules_to_convert = [ModuleNameRegexFilter(name=regex)]
 
     converted_modules, _ = ModuleNameConverter.convert(
         modules_to_convert, flat_project_1
@@ -46,7 +46,8 @@ def test_submodules_are_matched(
 
     assert len(converted_modules) == len(expected_matches)
 
-    converted_modules.sort(key=lambda m: m.name)
+    converted_modules_list = list(converted_modules)
+    converted_modules_list.sort(key=lambda m: m.identifier)
 
-    for converted, expected in zip(converted_modules, expected_matches):
-        assert converted.name == expected
+    for converted, expected in zip(converted_modules_list, expected_matches):
+        assert converted.identifier == expected

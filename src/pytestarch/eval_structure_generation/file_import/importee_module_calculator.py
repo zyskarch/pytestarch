@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List, Set
+from typing import List, Sequence, Set
 
 from pytestarch.eval_structure.types import Import
 
@@ -14,7 +14,7 @@ class ImporteeModuleCalculator:
 
     def calculate_importee_modules(
         self,
-        imports: List[Import],
+        imports: Sequence[Import],
         all_modules: List[str],
     ) -> List[str]:
         """For all imported modules: Calculate parent modules and add them to the list of existing modules if they

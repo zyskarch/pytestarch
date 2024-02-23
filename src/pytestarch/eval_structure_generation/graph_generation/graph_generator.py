@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List, Optional, Sequence, Tuple
 
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.networkxgraph import NetworkxGraph, Node
@@ -50,7 +50,7 @@ def generate_graph(
 def _append_external_modules_to_module_list(
     all_modules: List[Node],
     exclude_external_libraries: bool,
-    imports: List[Import],
+    imports: Sequence[Import],
     root_path: Path,
 ) -> List[Node]:
     """External modules are not detected as modules when importing the source folder - but they will of course show up
@@ -65,8 +65,10 @@ def _append_external_modules_to_module_list(
 
 
 def _remove_excluded_imports(
-    exclude_external_libraries: bool, imports: List[Import], internal_module_prefix: str
-) -> List[Import]:
+    exclude_external_libraries: bool,
+    imports: Sequence[Import],
+    internal_module_prefix: str,
+) -> Sequence[Import]:
     import_filter = ImportFilter(exclude_external_libraries, internal_module_prefix)
     return import_filter.filter(imports)
 
@@ -102,7 +104,7 @@ def _add_extra_levels_to_limit_if_root_and_module_path_differ(
     return level_limit
 
 
-def _get_imports_from_ast(ast: List[NamedModule]) -> List[Import]:
+def _get_imports_from_ast(ast: List[NamedModule]) -> Sequence[Import]:
     converter = ImportConverter()
     return converter.convert(ast)
 

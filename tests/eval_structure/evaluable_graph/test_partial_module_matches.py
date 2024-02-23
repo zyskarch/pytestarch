@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List
+from typing import Sequence
 
 import pytest
 from eval_structure.evaluable_graph.conftest import MODULE_A, MODULE_B, MODULE_D
@@ -11,6 +11,8 @@ from pytestarch.eval_structure.evaluable_architecture import (
     EvaluableArchitecture,
     Module,
     ModuleFilter,
+    ModuleNameFilter,
+    ModuleNameRegexFilter,
 )
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.exceptions import ImpossibleMatch
@@ -47,17 +49,18 @@ def test_partial_match(match: str, expected_result: bool) -> None:
     "module_matches",
     [
         [
-            ModuleFilter(name=convert_partial_match_to_regex("*D"), regex=True),
-            ModuleFilter(name=convert_partial_match_to_regex("*A*"), regex=True),
+            ModuleNameRegexFilter(name=convert_partial_match_to_regex("*D")),
+            ModuleNameRegexFilter(name=convert_partial_match_to_regex("*A*")),
         ],
         [
-            ModuleFilter(name=".*D", regex=True),
-            ModuleFilter(name=".*A.*", regex=True),
+            ModuleNameRegexFilter(name=".*D"),
+            ModuleNameRegexFilter(name=".*A.*"),
         ],
     ],
 )
 def test_module_matches(
-    module_matches: List[ModuleFilter], submodule_evaluable: EvaluableArchitectureGraph
+    module_matches: Sequence[ModuleFilter],
+    submodule_evaluable: EvaluableArchitectureGraph,
 ) -> None:
     calculated_matches, conversion_mapping = ModuleNameConverter.convert(
         module_matches, submodule_evaluable
@@ -65,13 +68,13 @@ def test_module_matches(
 
     assert len(calculated_matches) == 3
 
-    module_a = Module(name=MODULE_A)
-    module_b = Module(name=MODULE_B)
-    module_d = Module(name=MODULE_D)
+    module_a = Module(identifier=MODULE_A)
+    module_b = Module(identifier=MODULE_B)
+    module_d = Module(identifier=MODULE_D)
 
-    module_filter_a = ModuleFilter(name=MODULE_A)
-    module_filter_b = ModuleFilter(name=MODULE_B)
-    module_filter_d = ModuleFilter(name=MODULE_D)
+    module_filter_a = ModuleNameFilter(name=MODULE_A)
+    module_filter_b = ModuleNameFilter(name=MODULE_B)
+    module_filter_d = ModuleNameFilter(name=MODULE_D)
 
     assert module_filter_a in calculated_matches
     assert module_filter_b in calculated_matches
@@ -79,14 +82,14 @@ def test_module_matches(
 
     assert len(conversion_mapping.keys()) == 2
 
-    assert conversion_mapping[module_matches[0].name] == [module_d]
-    assert conversion_mapping[module_matches[1].name] == [module_a, module_b, module_d]
+    assert conversion_mapping[module_matches[0].name] == [module_d]  # type: ignore
+    assert conversion_mapping[module_matches[1].name] == [module_a, module_b, module_d]  # type: ignore
 
 
 def test_never_matched_match_raises_error(
     evaluable: EvaluableArchitectureGraph,
 ) -> None:
-    module_matches = [ModuleFilter(name="I will not match", regex=True)]
+    module_matches = [ModuleNameRegexFilter(name="I will not match")]
     with pytest.raises(
         ImpossibleMatch, match="No modules found that match: I will not match"
     ):

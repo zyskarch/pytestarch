@@ -20,7 +20,7 @@ def simple_graph_level_1() -> EvaluableArchitecture:
 
 
 def test_nodes_as_expected(simple_graph_level_1: EvaluableArchitecture) -> None:
-    graph = simple_graph_level_1._graph
+    graph = simple_graph_level_1._graph  # type: ignore
 
     assert "resources.importer" in graph
     assert "resources.importer.sub_dir" in graph
@@ -41,14 +41,14 @@ def test_nodes_as_expected(simple_graph_level_1: EvaluableArchitecture) -> None:
 def test_edges_between_parent_and_child_modules_as_expected(
     simple_graph_level_1: EvaluableArchitecture,
 ) -> None:
-    graph = simple_graph_level_1._graph
+    graph = simple_graph_level_1._graph  # type: ignore
     assert ("resources.importer", "resources.importer.level0") in graph
 
 
 def test_edges_between_importers_and_importees_as_expected(
     simple_graph_level_1: EvaluableArchitecture,
 ) -> None:
-    graph = simple_graph_level_1._graph
+    graph = simple_graph_level_1._graph  # type: ignore
     assert ("resources.importer.level0", "itertools") in graph
     assert ("resources.importer.level0", "ast") in graph
     assert ("resources.importer.level0", "os") in graph

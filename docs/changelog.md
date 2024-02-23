@@ -2,6 +2,14 @@
 
 This project uses semantic versioning and follows [keep a changelog](https://keepachangelog.com).
 
+## [1.6.0] -- 2024-02-23
+### Added
+- Support for mypy.
+
+### Changed
+- Syntax for example rules in documentation.
+
+
 ## [1.5.1] -- 2023-11-21
 ### Removed
 - Unnecessary dependency.

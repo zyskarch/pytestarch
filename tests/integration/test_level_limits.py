@@ -4,7 +4,10 @@ import os
 from typing import Tuple
 
 import pytest
-from integration.interesting_rules_for_tests import rules_for_level_limits
+from integration.interesting_rules_for_tests import (
+    rules_for_level_limit_1,
+    rules_for_no_level_limits,
+)
 from resources.test_project import src
 from resources.test_project.src import moduleA
 from resources.test_project.src.moduleA import submoduleA1
@@ -14,7 +17,7 @@ from pytestarch.eval_structure.networkxgraph import NetworkxGraph
 
 
 @pytest.mark.parametrize(
-    "rule, expected_result, skip_with_level_limit", rules_for_level_limits
+    "rule, expected_result, skip_with_level_limit", rules_for_no_level_limits
 )
 def test_architecture_based_on_string_modules(
     rule: Rule,
@@ -26,11 +29,11 @@ def test_architecture_based_on_string_modules(
         rule.assert_applies(graph_based_on_string_module_names)
     else:
         with pytest.raises(AssertionError):
-            assert rule.assert_applies(graph_based_on_string_module_names)
+            rule.assert_applies(graph_based_on_string_module_names)
 
 
 @pytest.mark.parametrize(
-    "rule, expected_result, skip_with_level_limit", rules_for_level_limits
+    "rule, expected_result, skip_with_level_limit", rules_for_no_level_limits
 )
 def test_architecture_based_on_module_objects(
     rule: Rule,
@@ -42,7 +45,7 @@ def test_architecture_based_on_module_objects(
         rule.assert_applies(graph_based_on_string_module_names)
     else:
         with pytest.raises(AssertionError):
-            assert rule.assert_applies(graph_based_on_string_module_names)
+            rule.assert_applies(graph_based_on_string_module_names)
 
 
 def test_depending_on_module_does_not_imply_depending_on_submodule(
@@ -70,7 +73,7 @@ def test_depending_on_module_does_not_imply_depending_on_submodule(
 
 
 @pytest.mark.parametrize(
-    "rule, expected_result, skip_with_level_limit", rules_for_level_limits
+    "rule, expected_result, skip_with_level_limit", rules_for_no_level_limits
 )
 def test_identical_source_and_module_path_do_not_lead_to_errors(
     rule: Rule,
@@ -82,11 +85,11 @@ def test_identical_source_and_module_path_do_not_lead_to_errors(
         rule.assert_applies(graph_with_identical_source_and_module_path)
     else:
         with pytest.raises(AssertionError):
-            assert rule.assert_applies(graph_with_identical_source_and_module_path)
+            rule.assert_applies(graph_with_identical_source_and_module_path)
 
 
 @pytest.mark.parametrize(
-    "rule, expected_result, skip_with_level_limit", rules_for_level_limits
+    "rule, expected_result, skip_with_level_limit", rules_for_level_limit_1
 )
 def test_level_limit_flattens_dependencies_correctly(
     rule: Rule,
@@ -101,7 +104,7 @@ def test_level_limit_flattens_dependencies_correctly(
         rule.assert_applies(graph_with_level_limit_1)
     else:
         with pytest.raises(AssertionError):
-            assert rule.assert_applies(graph_with_level_limit_1)
+            rule.assert_applies(graph_with_level_limit_1)
 
 
 def test_edges_correctly_calculated_for_level_2_module_path() -> None:
@@ -115,15 +118,17 @@ def test_edges_correctly_calculated_for_level_2_module_path() -> None:
         len(
             list(
                 filter(
-                    lambda e: _not_inheritance_edge(e, level_2_graph._graph),
-                    level_2_graph._graph._graph.edges,
+                    lambda e: _not_inheritance_edge(e, level_2_graph._graph),  # type: ignore
+                    level_2_graph._graph._graph.edges,  # type: ignore
                 )
             )
         )
         == 0
     )  # no internal dependencies left
 
-    assert len(level_2_graph._graph._graph.edges) == 9  # only parent-submodule edges
+    assert (
+        len(level_2_graph._graph._graph.edges) == 9  # type: ignore
+    )  # only parent-submodule edges # type: ignore
 
 
 def _not_inheritance_edge(edge: Tuple[str, str], graph: NetworkxGraph) -> bool:
@@ -140,7 +145,7 @@ def test_edges_correctly_calculated_for_level_2_module_path_no_external_dependen
         exclude_external_libraries=False,
     )
 
-    assert len(level_2_graph._graph._graph.edges) == 23
+    assert len(level_2_graph._graph._graph.edges) == 23  # type: ignore
 
     for edge in [
         ("src", "src.moduleA"),
@@ -169,7 +174,7 @@ def test_edges_correctly_calculated_for_level_2_module_path_no_external_dependen
         ("src.moduleB.submoduleB1", "src.moduleB.submoduleB1.fileB1"),
         ("src.moduleC", "src.moduleC.fileC"),
     ]:
-        assert edge in level_2_graph._graph
+        assert edge in level_2_graph._graph  # type: ignore
 
 
 def test_edges_correctly_calculated_for_level_3_module_path() -> None:
@@ -183,14 +188,14 @@ def test_edges_correctly_calculated_for_level_3_module_path() -> None:
         len(
             list(
                 filter(
-                    lambda e: _not_inheritance_edge(e, level_3_graph._graph),
-                    level_3_graph._graph._graph.edges,
+                    lambda e: _not_inheritance_edge(e, level_3_graph._graph),  # type: ignore
+                    level_3_graph._graph._graph.edges,  # type: ignore
                 )
             )
         )
         == 0
     )  # no internal dependencies left
-    assert len(level_3_graph._graph._graph.edges) == 6
+    assert len(level_3_graph._graph._graph.edges) == 6  # type: ignore
 
 
 def test_edges_correctly_calculated_for_level_3_module_path_no_external_dependencies_modified() -> (
@@ -203,7 +208,7 @@ def test_edges_correctly_calculated_for_level_3_module_path_no_external_dependen
         exclude_external_libraries=False,
     )
 
-    assert len(level_3_graph._graph._graph.edges) == 14
+    assert len(level_3_graph._graph._graph.edges) == 14  # type: ignore
 
     for edge in [
         ("src", "src.moduleB"),
@@ -220,4 +225,4 @@ def test_edges_correctly_calculated_for_level_3_module_path_no_external_dependen
         ("src.moduleB", "src.moduleB.submoduleB1"),
         ("src.moduleB.submoduleB1", "src.moduleB.submoduleB1.fileB1"),
     ]:
-        assert edge in level_3_graph._graph
+        assert edge in level_3_graph._graph  # type: ignore

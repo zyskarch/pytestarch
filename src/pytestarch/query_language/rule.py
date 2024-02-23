@@ -1,10 +1,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Callable, List, Optional, Sequence, Tuple, Union
 
 from pytestarch import EvaluableArchitecture
-from pytestarch.eval_structure.evaluable_architecture import ModuleFilter
+from pytestarch.eval_structure.evaluable_architecture import (
+    ModuleFilter,
+    ModuleNameFilter,
+    ModuleNameRegexFilter,
+    ParentModuleNameFilter,
+)
 from pytestarch.query_language.base_language import (
     BehaviorSpecification,
     DependencySpecification,
@@ -30,13 +35,13 @@ from pytestarch.utils.partial_match_to_regex_converter import (
 
 @dataclass
 class RuleConfiguration:
-    modules_to_check: Optional[List[ModuleFilter]] = None
-    modules_to_check_against: Optional[List[ModuleFilter]] = None
+    modules_to_check: Optional[Sequence[ModuleFilter]] = None
+    modules_to_check_against: Optional[Sequence[ModuleFilter]] = None
     should: bool = False
     should_only: bool = False
     should_not: bool = False
     except_present: bool = False
-    import_: bool = None
+    import_: Optional[bool] = None
     rule_object_anything: bool = False
 
 
@@ -59,25 +64,27 @@ class Rule(
         ] = DefaultRuleMatcher,
     ) -> None:
         self._rule_matcher_class = rule_matcher_class
-        self._modules_to_check_to_be_specified_next = None
+        self._modules_to_check_to_be_specified_next: Optional[bool] = None
         self._configuration = RuleConfiguration()
 
     @property
-    def rule_subjects(self) -> Optional[List[ModuleFilter]]:
+    def rule_subjects(self) -> Optional[Sequence[ModuleFilter]]:
         return self._configuration.modules_to_check
 
     def modules_that(self) -> RuleSubject:
         self._modules_to_check_to_be_specified_next = True
         return self
 
-    def are_sub_modules_of(
+    def are_sub_modules_of(  # type: ignore
         self, modules: Union[str, List[str]]
     ) -> BehaviorSpecification:
-        self._set_modules(modules, lambda name: ModuleFilter(parent_module=name))
+        self._set_modules(
+            modules, lambda name: ParentModuleNameFilter(parent_module=name)
+        )
         return self
 
-    def are_named(self, names: Union[str, List[str]]) -> BehaviorSpecification:
-        self._set_modules(names, lambda name: ModuleFilter(name=name))
+    def are_named(self, names: Union[str, List[str]]) -> BehaviorSpecification:  # type: ignore
+        self._set_modules(names, lambda name: ModuleNameFilter(name=name))
         return self
 
     @deprecated
@@ -86,17 +93,17 @@ class Rule(
     ) -> BehaviorSpecification:
         self._set_modules(
             partial_names,
-            lambda name: ModuleFilter(
-                name=convert_partial_match_to_regex(name), regex=True
+            lambda name: ModuleNameRegexFilter(
+                name=convert_partial_match_to_regex(name)
             ),
         )
         return self
 
-    def have_name_matching(
+    def have_name_matching(  # type: ignore
         self,
         regex: str,
     ) -> BehaviorSpecification:
-        self._set_modules(regex, lambda name: ModuleFilter(name=name, regex=True))
+        self._set_modules(regex, lambda name: ModuleNameRegexFilter(name=name))
         return self
 
     def _set_modules(
@@ -123,7 +130,11 @@ class Rule(
         for module, name_is_regex in modules:
             module_names.append(module)
             module_creation_fn.append(
-                lambda name: ModuleFilter(name=name, regex=name_is_regex)
+                lambda name: (
+                    ModuleNameFilter(name=name)
+                    if not name_is_regex
+                    else ModuleNameRegexFilter(name=name)
+                )
             )
 
         self._append_modules(module_names, module_creation_fn)
@@ -139,12 +150,12 @@ class Rule(
             if self._configuration.modules_to_check is None:
                 self._configuration.modules_to_check = []
 
-            self._configuration.modules_to_check.extend(modules)
+            self._configuration.modules_to_check.extend(modules)  # type: ignore
         else:
             if self._configuration.modules_to_check_against is None:
                 self._configuration.modules_to_check_against = []
 
-            self._configuration.modules_to_check_against.extend(modules)
+            self._configuration.modules_to_check_against.extend(modules)  # type: ignore
 
     def should(self) -> DependencySpecification:
         self._configuration.should = True
@@ -199,9 +210,9 @@ class Rule(
 
     def _prepare_rule_matcher(self) -> RuleMatcher:
         module_requirement = ModuleRequirement(
-            self._configuration.modules_to_check,
-            self._configuration.modules_to_check_against,
-            self._configuration.import_,
+            self._configuration.modules_to_check,  # type: ignore
+            self._configuration.modules_to_check_against,  # type: ignore
+            self._configuration.import_,  # type: ignore
         )
         behavior_requirement = BehaviorRequirement(
             self._configuration.should,
@@ -219,19 +230,19 @@ class Rule(
 
         subject_prefix = (
             "Sub modules of "
-            if self._configuration.modules_to_check[0].parent_module is not None
+            if self._configuration.modules_to_check[0].identifier_is_parent_module  # type: ignore
             else ""
         )
         if self._configuration.rule_object_anything:
             object_message = "anything "
         else:
-            object_message = f'modules that are {"named" if self._configuration.modules_to_check_against[0].name is not None else "sub modules of"} '
+            object_message = f'modules that are {"sub modules of" if self._configuration.modules_to_check_against[0].identifier_is_parent_module else "named"} '  # type: ignore
 
         combined_rule_subjects = self._combine_names(
-            self._configuration.modules_to_check
+            self._configuration.modules_to_check  # type: ignore
         )
         combined_rule_objects = self._combine_names(
-            self._configuration.modules_to_check_against
+            self._configuration.modules_to_check_against  # type: ignore
         )
         return (
             f'{subject_prefix}"{combined_rule_subjects}" '
@@ -242,13 +253,8 @@ class Rule(
             f'"{combined_rule_objects}".'
         )
 
-    def _combine_names(self, modules: list[ModuleFilter]) -> str:
-        return ", ".join(
-            sorted(map(lambda module: self._get_module_name(module), modules))
-        )
-
-    def _get_module_name(self, module: ModuleFilter) -> str:
-        return module.name if module.name is not None else module.parent_module
+    def _combine_names(self, modules: Sequence[ModuleFilter]) -> str:
+        return ", ".join(sorted(map(lambda module: module.identifier, modules)))
 
     def _assert_required_configuration_present(self) -> None:
         behavior_missing = not any(
@@ -322,21 +328,24 @@ class Rule(
     @classmethod
     def _get_modules_to_check_without_parent_and_submodule_combinations(
         cls, configuration: RuleConfiguration
-    ) -> Optional[List[ModuleFilter]]:
+    ) -> Optional[Sequence[ModuleFilter]]:
         # if modules_to_check contain a module and its submodule, this can throw off the breadth first search conducted
         # on the dependency graph - and also, this setup does not really make sense
         if configuration.modules_to_check is None:
             return None
 
         module_names = sorted(
-            map(lambda module: module.name, configuration.modules_to_check)
+            map(lambda m: m.identifier, configuration.modules_to_check)
         )
 
         result = []
         for module in configuration.modules_to_check:
             parent_module_found = False
             for module_name in module_names:
-                if module_name in module.name and module.name != module_name:
+                if (
+                    module_name in module.identifier
+                    and module.identifier != module_name
+                ):
                     parent_module_found = True
 
             if not parent_module_found:

@@ -64,20 +64,20 @@ def any_dependency_to_module_other_than(  # noqa: C901
     # should submodules of the dependent module import each other, this does not count as a dependency
     nodes_that_do_not_fulfill_criterion = get_all_submodules_of(graph, dependent)
 
-    if dependent.parent_module is not None:
+    if dependent.identifier_is_parent_module:
         # if the parent module is set and has a dependency other than dependent upon, it should not count as only
         # the dependent and its submodules should be considered
         # Example: if we are looking for imports by A.X, we do not care if A itself imports something
         # (but we do care if A.X.M (submodule of A.X) imports something, as this is part of A.X)
-        nodes_to_exclude.add(dependent.parent_module)
+        nodes_to_exclude.add(dependent.identifier)
 
     for dependent_upon in dependent_upons:
-        if dependent_upon.parent_module is not None:
+        if dependent_upon.identifier_is_parent_module:
             # if there is a dependency to the parent module of dependent upon, this counts, as only dependencies to
             # the true submodules are excluded
             # reason: if something imports B, then it imports something that is not B.X (and B.X is a dependent_upon module)
             # (but we do not care if it imports B.X.M, as this is part of B.X)
-            nodes_to_exclude.remove(dependent_upon.parent_module)
+            nodes_to_exclude.remove(dependent_upon.identifier)
 
     nodes_to_check = list(nodes_that_do_not_fulfill_criterion)
     checked_nodes = set()
@@ -134,22 +134,20 @@ def any_other_dependency_to_module_than(  # noqa: C901
         graph, dependent_upon
     )
 
-    if dependent_upon.parent_module is not None:
+    if dependent_upon.identifier_is_parent_module:
         # if the dependent upon module is defined via a parent module, this parent module is not included in the
         # list of modules that do not fulfill the criteria - only its true submodules are
         # reason: there is a dependency from the parent module to the child module, but this is not an import
-        nodes_that_count_as_not_fulfilling_criterion.remove(
-            dependent_upon.parent_module
-        )
+        nodes_that_count_as_not_fulfilling_criterion.remove(dependent_upon.identifier)
 
     nodes_to_check = list(nodes_that_count_as_not_fulfilling_criterion)
 
     for dependent in dependents:
-        if dependent.parent_module is not None:
+        if dependent.identifier_is_parent_module:
             # if the dependent module is defined via a parent module, this parent module counts as an allowed import
             # reason: we are looking for dependencies other than module A.X. Parent module A is not (only) A.X, so it counts
             # (submodule A.X.M does not count, as it is not anything else but A.X)
-            nodes_to_exclude.remove(dependent.parent_module)
+            nodes_to_exclude.remove(dependent.identifier)
 
     checked_nodes = set()
 

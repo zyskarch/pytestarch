@@ -9,7 +9,7 @@ from pytestarch.eval_structure.evaluable_architecture import (
     Dependency,
     ExplicitlyRequestedDependenciesByBaseModules,
     Module,
-    ModuleFilter,
+    ModuleNameFilter,
     NotExplicitlyRequestedDependenciesByBaseModule,
 )
 from pytestarch.rule_assessment.rule_check.behavior_requirement import (
@@ -44,9 +44,9 @@ MODULE_NAME_1 = "M1"
 MODULE_NAME_2 = "M2"
 MODULE_NAME_3 = "M3"
 
-MODULE_FILTER_1 = ModuleFilter(MODULE_NAME_1)
-MODULE_FILTER_2 = ModuleFilter(MODULE_NAME_2)
-MODULE_FILTER_3 = ModuleFilter(MODULE_NAME_3)
+MODULE_FILTER_1 = ModuleNameFilter(MODULE_NAME_1)
+MODULE_FILTER_2 = ModuleNameFilter(MODULE_NAME_2)
+MODULE_FILTER_3 = ModuleNameFilter(MODULE_NAME_3)
 
 MODULE_1 = Module(MODULE_NAME_1)
 MODULE_2 = Module(MODULE_NAME_2)
@@ -371,6 +371,7 @@ def test_rule_violation_detection_as_expected(
         test_case.not_explicitly_requested_dependencies,
     )
 
+    assert test_case.expected_violation is not None
     assert (
         getattr(violations, test_case.expected_violation)
         == test_case.expected_violating_dependencies

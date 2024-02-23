@@ -5,7 +5,7 @@ and edges to its subclasses in a template pattern.
 from __future__ import annotations
 
 from itertools import product
-from typing import Any, List
+from typing import Any, Iterable, List, Sequence
 
 from pytestarch.eval_structure.breadth_first_searches import (
     any_dependency_to_module_other_than,
@@ -30,16 +30,16 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
 
     def get_dependencies(
         self,
-        dependents: List[ModuleFilter],
-        dependent_upons: List[ModuleFilter],
+        dependents: Iterable[ModuleFilter],
+        dependent_upons: Iterable[ModuleFilter],
     ) -> ExplicitlyRequestedDependenciesByBaseModules:
         result = {}
 
         # remove any duplicates
-        dependents = set(dependents)
-        dependent_upons = set(dependent_upons)
+        dependents_set = set(dependents)
+        dependent_upons_set = set(dependent_upons)
 
-        for dependent, dependent_upon in product(dependents, dependent_upons):
+        for dependent, dependent_upon in product(dependents_set, dependent_upons_set):
             dependency = get_dependency_between_modules(
                 self._graph, dependent, dependent_upon
             )
@@ -51,18 +51,18 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
 
     def any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         self,
-        dependents: List[ModuleFilter],
-        dependent_upons: List[ModuleFilter],
+        dependents: Sequence[ModuleFilter],
+        dependent_upons: Sequence[ModuleFilter],
     ) -> NotExplicitlyRequestedDependenciesByBaseModule:
         # remove any duplicates
-        dependents = set(dependents)
-        dependent_upons = set(dependent_upons)
+        dependents_set = set(dependents)
+        dependent_upons_set = set(dependent_upons)
 
         result = {}
 
-        for dependent in dependents:
+        for dependent in dependents_set:
             dependencies = any_dependency_to_module_other_than(
-                self._graph, dependent, dependent_upons
+                self._graph, dependent, dependent_upons_set
             )
             result[filter_to_module(dependent)] = dependencies
 
@@ -70,25 +70,25 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
 
     def any_other_dependencies_on_dependent_upons_than_from_dependents(
         self,
-        dependents: List[ModuleFilter],
-        dependent_upons: List[ModuleFilter],
+        dependents: Sequence[ModuleFilter],
+        dependent_upons: Sequence[ModuleFilter],
     ) -> NotExplicitlyRequestedDependenciesByBaseModule:
         # remove any duplicates
-        dependents = set(dependents)
-        dependent_upons = set(dependent_upons)
+        dependents_set = set(dependents)
+        dependent_upons_set = set(dependent_upons)
 
         result = {}
 
-        for dependent_upon in dependent_upons:
+        for dependent_upon in dependent_upons_set:
             dependencies = any_other_dependency_to_module_than(
-                self._graph, dependents, dependent_upon
+                self._graph, dependents_set, dependent_upon
             )
             result[filter_to_module(dependent_upon)] = dependencies
 
         return result
 
     def visualize(self, **kwargs: Any) -> None:
-        self._graph.draw(**kwargs)
+        self._graph.draw(**kwargs)  # type: ignore
 
     @property
     def modules(self) -> List[str]:

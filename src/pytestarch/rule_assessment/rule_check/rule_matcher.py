@@ -9,6 +9,7 @@ from pytestarch.eval_structure.evaluable_architecture import (
     Layer,
     LayerMapping,
     Module,
+    ModuleGroup,
     NotExplicitlyRequestedDependenciesByBaseModule,
 )
 from pytestarch.eval_structure.module_name_converter import ModuleNameConverter
@@ -254,10 +255,14 @@ class LayerRuleMatcher(RuleMatcher):
 
         result = []
         for module in modules_potentially_with_regexes:
-            if not module.regex:
-                result.append(module)
+            if not module.identifier_is_regex:
+                result.append(
+                    ModuleGroup(identifier=module.identifier)
+                    if module.identifier_is_parent_module
+                    else Module(identifier=module.identifier)
+                )
 
             else:
-                result.extend(module_name_conversion_mapping[module.name])
+                result = result + module_name_conversion_mapping[module.identifier]
 
         return result
