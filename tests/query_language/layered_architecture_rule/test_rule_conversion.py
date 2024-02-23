@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pytestarch.eval_structure.evaluable_architecture import ModuleFilter
+from pytestarch.eval_structure.evaluable_architecture import ModuleNameFilter
 from pytestarch.query_language.layered_architecture_rule import (
     LayeredArchitecture,
     LayerRule,
@@ -15,9 +15,9 @@ MODULE_5 = "Q"
 LAYER_1 = "L1"
 LAYER_2 = "L2"
 
-arch = (
+arch: LayeredArchitecture = (
     LayeredArchitecture()
-    .layer(LAYER_1)
+    .layer(LAYER_1)  # type: ignore
     .containing_modules([MODULE_1, MODULE_2])
     .layer(LAYER_2)
     .containing_modules([MODULE_3, MODULE_4, MODULE_5])
@@ -25,13 +25,13 @@ arch = (
 
 
 def test_layer_rule_subject_converted_to_layer_modules() -> None:
-    rule = LayerRule().based_on(arch).layers_that().are_named(LAYER_1)
+    rule = LayerRule().based_on(arch).layers_that().are_named(LAYER_1)  # type: ignore
 
-    rule_config = rule._rule._configuration
+    rule_config = rule._rule._configuration  # type: ignore
 
     expected_modules_to_check = [
-        ModuleFilter(name=MODULE_1, parent_module=None),
-        ModuleFilter(name=MODULE_2, parent_module=None),
+        ModuleNameFilter(name=MODULE_1),
+        ModuleNameFilter(name=MODULE_2),
     ]
 
     assert rule_config.modules_to_check == expected_modules_to_check
@@ -48,12 +48,12 @@ def test_layer_rule_object_converted_to_layer_modules() -> None:
         .are_named(LAYER_2)
     )
 
-    rule_config = rule._rule._configuration
+    rule_config = rule._rule._configuration  # type: ignore
 
     expected_modules_to_check = [
-        ModuleFilter(name=MODULE_3, parent_module=None),
-        ModuleFilter(name=MODULE_4, parent_module=None),
-        ModuleFilter(name=MODULE_5, parent_module=None),
+        ModuleNameFilter(name=MODULE_3),
+        ModuleNameFilter(name=MODULE_4),
+        ModuleNameFilter(name=MODULE_5),
     ]
 
     assert rule_config.modules_to_check_against == expected_modules_to_check
@@ -70,7 +70,7 @@ def test_should_converted_correctly() -> None:
         .are_named(LAYER_2)
     )
 
-    rule_config = rule._rule._configuration
+    rule_config = rule._rule._configuration  # type: ignore
 
     assert rule_config.should
     assert not rule_config.should_only
@@ -88,7 +88,7 @@ def test_should_not_converted_correctly() -> None:
         .are_named(LAYER_2)
     )
 
-    rule_config = rule._rule._configuration
+    rule_config = rule._rule._configuration  # type: ignore
 
     assert not rule_config.should
     assert not rule_config.should_only
@@ -106,7 +106,7 @@ def test_should_only_converted_correctly() -> None:
         .are_named(LAYER_2)
     )
 
-    rule_config = rule._rule._configuration
+    rule_config = rule._rule._configuration  # type: ignore
 
     assert not rule_config.should
     assert rule_config.should_only
@@ -124,7 +124,7 @@ def test_access_converted_correctly() -> None:
         .are_named(LAYER_2)
     )
 
-    rule_config = rule._rule._configuration
+    rule_config = rule._rule._configuration  # type: ignore
 
     assert not rule_config.except_present
     assert rule_config.import_
@@ -141,7 +141,7 @@ def test_be_accessed_converted_correctly() -> None:
         .are_named(LAYER_2)
     )
 
-    rule_config = rule._rule._configuration
+    rule_config = rule._rule._configuration  # type: ignore
 
     assert not rule_config.except_present
     assert not rule_config.import_
@@ -158,7 +158,7 @@ def test_access_except_converted_correctly() -> None:
         .are_named(LAYER_2)
     )
 
-    rule_config = rule._rule._configuration
+    rule_config = rule._rule._configuration  # type: ignore
 
     assert rule_config.except_present
     assert rule_config.import_
@@ -175,7 +175,7 @@ def test_be_accessed_except_converted_correctly() -> None:
         .are_named(LAYER_2)
     )
 
-    rule_config = rule._rule._configuration
+    rule_config = rule._rule._configuration  # type: ignore
 
     assert rule_config.except_present
     assert not rule_config.import_
@@ -191,7 +191,7 @@ def test_access_any_converted_correctly() -> None:
         .access_any_layer()
     )
 
-    rule_config = rule._rule._configuration
+    rule_config = rule._rule._configuration  # type: ignore
 
     assert not rule_config.except_present
     assert rule_config.import_
@@ -208,7 +208,7 @@ def test_be_accessed_by_any_converted_correctly() -> None:
         .be_accessed_by_any_layer()
     )
 
-    rule_config = rule._rule._configuration
+    rule_config = rule._rule._configuration  # type: ignore
 
     assert not rule_config.except_present
     assert not rule_config.import_

@@ -26,9 +26,9 @@ class FileFilter:
 
     def is_excluded(self, path: Path) -> bool:
         """Returns True if the path matches one of the pre-configured exclusion patterns."""
-        path = str(path)
+        path_as_str = str(path)
 
         return any(
-            re.match(pattern, path) is not None
+            re.match(pattern, path_as_str) is not None
             for pattern in self._excluded_directories
         )

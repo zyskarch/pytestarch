@@ -1699,6 +1699,13 @@ class LayerRuleTestCase:
 
 
 @dataclass
+class LayerRuleSingleModulePerLayerTestCase:
+    layers: Dict[str, str]
+    rule_setup: LayerRuleSetup
+    expected_error_message: Optional[str] = None
+
+
+@dataclass
 class LayerRuleSetup:
     behavior: str
     access_type: str
@@ -2185,15 +2192,15 @@ fulfilled_layer_rule_test_cases_be_accessed = [
 
 
 def _add_submodule_of_layer_1_module(parameter_set: ParameterSet) -> ParameterSet:
-    id = parameter_set.id + "_submodule_and_parent_module_in_layer"
+    id = parameter_set.id + "_submodule_and_parent_module_in_layer"  # type: ignore
 
     values = deepcopy(parameter_set.values)
 
-    current_modules_in_layer_1 = values[0].layers[LAYER_1]
+    current_modules_in_layer_1 = values[0].layers[LAYER_1]  # type: ignore
 
     module_name_of_first_module = current_modules_in_layer_1[0].split(".")[1]
 
-    values[0].layers[LAYER_1] = current_modules_in_layer_1 + [
+    values[0].layers[LAYER_1] = current_modules_in_layer_1 + [  # type: ignore
         f"{current_modules_in_layer_1[0]}.{module_name_of_first_module}_importer"
     ]
 
@@ -2717,7 +2724,7 @@ layer_rule_error_messages_test_cases = (
 
 layer_rule_error_messages_regex_module_specification_test_cases = [
     pytest.param(
-        LayerRuleTestCase(
+        LayerRuleSingleModulePerLayerTestCase(
             {LAYER_1: f"{PROJECT_ROOT}\\.ut[ia]l", LAYER_2: f"{PROJECT_ROOT}\\.model"},
             layer_1_should_only_access_layer_2,
             layer_1_does_not_import_layer_2,
@@ -2725,7 +2732,7 @@ layer_rule_error_messages_regex_module_specification_test_cases = [
         id="regex_with_options_in_middle_of_word",
     ),
     pytest.param(
-        LayerRuleTestCase(
+        LayerRuleSingleModulePerLayerTestCase(
             {
                 LAYER_1: ".*_1\\.persistence",
                 LAYER_2: f"{PROJECT_ROOT}\\.(util|runtime)",
@@ -2736,7 +2743,7 @@ layer_rule_error_messages_regex_module_specification_test_cases = [
         id="regex_with_options_at_start_of_word",
     ),
     pytest.param(
-        LayerRuleTestCase(
+        LayerRuleSingleModulePerLayerTestCase(
             {
                 LAYER_1: f"{PROJECT_ROOT}\\.(imp.*|services)",
                 LAYER_2: f"{PROJECT_ROOT}\\.model",

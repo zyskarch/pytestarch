@@ -63,6 +63,8 @@ class Parser:
                 module_name,
             )
 
+        return None
+
     def _get_module_name(self, path: Path) -> str:
         """Determine full name of module, such as A.B.C"""
         module_path = path.relative_to(self._source_root)

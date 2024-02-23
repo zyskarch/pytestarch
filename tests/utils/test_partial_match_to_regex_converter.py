@@ -52,4 +52,4 @@ def test_partial_match_and_regex_are_equivalent(
     if match_result is None:
         assert regex_result is None
     else:
-        assert match_result.span() == regex_result.span() == (0, 24)
+        assert match_result.span() == regex_result.span() == (0, 24)  # type: ignore

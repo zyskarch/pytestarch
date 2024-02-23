@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List
+from typing import Sequence
 
 from pytestarch.eval_structure.types import Import
 
@@ -20,7 +20,7 @@ class ImportFilter:
         self._exclude_external_libraries = exclude_external_libraries
         self._root_module_name = root_module_name
 
-    def filter(self, imports: List[Import]) -> List[Import]:
+    def filter(self, imports: Sequence[Import]) -> Sequence[Import]:
         """According to the configuration, imports will be filtered.
 
         Args:

@@ -6,7 +6,7 @@ from query_language.rule.conftest import MODULE_1, MODULE_2
 from pytestarch import Rule
 from pytestarch.eval_structure.evaluable_architecture import (
     EvaluableArchitecture,
-    ModuleFilter,
+    ModuleNameFilter,
 )
 from pytestarch.query_language.exceptions import ImproperlyConfigured
 from pytestarch.query_language.rule import RuleConfiguration
@@ -32,9 +32,10 @@ def test_sub_modules_identification() -> None:
 
     rule.modules_that().are_sub_modules_of("A name")
 
+    assert rule.rule_subjects is not None
     assert len(rule.rule_subjects) == 1
-    assert rule.rule_subjects[0].name is None
-    assert rule.rule_subjects[0].parent_module == "A name"
+    assert rule.rule_subjects[0].identifier_is_parent_module
+    assert rule.rule_subjects[0].identifier == "A name"
 
 
 def test_module_name_identification() -> None:
@@ -42,9 +43,10 @@ def test_module_name_identification() -> None:
 
     rule.modules_that().are_named("A name")
 
+    assert rule.rule_subjects is not None
     assert len(rule.rule_subjects) == 1
-    assert rule.rule_subjects[0].name == "A name"
-    assert rule.rule_subjects[0].parent_module is None
+    assert rule.rule_subjects[0].identifier == "A name"
+    assert not rule.rule_subjects[0].identifier_is_parent_module
 
 
 def test_partially_configured_rule_raises_error(
@@ -111,7 +113,7 @@ def assert_rule_does_not_apply(rule: Rule, evaluable: EvaluableArchitecture) -> 
 
 def test_only_submodules_are_filtered_out() -> None:
     module_names = ["X.a", "X.b", "X.a.a", "X.a.b", "Y"]
-    modules = [ModuleFilter(name=name) for name in module_names]
+    modules = [ModuleNameFilter(name=name) for name in module_names]
 
     rule_configuration = RuleConfiguration(modules_to_check=modules)
 
@@ -121,7 +123,7 @@ def test_only_submodules_are_filtered_out() -> None:
         )
     )
 
-    assert list(map(lambda module: module.name, modules_without_submodules)) == [
+    assert list(map(lambda module: module.identifier, modules_without_submodules)) == [  # type: ignore
         "X.a",
         "X.b",
         "Y",

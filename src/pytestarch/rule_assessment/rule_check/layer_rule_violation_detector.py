@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, DefaultDict, Dict, List, Optional, Set, Tuple
 
 from pytestarch.eval_structure.evaluable_architecture import (
     Dependency,
@@ -249,8 +249,10 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
     def _group_explicitly_requested_dependencies_by_layers(
         self,
         explicitly_requested_dependencies: ExplicitlyRequestedDependenciesByBaseModules,
-    ) -> Dict[Layer, ExplicitlyRequestedDependenciesByBaseModules]:
-        result = defaultdict(dict)
+    ) -> DefaultDict[Layer, ExplicitlyRequestedDependenciesByBaseModules]:
+        result: DefaultDict[Layer, ExplicitlyRequestedDependenciesByBaseModules] = (
+            defaultdict(dict)
+        )
 
         for (
             abstract_dependency,
@@ -272,7 +274,9 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
         return dependency[0]
 
     def _get_layer_for_module(self, module: Module) -> Layer:
-        return self._layer_to_module_mapping.get_layer_for_module_name(module.name)
+        return self._layer_to_module_mapping.get_layer_for_module_name(  # type: ignore
+            module.identifier
+        )
 
     def _get_realised_dependencies(
         self, explicitly_requested_dependencies: Dict[Any, List[Dependency]]
@@ -286,11 +290,11 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
         for dependency in violating_dependencies:
             rule_subject_layer = (
                 self._layer_to_module_mapping.get_layer_for_module_name(
-                    dependency[0].name
+                    dependency[0].identifier
                 )
             )
             rule_object_layer = self._layer_to_module_mapping.get_layer_for_module_name(
-                dependency[1].name
+                dependency[1].identifier
             )
 
             if rule_subject_layer != rule_object_layer:

@@ -75,9 +75,9 @@ class PumlParser(DiagramParser):
         modules = self._retrieve_modules_declared_outside_dependencies(relevant_content)
         dependencies = self._retrieve_dependencies_and_inline_modules(relevant_content)
 
-        modules, dependencies = self._unify(modules, dependencies)
+        module_names, dependencies = self._unify(modules, dependencies)
 
-        return ParsedDependencies(modules, dependencies)
+        return ParsedDependencies(module_names, dependencies)
 
     @classmethod
     def _remove_content_outside_start_and_end_tags(cls, content: str) -> str:

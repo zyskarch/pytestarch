@@ -51,22 +51,22 @@ def get_evaluable_architecture(
         )
 
     if exclusions:
-        regex_exclusions = [
+        regex_exclusions = tuple(
             convert_partial_match_to_regex(pattern) for pattern in exclusions
-        ]
+        )
 
-    root_path = Path(root_path)
-    module_path = Path(module_path)
+    root_as_path = Path(root_path)
+    module_as_path = Path(module_path)
 
-    path_diff_between_root_and_module = str(module_path.relative_to(root_path)).replace(
-        os.sep, "."
-    )
+    path_diff_between_root_and_module = str(
+        module_as_path.relative_to(root_as_path)
+    ).replace(os.sep, ".")
 
     return generate_graph(
-        root_path,
-        module_path,
+        root_as_path,
+        module_as_path,
         path_diff_between_root_and_module,
-        regex_exclusions,
+        regex_exclusions,  # type: ignore
         exclude_external_libraries,
         level_limit,
     )
@@ -83,8 +83,8 @@ def get_evaluable_architecture_for_module_objects(
     """Same functionality as get_evaluable_architecture, but root module and module to evaluate are passed in as module objects
     instead of the absolute paths to them.
     """
-    root_path = os.path.dirname(root_module.__file__)
-    module_path = os.path.dirname(module.__file__)
+    root_path: str = os.path.dirname(root_module.__file__)  # type: ignore
+    module_path: str = os.path.dirname(module.__file__)  # type: ignore
 
     return get_evaluable_architecture(
         root_path,

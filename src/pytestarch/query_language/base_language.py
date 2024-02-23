@@ -179,7 +179,7 @@ class LayerDefinition(ABC):
     @abstractmethod
     def containing_modules(
         self, modules: Union[str, List[str]]
-    ) -> Union[LayerName, BaseLayeredArchitecture]:
+    ) -> BaseLayeredArchitecture:
         """If a module is defined as belonging to layer X, then its submodules are also assumed to be part of layer X."""
         pass
 
@@ -187,7 +187,7 @@ class LayerDefinition(ABC):
     def have_modules_with_names_matching(
         self,
         regex: str,
-    ) -> Union[LayerName, BaseLayeredArchitecture]:
+    ) -> BaseLayeredArchitecture:
         """If a module is defined as belonging to layer X, then its submodules are also assumed to be part of layer X.
         Note that no attempt will be made to ensure that the regex patterns for different layers are mutually exclusive.
         Also note that regex expressions can have unexpected results if predicates apply to modules, but not their submodules.
@@ -205,7 +205,11 @@ class LayerName(ABC):
 
 
 class BaseLayeredArchitecture(ABC):
-    pass
+
+    @abstractmethod
+    def with_layer(self) -> LayerName:
+        """This is simply a convenience method to achieve proper typing. It can be omitted."""
+        pass
 
 
 class AccessSpecification(RelationshipSpecification, ABC):
@@ -274,9 +278,12 @@ class LayerBase(ABC):
         pass
 
 
-class LayerRuleBase(ABC):
+X = TypeVar("X", bound=BaseLayeredArchitecture)
+
+
+class LayerRuleBase(Generic[X]):
     """Entry point to defining a rule based on a layered architecture."""
 
     @abstractmethod
-    def based_on(self, architecture: BaseLayeredArchitecture) -> LayerBase:
+    def based_on(self, architecture: X) -> LayerBase:
         pass

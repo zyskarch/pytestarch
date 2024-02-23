@@ -25,8 +25,9 @@ from eval_structure.evaluable_graph.conftest import (
 from pytestarch import EvaluableArchitecture
 from pytestarch.eval_structure.evaluable_architecture import (
     Module,
-    ModuleFilter,
     ModuleGroup,
+    ModuleNameFilter,
+    ParentModuleNameFilter,
 )
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.networkxgraph import NetworkxGraph
@@ -316,7 +317,7 @@ def test_depends_on(evaluable: EvaluableArchitecture) -> None:
         [MODULE_FILTER_OBJECT_2], [MODULE_FILTER_OBJECT_4]
     )[(MODULE_OBJECT_2, MODULE_OBJECT_4)]
     assert not evaluable.get_dependencies(
-        [MODULE_FILTER_OBJECT_2], [ModuleFilter(name=SUB_MODULE_OF_2)]
+        [MODULE_FILTER_OBJECT_2], [ModuleNameFilter(name=SUB_MODULE_OF_2)]
     )[(MODULE_OBJECT_2, SUB_MODULE_OBJECT_2)]
 
     assert not evaluable.get_dependencies(
@@ -401,11 +402,11 @@ def test_is_dependent_between_named_modules(imports: List[AbsoluteImport]) -> No
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
 
-    module_filter_1 = ModuleFilter(name=MODULE_1)
-    module_filter_2 = ModuleFilter(name=MODULE_2)
+    module_filter_1 = ModuleNameFilter(name=MODULE_1)
+    module_filter_2 = ModuleNameFilter(name=MODULE_2)
 
-    module_1 = Module(name=MODULE_1)
-    module_2 = Module(name=MODULE_2)
+    module_1 = Module(identifier=MODULE_1)
+    module_2 = Module(identifier=MODULE_2)
 
     assert architecture.get_dependencies([module_filter_1], [module_filter_2])[
         (module_1, module_2)
@@ -425,11 +426,11 @@ def test_is_dependent_between_named_and_submodule_modules(
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
 
-    module_filter_1 = ModuleFilter(name=MODULE_1)
-    module_filter_2 = ModuleFilter(parent_module=MODULE_2)
+    module_filter_1 = ModuleNameFilter(name=MODULE_1)
+    module_filter_2 = ParentModuleNameFilter(parent_module=MODULE_2)
 
-    module_1 = Module(name=MODULE_1)
-    module_2 = ModuleGroup(name=MODULE_2)
+    module_1 = Module(identifier=MODULE_1)
+    module_2 = ModuleGroup(identifier=MODULE_2)
 
     assert architecture.get_dependencies([module_filter_1], [module_filter_2])[
         (module_1, module_2)
@@ -449,11 +450,11 @@ def test_is_dependent_between_submodule_and_named_modules(
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
 
-    module_filter_1 = ModuleFilter(parent_module=MODULE_1)
-    module_filter_2 = ModuleFilter(name=MODULE_2)
+    module_filter_1 = ParentModuleNameFilter(parent_module=MODULE_1)
+    module_filter_2 = ModuleNameFilter(name=MODULE_2)
 
-    module_1 = ModuleGroup(name=MODULE_1)
-    module_2 = Module(name=MODULE_2)
+    module_1 = ModuleGroup(identifier=MODULE_1)
+    module_2 = Module(identifier=MODULE_2)
 
     assert architecture.get_dependencies([module_filter_1], [module_filter_2])[
         (module_1, module_2)
@@ -470,11 +471,11 @@ def test_is_dependent_between_submodule_modules(imports: List[AbsoluteImport]) -
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
 
-    module_filter_1 = ModuleFilter(parent_module=MODULE_1)
-    module_filter_2 = ModuleFilter(parent_module=MODULE_2)
+    module_filter_1 = ParentModuleNameFilter(parent_module=MODULE_1)
+    module_filter_2 = ParentModuleNameFilter(parent_module=MODULE_2)
 
-    module_1 = ModuleGroup(name=MODULE_1)
-    module_2 = ModuleGroup(name=MODULE_2)
+    module_1 = ModuleGroup(identifier=MODULE_1)
+    module_2 = ModuleGroup(identifier=MODULE_2)
 
     assert architecture.get_dependencies([module_filter_1], [module_filter_2])[
         (module_1, module_2)
@@ -492,11 +493,11 @@ def test_is_not_dependent_between_named_modules(imports: List[AbsoluteImport]) -
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
 
-    module_filter_1 = ModuleFilter(name=MODULE_1)
-    module_filter_2 = ModuleFilter(name=MODULE_2)
+    module_filter_1 = ModuleNameFilter(name=MODULE_1)
+    module_filter_2 = ModuleNameFilter(name=MODULE_2)
 
-    module_1 = Module(name=MODULE_1)
-    module_2 = Module(name=MODULE_2)
+    module_1 = Module(identifier=MODULE_1)
+    module_2 = Module(identifier=MODULE_2)
 
     assert not architecture.get_dependencies([module_filter_1], [module_filter_2])[
         (module_1, module_2)
@@ -516,11 +517,11 @@ def test_is_not_dependent_between_named_and_submodule_modules(
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
 
-    module_filter_1 = ModuleFilter(name=MODULE_1)
-    module_filter_2 = ModuleFilter(parent_module=MODULE_2)
+    module_filter_1 = ModuleNameFilter(name=MODULE_1)
+    module_filter_2 = ParentModuleNameFilter(parent_module=MODULE_2)
 
-    module_1 = Module(name=MODULE_1)
-    module_2 = ModuleGroup(name=MODULE_2)
+    module_1 = Module(identifier=MODULE_1)
+    module_2 = ModuleGroup(identifier=MODULE_2)
     assert not architecture.get_dependencies([module_filter_1], [module_filter_2])[
         (module_1, module_2)
     ]
@@ -539,11 +540,11 @@ def test_is_not_dependent_between_submodule_and_named_modules(
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
 
-    module_filter_1 = ModuleFilter(parent_module=MODULE_1)
-    module_filter_2 = ModuleFilter(name=MODULE_2)
+    module_filter_1 = ParentModuleNameFilter(parent_module=MODULE_1)
+    module_filter_2 = ModuleNameFilter(name=MODULE_2)
 
-    module_1 = ModuleGroup(name=MODULE_1)
-    module_2 = Module(name=MODULE_2)
+    module_1 = ModuleGroup(identifier=MODULE_1)
+    module_2 = Module(identifier=MODULE_2)
 
     assert not architecture.get_dependencies([module_filter_1], [module_filter_2])[
         (module_1, module_2)
@@ -564,11 +565,11 @@ def test_is_not_dependent_between_submodule_modules(
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
 
-    module_filter_1 = ModuleFilter(parent_module=MODULE_1)
-    module_filter_2 = ModuleFilter(parent_module=MODULE_2)
+    module_filter_1 = ParentModuleNameFilter(parent_module=MODULE_1)
+    module_filter_2 = ParentModuleNameFilter(parent_module=MODULE_2)
 
-    module_1 = ModuleGroup(name=MODULE_1)
-    module_2 = ModuleGroup(name=MODULE_2)
+    module_1 = ModuleGroup(identifier=MODULE_1)
+    module_2 = ModuleGroup(identifier=MODULE_2)
 
     assert not architecture.get_dependencies([module_filter_1], [module_filter_2])[
         (module_1, module_2)

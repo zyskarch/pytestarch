@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import networkx as nx
 from networkx import draw_networkx, has_path, spring_layout
@@ -34,7 +34,7 @@ class NetworkxGraph(AbstractGraph):
     def __init__(
         self,
         all_modules: List[Node],
-        imports: List[Import],
+        imports: Sequence[Import],
         level_limit: Optional[int] = None,
     ) -> None:
         """

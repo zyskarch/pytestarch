@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Sequence, Tuple
 
 import pytest
 
@@ -30,9 +30,11 @@ def modules_and_ast(
     return Parser(
         FileFilter(
             Config(
-                map(
-                    lambda s: convert_partial_match_to_regex(s),
-                    ("*__pycache__", "*__init__"),
+                tuple(
+                    map(
+                        lambda s: convert_partial_match_to_regex(s),
+                        ("*__pycache__", "*__init__"),
+                    )
                 )
             )
         ),
@@ -41,7 +43,7 @@ def modules_and_ast(
 
 
 @pytest.fixture(scope="module")
-def imports(modules_and_ast: Tuple[List[str], List[NamedModule]]) -> List[Import]:
+def imports(modules_and_ast: Tuple[List[str], List[NamedModule]]) -> Sequence[Import]:
     return ImportConverter().convert(modules_and_ast[1])
 
 
