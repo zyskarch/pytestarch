@@ -112,10 +112,10 @@ test_cases = [
         # src.moduleC and src.moduleA
         Rule()
         .modules_that()
-        .have_name_containing("*moduleC")
+        .have_name_matching(".*moduleC$")
         .should()
         .import_modules_that()
-        .have_name_containing("*moduleA"),
+        .have_name_matching(".*moduleA$"),
         f'"{C}" does not import "{A}".',
         id="partial_match_single_match",
     ),

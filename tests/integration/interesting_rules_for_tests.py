@@ -1652,7 +1652,7 @@ partial_name_match_test_cases = [
     pytest.param(
         Rule()
         .modules_that()
-        .have_name_containing("*moduleC*")
+        .have_name_matching(".*moduleC.*")
         .should()
         .import_modules_that()
         .are_sub_modules_of([A, B]),
@@ -1665,14 +1665,14 @@ partial_name_match_test_cases = [
         .are_sub_modules_of(A)
         .should_only()
         .import_modules_that()
-        .have_name_containing("*leB*"),
+        .have_name_matching(".*leB.*"),
         True,
         id="submodule should only import named - partial name match object",
     ),
     pytest.param(
         Rule()
         .modules_that()
-        .have_name_containing("*moduleB")
+        .have_name_matching(".*moduleB$")
         .should_not()
         .import_modules_that()
         .are_named([A, C]),
@@ -1682,7 +1682,7 @@ partial_name_match_test_cases = [
     pytest.param(
         Rule()
         .modules_that()
-        .have_name_containing("src.moduleA*")
+        .have_name_matching("src.moduleA.*")
         .should_only()
         .import_modules_except_modules_that()
         .are_sub_modules_of([C, B]),
@@ -1695,14 +1695,14 @@ partial_name_match_test_cases = [
         .are_sub_modules_of(C)
         .should_only()
         .import_modules_except_modules_that()
-        .have_name_containing("*moduleB*"),
+        .have_name_matching(".*moduleB.*"),
         True,
         id="submodule should only import except named - no import - partial name match object",
     ),
     pytest.param(
         Rule()
         .modules_that()
-        .have_name_containing("*duleA*")
+        .have_name_matching(".*duleA.*")
         .should_not()
         .import_modules_except_modules_that()
         .are_named([B, FILE_B2]),
@@ -1712,7 +1712,7 @@ partial_name_match_test_cases = [
     pytest.param(
         Rule()
         .modules_that()
-        .have_name_containing("*moduleA*")
+        .have_name_matching(".*moduleA.*")
         .should()
         .be_imported_by_modules_that()
         .are_sub_modules_of([C, FILE_C]),
@@ -1725,14 +1725,14 @@ partial_name_match_test_cases = [
         .are_sub_modules_of(C)
         .should_only()
         .be_imported_by_modules_that()
-        .have_name_containing(["*leB"]),
+        .have_name_matching(".*leB$"),
         True,
         id="submodule should only be imported by named - partial name match object",
     ),
     pytest.param(
         Rule()
         .modules_that()
-        .have_name_containing("*moduleC*")
+        .have_name_matching(".*moduleC.*")
         .should_not()
         .be_imported_by_modules_that()
         .are_named([A, FILE_A2]),
@@ -1745,7 +1745,7 @@ partial_name_match_test_cases = [
         .are_sub_modules_of(A11)
         .should_only()
         .be_imported_by_modules_except_modules_that()
-        .have_name_containing(["*fileB2"]),
+        .have_name_matching(".*fileB2$"),
         True,
         id="submodule should only be imported by except named - forbidden import - partial name match object",
     ),
