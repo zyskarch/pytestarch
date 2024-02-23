@@ -4,6 +4,7 @@ theme:
   name: "material"
 
 plugins:
+  - search
   - mkdocstrings:
       handlers:
         python:
@@ -11,10 +12,10 @@ plugins:
             show_source: false
             show_root_heading: true
             show_root_full_path: false
-      extra:
-        version:
-          provider: mike
-  - search
+extra:
+  version:
+    provider: mike
+
 
 nav:
   - Home: 'index.md'
