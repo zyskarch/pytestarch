@@ -2,6 +2,11 @@
 
 This project uses semantic versioning and follows [keep a changelog](https://keepachangelog.com).
 
+## [2.0.1] -- 2024-03-14
+### Fixed
+- Readme description on module name references.
+
+
 ## [2.0.0] -- 2024-02-23
 ### Changed
 - Matplotlib is no longer installed by default, as it is not required for the core functionality.

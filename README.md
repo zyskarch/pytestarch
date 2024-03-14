@@ -29,15 +29,15 @@ from pytestarch import Rule
 rule = (
     Rule() 
     .modules_that() 
-    .are_named("src.moduleB") 
+    .are_named("project.src.moduleB") 
     .should_not() 
     .be_imported_by_modules_that() 
-    .are_sub_modules_of("src.moduleA") 
+    .are_sub_modules_of("project.src.moduleA") 
 )
 ```
 
-This rule represents the architectural requirements that a module named "src.moduleB" should not be imported by any module
-that is a submodule of "src.moduleA", excluding "src.moduleA" itself.
+This rule represents the architectural requirements that a module named "project.src.moduleB" should not be imported by any module
+that is a submodule of "project.src.moduleA", excluding "project.src.moduleA" itself.
 
 3) Evaluate your code against this rule
 
