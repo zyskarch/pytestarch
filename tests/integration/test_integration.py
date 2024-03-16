@@ -89,13 +89,14 @@ def test_root_module_match_handled_as_expected() -> None:
     rule = (
         Rule()
         .modules_that()
-        .are_named("app.red.red")
+        .are_named("app.red")
         .should_not()
         .be_imported_by_modules_that()
         .are_sub_modules_of("app.green")
     )
 
     with pytest.raises(
-        AssertionError, match='"app.red.red" is imported by "app.green.green"'
+        AssertionError,
+        match='"app.red.red" is imported by "app.green.green".\n"app.red.red2" is imported by "app.green.green".\n"app.red.red3" is imported by "app.green.green".',
     ):
         rule.assert_applies(evaluable)
