@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List, Optional, Sequence, Tuple
+from typing import List, Optional, Sequence, Set, Tuple
 
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.networkxgraph import NetworkxGraph, Node
@@ -31,10 +31,16 @@ def generate_graph(
     )
 
     all_modules, ast = _get_all_ast_modules(module_path, root_path, exclusions)
-    imports = _get_imports_from_ast(ast)
 
     internal_module_prefix = _get_internal_module_prefix(
         path_diff_between_root_and_module, root_path
+    )
+
+    imports = _get_imports_from_ast(
+        ast,
+        _actual_difference_between_root_and_module(path_diff_between_root_and_module),
+        root_path.name,
+        _get_all_internal_modules(all_modules, internal_module_prefix),
     )
 
     imports = _remove_excluded_imports(
@@ -78,14 +84,20 @@ def _get_internal_module_prefix(
 ) -> str:
     """In general, all internal modules should start with the root module name to be able to differentiate between
     internal and external modules. If the root and base module differ, the modules between them also need to be taken
-    into account, as not root.a.b modules are external, but root.a.b.base are internal.
+    into account, as not-root.a.b-modules are external, but root.a.b.base-modules are internal.
     """
     internal_module_prefix = root_path.name + "."
 
-    if path_diff_between_root_and_module != ".":
+    if _actual_difference_between_root_and_module(path_diff_between_root_and_module):
         internal_module_prefix += path_diff_between_root_and_module
 
     return internal_module_prefix
+
+
+def _actual_difference_between_root_and_module(
+    path_diff_between_root_and_module: str,
+) -> bool:
+    return path_diff_between_root_and_module != "."
 
 
 def _add_extra_levels_to_limit_if_root_and_module_path_differ(
@@ -97,16 +109,23 @@ def _add_extra_levels_to_limit_if_root_and_module_path_differ(
     if level_limit is None:
         return None
 
-    if path_diff_between_root_and_module != ".":
+    if _actual_difference_between_root_and_module(path_diff_between_root_and_module):
         levels = len(path_diff_between_root_and_module.split("."))
         level_limit += levels
 
     return level_limit
 
 
-def _get_imports_from_ast(ast: List[NamedModule]) -> Sequence[Import]:
+def _get_imports_from_ast(
+    ast: List[NamedModule],
+    root_prefix_relevant: bool,
+    root_prefix: str,
+    all_internal_modules: Set[str],
+) -> Sequence[Import]:
     converter = ImportConverter()
-    return converter.convert(ast)
+    return converter.convert(
+        ast, root_prefix_relevant, root_prefix, all_internal_modules
+    )
 
 
 def _get_all_ast_modules(
@@ -118,3 +137,9 @@ def _get_all_ast_modules(
     parser = Parser(file_filter, root_path)
     all_modules, ast = parser.parse(module_path)
     return all_modules, ast
+
+
+def _get_all_internal_modules(
+    modules: List[str], internal_module_prefix: str
+) -> Set[str]:
+    return {m for m in modules if m.startswith(internal_module_prefix)}

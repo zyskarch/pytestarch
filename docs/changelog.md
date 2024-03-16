@@ -2,6 +2,10 @@
 
 This project uses semantic versioning and follows [keep a changelog](https://keepachangelog.com).
 
+## [2.0.2] -- 2024-03-16
+### Fixed
+- Module resolution for absolute imports when root and module path differ.
+
 ## [2.0.1] -- 2024-03-14
 ### Fixed
 - Readme description on module name references.

@@ -44,7 +44,7 @@ def modules_and_ast(
 
 @pytest.fixture(scope="module")
 def imports(modules_and_ast: Tuple[List[str], List[NamedModule]]) -> Sequence[Import]:
-    return ImportConverter().convert(modules_and_ast[1])
+    return ImportConverter().convert(modules_and_ast[1], False, "", set())
 
 
 @pytest.fixture(scope="module")
