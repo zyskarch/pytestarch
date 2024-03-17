@@ -17,15 +17,16 @@ class ImportConverter:
     def convert(
         self,
         asts: List[NamedModule],
-        root_prefix_relevant: bool,
-        root_prefix: str,
-        all_modules: Set[str],
+        absolute_import_prefix: str,
+        internal_modules: Set[str],
     ) -> Sequence[Import]:
         """Converts ast modules to custom import modules. Filters out all modules
         that are not imports.
 
         Args:
             asts: list of ast modules
+            absolute_import_prefix: prefix for modules imported via absolute import
+            internal_modules: set of all internal modules
         Returns:
             list of import objects
         """
@@ -45,9 +46,8 @@ class ImportConverter:
                 new_imports = self._convert(
                     module.module,
                     module.name,
-                    root_prefix_relevant,
-                    root_prefix,
-                    all_modules,
+                    absolute_import_prefix,
+                    internal_modules,
                 )
 
                 if new_imports:
@@ -59,8 +59,7 @@ class ImportConverter:
         self,
         module: ast.Module,
         module_name: str,
-        root_prefix_relevant: bool,
-        root_prefix: str,
+        absolute_import_prefix: str,
         all_internal_modules: Set[str],
     ) -> Optional[Sequence[Import]]:
         """Calculates all imports of the given ast module.
@@ -68,6 +67,8 @@ class ImportConverter:
         Args:
             module: module to convert
             module_name: name of the module
+            absolute_import_prefix: prefix for modules imported via absolute import
+            internal_modules: set of all internal modules
 
         Returns:
             list of calculated import objects
@@ -77,10 +78,10 @@ class ImportConverter:
         if isinstance(module, ast.Import):
             new_imports = []
             for alias in module.names:
-                new_imports.append(AbsoluteImport(module_name, self._adjust_with_root_prefix(alias.name, root_prefix_relevant, root_prefix, all_internal_modules)))  # type: ignore
+                new_imports.append(AbsoluteImport(module_name, self._adjust_with_root_prefix(alias.name, absolute_import_prefix, all_internal_modules)))  # type: ignore
         elif isinstance(module, ast.ImportFrom):
             if module.level == 0:
-                new_imports = [AbsoluteImport(module_name, self._adjust_with_root_prefix(module.module, root_prefix_relevant, root_prefix, all_internal_modules))]  # type: ignore
+                new_imports = [AbsoluteImport(module_name, self._adjust_with_root_prefix(module.module, absolute_import_prefix, all_internal_modules))]  # type: ignore
             else:
                 new_imports = []
                 for alias in module.names:
@@ -96,8 +97,7 @@ class ImportConverter:
     def _adjust_with_root_prefix(
         cls,
         module_name: str,
-        root_prefix_relevant: bool,
-        root_prefix: str,
+        absolute_import_prefix: str,
         all_internal_modules: Set[str],
     ) -> str:
         """If the user specifies a module import start point that is not the root path, the ast module names will not contain
@@ -107,10 +107,7 @@ class ImportConverter:
 
         Only absolute imports are affected by this, as the relative imports are resolved internally anyway.
         """
-        if not root_prefix_relevant:
-            return module_name
-
-        potential_full_name = f"{root_prefix}.{module_name}"
+        potential_full_name = f"{absolute_import_prefix}.{module_name}"
 
         if potential_full_name in all_internal_modules:
             return potential_full_name

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import List, Optional, Sequence, Set, Tuple
 
@@ -15,6 +16,17 @@ from pytestarch.eval_structure_generation.file_import.importee_module_calculator
     ImporteeModuleCalculator,
 )
 from pytestarch.eval_structure_generation.file_import.parser import Parser
+
+
+def _get_absolute_import_prefix(
+    path_diff_between_root_and_module: str, root_path: Path, module_path: Path
+) -> str:
+    if not _actual_difference_between_root_and_module(
+        path_diff_between_root_and_module
+    ):
+        return ""
+
+    return str(module_path.parent.relative_to(root_path.parent)).replace(os.sep, ".")
 
 
 def generate_graph(
@@ -38,8 +50,9 @@ def generate_graph(
 
     imports = _get_imports_from_ast(
         ast,
-        _actual_difference_between_root_and_module(path_diff_between_root_and_module),
-        root_path.name,
+        _get_absolute_import_prefix(
+            path_diff_between_root_and_module, root_path, module_path
+        ),
         _get_all_internal_modules(all_modules, internal_module_prefix),
     )
 
@@ -118,14 +131,11 @@ def _add_extra_levels_to_limit_if_root_and_module_path_differ(
 
 def _get_imports_from_ast(
     ast: List[NamedModule],
-    root_prefix_relevant: bool,
-    root_prefix: str,
+    absolute_import_prefix: str,
     all_internal_modules: Set[str],
 ) -> Sequence[Import]:
     converter = ImportConverter()
-    return converter.convert(
-        ast, root_prefix_relevant, root_prefix, all_internal_modules
-    )
+    return converter.convert(ast, absolute_import_prefix, all_internal_modules)
 
 
 def _get_all_ast_modules(
