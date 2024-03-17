@@ -8,7 +8,8 @@ from integration.interesting_rules_for_tests import (
     single_rule_subject_multiple_rule_objects_error_message_test_cases,
     single_rule_subject_single_rule_object_error_message_test_cases,
 )
-from resources import root_module_mismatch_project
+from resources import nested_root_module_mismatch_project, root_module_mismatch_project
+from resources.nested_root_module_mismatch_project.dir1.dir2 import nested_app
 from resources.root_module_mismatch_project import app
 
 from pytestarch import EvaluableArchitecture, Rule, get_evaluable_architecture
@@ -98,5 +99,57 @@ def test_root_module_match_handled_as_expected() -> None:
     with pytest.raises(
         AssertionError,
         match='"app.red.red" is imported by "app.green.green".\n"app.red.red2" is imported by "app.green.green".\n"app.red.red3" is imported by "app.green.green".',
+    ):
+        rule.assert_applies(evaluable)
+
+
+def test_nested_root_module_mismatch_handled_as_expected() -> None:
+    evaluable = get_evaluable_architecture(
+        os.path.dirname(nested_root_module_mismatch_project.__file__),
+        os.path.dirname(nested_app.__file__),
+        ("*__pycache__", "*__init__.py", "*Test.py"),
+    )
+
+    rule = (
+        Rule()
+        .modules_that()
+        .are_sub_modules_of(
+            "nested_root_module_mismatch_project.dir1.dir2.nested_app.red"
+        )
+        .should_not()
+        .be_imported_by_modules_that()
+        .are_sub_modules_of(
+            "nested_root_module_mismatch_project.dir1.dir2.nested_app.green"
+        )
+    )
+
+    error_message = (
+        '"nested_root_module_mismatch_project.dir1.dir2.nested_app.red.red" is imported by "nested_root_module_mismatch_project.dir1.dir2.nested_app.green.green".\n'
+        '"nested_root_module_mismatch_project.dir1.dir2.nested_app.red.red2" is imported by "nested_root_module_mismatch_project.dir1.dir2.nested_app.green.green".\n'
+        '"nested_root_module_mismatch_project.dir1.dir2.nested_app.red.red3" is imported by "nested_root_module_mismatch_project.dir1.dir2.nested_app.green.green".'
+    )
+    with pytest.raises(AssertionError, match=error_message):
+        rule.assert_applies(evaluable)
+
+
+def test_nested_root_module_match_handled_as_expected() -> None:
+    evaluable = get_evaluable_architecture(
+        os.path.dirname(nested_app.__file__),
+        os.path.dirname(nested_app.__file__),
+        ("*__pycache__", "*__init__.py", "*Test.py"),
+    )
+
+    rule = (
+        Rule()
+        .modules_that()
+        .are_named("nested_app.red")
+        .should_not()
+        .be_imported_by_modules_that()
+        .are_sub_modules_of("nested_app.green")
+    )
+
+    with pytest.raises(
+        AssertionError,
+        match='"nested_app.red.red" is imported by "nested_app.green.green".\n"nested_app.red.red2" is imported by "nested_app.green.green".\n"nested_app.red.red3" is imported by "nested_app.green.green".',
     ):
         rule.assert_applies(evaluable)

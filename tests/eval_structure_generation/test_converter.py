@@ -16,7 +16,7 @@ def test_converter_retains_all_non_empty_modules() -> None:
     all_modules, asts = parser.parse(RESOURCES_DIR)
 
     converter = ImportConverter()
-    imports = converter.convert(asts, False, "", set())
+    imports = converter.convert(asts, "", set())
 
     expected_imports = {
         "pytestarch.pytestarch",
