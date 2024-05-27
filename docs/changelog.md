@@ -2,6 +2,13 @@
 
 This project uses semantic versioning and follows [keep a changelog](https://keepachangelog.com).
 
+## [3.0.0] -- 2024-05-27
+### Added 
+- Support for python 2.12
+
+### Removed
+- Support for python 3.8
+
 ## [2.0.3] -- 2024-03-17
 ### Fixed
 - Module resolution for nested modules with root and module path mismatch.
