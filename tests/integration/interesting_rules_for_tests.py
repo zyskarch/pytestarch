@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import Dict, List, Optional
 
 import pytest
 from _pytest.mark import ParameterSet
@@ -1754,16 +1753,16 @@ partial_name_match_test_cases = [
 
 @dataclass
 class LayerRuleTestCase:
-    layers: Dict[str, List[str]]
+    layers: dict[str, list[str]]
     rule_setup: LayerRuleSetup
-    expected_error_message: Optional[str] = None
+    expected_error_message: str | None = None
 
 
 @dataclass
 class LayerRuleSingleModulePerLayerTestCase:
-    layers: Dict[str, str]
+    layers: dict[str, str]
     rule_setup: LayerRuleSetup
-    expected_error_message: Optional[str] = None
+    expected_error_message: str | None = None
 
 
 @dataclass
@@ -1771,7 +1770,7 @@ class LayerRuleSetup:
     behavior: str
     access_type: str
     importer: str
-    importee: List[str]
+    importee: list[str]
 
 
 PROJECT_ROOT = "flat_test_project_1"

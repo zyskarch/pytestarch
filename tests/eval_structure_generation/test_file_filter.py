@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List, Tuple
 
 import pytest
 
@@ -20,7 +19,7 @@ test_cases = [
 
 
 @pytest.mark.parametrize("input_modules", test_cases)
-def test_import_filter(input_modules: List[str]) -> None:
+def test_import_filter(input_modules: list[str]) -> None:
     config = Config(
         tuple(
             map(
@@ -53,7 +52,7 @@ exclusion_test_cases = [
 
 
 @pytest.mark.parametrize("exclusions", exclusion_test_cases)
-def test_exclude_files_in_directory(exclusions: Tuple[str, ...]) -> None:
+def test_exclude_files_in_directory(exclusions: tuple[str, ...]) -> None:
     config = Config(exclusions)
     filter = FileFilter(config)
 

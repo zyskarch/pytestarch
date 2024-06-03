@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import pytest
 from rule_assessment.test_rule_violation_detector import (
@@ -97,22 +97,22 @@ LAYER_MAPPING = LayerMapping(
 
 @dataclass
 class RuleViolationDetectorTestCase:
-    behavior: Dict[str, Any]
-    expected_violation: Optional[str]
-    expected_violating_dependencies: List[Dependency]
-    explicitly_requested_dependencies: Optional[
-        ExplicitlyRequestedDependenciesByBaseModules
-    ]
-    not_explicitly_requested_dependencies: Optional[
-        NotExplicitlyRequestedDependenciesByBaseModule
-    ]
+    behavior: dict[str, Any]
+    expected_violation: str | None
+    expected_violating_dependencies: list[Dependency]
+    explicitly_requested_dependencies: (
+        ExplicitlyRequestedDependenciesByBaseModules | None
+    )
+    not_explicitly_requested_dependencies: (
+        NotExplicitlyRequestedDependenciesByBaseModule | None
+    )
     multiple_rule_objects: bool = False
 
 
 def _get_no_explicitly_requested_dependencies(
     multiple_rule_objects: bool = False,
 ) -> ExplicitlyRequestedDependenciesByBaseModules:
-    result: Dict[Tuple[Module, Module], List] = {
+    result: dict[tuple[Module, Module], list] = {
         (MODULE_1, MODULE_4): [],
         (MODULE_1, MODULE_5): [],
         (MODULE_1, MODULE_6): [],
@@ -140,7 +140,7 @@ def _get_no_explicitly_requested_dependencies(
 
 
 def _get_explicitly_requested_dependencies(
-    dependencies: List[Dependency], multiple_rule_objects: bool = False
+    dependencies: list[Dependency], multiple_rule_objects: bool = False
 ) -> ExplicitlyRequestedDependenciesByBaseModules:
     no_dependencies = _get_no_explicitly_requested_dependencies(multiple_rule_objects)
 
@@ -151,8 +151,8 @@ def _get_explicitly_requested_dependencies(
 
 
 def _get_all_violating_dependencies(
-    objects: Tuple[str, ...] = (LAYER_2,),
-) -> List[Dependency]:
+    objects: tuple[str, ...] = (LAYER_2,),
+) -> list[Dependency]:
     return [
         (Module(identifier=single_subject.name), Module(identifier=single_object.name))  # type: ignore
         for o in objects
@@ -168,7 +168,7 @@ def _get_no_not_explicitly_requested_dependencies() -> (
 
 
 def _get_not_explicitly_requested_dependencies(
-    dependencies: List[Dependency],
+    dependencies: list[Dependency],
 ) -> NotExplicitlyRequestedDependenciesByBaseModule:
     no_dependencies = _get_no_not_explicitly_requested_dependencies()
 

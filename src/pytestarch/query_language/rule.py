@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, replace
-from typing import Callable, List, Optional, Sequence, Tuple, Union
+from typing import Callable
 
 from pytestarch import EvaluableArchitecture
 from pytestarch.eval_structure.evaluable_architecture import (
@@ -35,13 +36,13 @@ from pytestarch.utils.partial_match_to_regex_converter import (
 
 @dataclass
 class RuleConfiguration:
-    modules_to_check: Optional[Sequence[ModuleFilter]] = None
-    modules_to_check_against: Optional[Sequence[ModuleFilter]] = None
+    modules_to_check: Sequence[ModuleFilter] | None = None
+    modules_to_check_against: Sequence[ModuleFilter] | None = None
     should: bool = False
     should_only: bool = False
     should_not: bool = False
     except_present: bool = False
-    import_: Optional[bool] = None
+    import_: bool | None = None
     rule_object_anything: bool = False
 
 
@@ -64,11 +65,11 @@ class Rule(
         ] = DefaultRuleMatcher,
     ) -> None:
         self._rule_matcher_class = rule_matcher_class
-        self._modules_to_check_to_be_specified_next: Optional[bool] = None
+        self._modules_to_check_to_be_specified_next: bool | None = None
         self._configuration = RuleConfiguration()
 
     @property
-    def rule_subjects(self) -> Optional[Sequence[ModuleFilter]]:
+    def rule_subjects(self) -> Sequence[ModuleFilter] | None:
         return self._configuration.modules_to_check
 
     def modules_that(self) -> RuleSubject:
@@ -76,20 +77,20 @@ class Rule(
         return self
 
     def are_sub_modules_of(  # type: ignore
-        self, modules: Union[str, List[str]]
+        self, modules: str | list[str]
     ) -> BehaviorSpecification:
         self._set_modules(
             modules, lambda name: ParentModuleNameFilter(parent_module=name)
         )
         return self
 
-    def are_named(self, names: Union[str, List[str]]) -> BehaviorSpecification:  # type: ignore
+    def are_named(self, names: str | list[str]) -> BehaviorSpecification:  # type: ignore
         self._set_modules(names, lambda name: ModuleNameFilter(name=name))
         return self
 
     @deprecated
     def have_name_containing(
-        self, partial_names: Union[str, List[str]]
+        self, partial_names: str | list[str]
     ) -> BehaviorSpecification:
         self._set_modules(
             partial_names,
@@ -108,7 +109,7 @@ class Rule(
 
     def _set_modules(
         self,
-        module_names: Union[str, List[str]],
+        module_names: str | list[str],
         create_module_fn: Callable[[str], ModuleFilter],
     ) -> None:
         if self._modules_to_check_to_be_specified_next is None:
@@ -123,7 +124,7 @@ class Rule(
         else:
             self._configuration.modules_to_check_against = modules
 
-    def _add_modules(self, modules: List[Tuple[str, bool]]) -> BehaviorSpecification:
+    def _add_modules(self, modules: list[tuple[str, bool]]) -> BehaviorSpecification:
         module_names = []
         module_creation_fn = []
 
@@ -142,8 +143,8 @@ class Rule(
 
     def _append_modules(
         self,
-        module_names: List[str],
-        create_module_fns: List[Callable[[str], ModuleFilter]],
+        module_names: list[str],
+        create_module_fns: list[Callable[[str], ModuleFilter]],
     ) -> None:
         modules = [fn(n) for n, fn in zip(module_names, create_module_fns)]
         if self._modules_to_check_to_be_specified_next:
@@ -328,7 +329,7 @@ class Rule(
     @classmethod
     def _get_modules_to_check_without_parent_and_submodule_combinations(
         cls, configuration: RuleConfiguration
-    ) -> Optional[Sequence[ModuleFilter]]:
+    ) -> Sequence[ModuleFilter] | None:
         # if modules_to_check contain a module and its submodule, this can throw off the breadth first search conducted
         # on the dependency graph - and also, this setup does not really make sense
         if configuration.modules_to_check is None:

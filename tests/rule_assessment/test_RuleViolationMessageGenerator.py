@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Dict, List
-
 import pytest
 from integration.interesting_rules_for_tests import (
     FILE_A11,
@@ -203,7 +201,7 @@ message_content_test_cases = [
 )
 def test_rule_violation_message_content(
     generator: RuleViolationMessageGenerator,
-    violation: Dict[str, List[Dependency]],
+    violation: dict[str, list[Dependency]],
     expected_message: str,
 ) -> None:
     kwargs = _get_rule_violations_initialisation_dict(violation)
@@ -215,9 +213,9 @@ def test_rule_violation_message_content(
 
 
 def _get_rule_violations_initialisation_dict(
-    violation: Dict[str, List[Dependency]]
-) -> Dict[str, List[Dependency]]:
-    kwargs: Dict[str, List[Dependency]] = {
+    violation: dict[str, list[Dependency]]
+) -> dict[str, list[Dependency]]:
+    kwargs: dict[str, list[Dependency]] = {
         "should_violations": [],
         "should_only_violations_by_forbidden_import": [],
         "should_only_violations_by_no_import": [],
@@ -349,7 +347,7 @@ message_only_present_if_rule_violated_test_cases = [
 )
 def test_violated_message_only_present_if_rule_actually_violated(
     generator: RuleViolationMessageGenerator,
-    violation: Dict[str, List[Dependency]],
+    violation: dict[str, list[Dependency]],
 ) -> None:
     kwargs = _get_rule_violations_initialisation_dict(violation)
     violations = RuleViolations(
@@ -460,7 +458,7 @@ multiple_objects_in_one_message_test_cases = [
 )
 def test_multiple_rule_objects_combined_in_one_message(
     generator: RuleViolationMessageGenerator,
-    violation: Dict[str, List[Dependency]],
+    violation: dict[str, list[Dependency]],
     expected_message: str,
 ) -> None:
     kwargs = _get_rule_violations_initialisation_dict(violation)
@@ -601,9 +599,9 @@ multiple_objects_in_multiple_messages_test_cases = [
 )
 def test_multiple_rule_objects_in_multiple_message(
     generator: RuleViolationMessageGenerator,
-    violation: Dict[str, List[Dependency]],
+    violation: dict[str, list[Dependency]],
     expected_message_count: int,
-    expected_messages: List[str],
+    expected_messages: list[str],
 ) -> None:
     kwargs = _get_rule_violations_initialisation_dict(violation)
     violations = RuleViolations(**kwargs)  # type: ignore
@@ -652,8 +650,8 @@ forbidden_and_no_import_test_cases = [
     forbidden_and_no_import_test_cases,
 )
 def test_multiple_messages_if_forbidden_and_no_import_both_present(
-    violation: Dict[str, List[Dependency]],
-    expected_messages: List[str],
+    violation: dict[str, list[Dependency]],
+    expected_messages: list[str],
 ) -> None:
     kwargs = _get_rule_violations_initialisation_dict(violation)
     violations = RuleViolations(**kwargs)  # type: ignore

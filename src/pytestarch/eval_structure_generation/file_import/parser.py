@@ -3,7 +3,6 @@ from __future__ import annotations
 import ast
 import os
 from pathlib import Path
-from typing import List, Optional, Tuple
 
 from pytestarch.eval_structure_generation.file_import.file_filter import FileFilter
 from pytestarch.eval_structure_generation.file_import.import_types import NamedModule
@@ -18,7 +17,7 @@ class Parser:
         self._filter = filter
         self._source_root = source_root
 
-    def parse(self, path: Path) -> Tuple[List[str], List[NamedModule]]:
+    def parse(self, path: Path) -> tuple[list[str], list[NamedModule]]:
         """Reads all python files in the given path and returns list of ast
         modules with names.
 
@@ -48,11 +47,11 @@ class Parser:
 
         return self._all_modules, modules
 
-    def _parse_file(self, path: Path) -> Optional[NamedModule]:
+    def _parse_file(self, path: Path) -> NamedModule | None:
         """Converts a given python file to an ast module and its name."""
         absolute_path = path.resolve()
         if self._file_should_be_parsed(absolute_path):
-            with open(absolute_path, "r") as file:
+            with open(absolute_path) as file:
                 code = file.read()
 
             module_name = self._get_module_name(path)
