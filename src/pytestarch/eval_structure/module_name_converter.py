@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from typing import Dict, List, Sequence, Tuple, cast
+from collections.abc import Sequence
+from typing import cast
 
 from pytestarch import EvaluableArchitecture
 from pytestarch.eval_structure.breadth_first_searches import get_all_submodules_of
@@ -22,7 +23,7 @@ class ModuleNameConverter:
     @classmethod
     def convert(
         cls, modules: Sequence[ModuleFilter], arch: EvaluableArchitecture
-    ) -> Tuple[Sequence[ModuleFilter], Dict[str, List[Module]]]:
+    ) -> tuple[Sequence[ModuleFilter], dict[str, list[Module]]]:
         """Converts each regex pattern that serves to identify module names into actual modules that match this pattern.
 
         Args:
@@ -88,8 +89,8 @@ class ModuleNameConverter:
     @classmethod
     def _split_modules_by_presence_of_regex_pattern(
         cls, modules: Sequence[ModuleFilter]
-    ) -> Tuple[List[ModuleNameRegexFilter], Sequence[ModuleFilter]]:
-        modules_with_regex_name_pattern: List[ModuleNameRegexFilter] = []
+    ) -> tuple[list[ModuleNameRegexFilter], Sequence[ModuleFilter]]:
+        modules_with_regex_name_pattern: list[ModuleNameRegexFilter] = []
         other_modules = []
 
         for module in modules:

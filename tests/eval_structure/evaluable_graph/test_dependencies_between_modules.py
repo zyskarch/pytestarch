@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import List
-
 import pytest
 from eval_structure.evaluable_graph.conftest import (
     MODULE_1,
@@ -398,7 +396,7 @@ def test_depends_on(evaluable: EvaluableArchitecture) -> None:
         [AbsoluteImport(SUB_MODULE_OF_1, MODULE_2)],
     ],
 )
-def test_is_dependent_between_named_modules(imports: List[AbsoluteImport]) -> None:
+def test_is_dependent_between_named_modules(imports: list[AbsoluteImport]) -> None:
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
 
@@ -421,7 +419,7 @@ def test_is_dependent_between_named_modules(imports: List[AbsoluteImport]) -> No
     ],
 )
 def test_is_dependent_between_named_and_submodule_modules(
-    imports: List[AbsoluteImport],
+    imports: list[AbsoluteImport],
 ) -> None:
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
@@ -445,7 +443,7 @@ def test_is_dependent_between_named_and_submodule_modules(
     ],
 )
 def test_is_dependent_between_submodule_and_named_modules(
-    imports: List[AbsoluteImport],
+    imports: list[AbsoluteImport],
 ) -> None:
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
@@ -467,7 +465,7 @@ def test_is_dependent_between_submodule_and_named_modules(
         [AbsoluteImport(SUB_MODULE_OF_1, SUB_MODULE_OF_2)],
     ],
 )
-def test_is_dependent_between_submodule_modules(imports: List[AbsoluteImport]) -> None:
+def test_is_dependent_between_submodule_modules(imports: list[AbsoluteImport]) -> None:
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
 
@@ -489,7 +487,7 @@ def test_is_dependent_between_submodule_modules(imports: List[AbsoluteImport]) -
         [AbsoluteImport(SUB_MODULE_OF_2, SUB_MODULE_OF_2)],
     ],
 )
-def test_is_not_dependent_between_named_modules(imports: List[AbsoluteImport]) -> None:
+def test_is_not_dependent_between_named_modules(imports: list[AbsoluteImport]) -> None:
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
 
@@ -512,7 +510,7 @@ def test_is_not_dependent_between_named_modules(imports: List[AbsoluteImport]) -
     ],
 )
 def test_is_not_dependent_between_named_and_submodule_modules(
-    imports: List[AbsoluteImport],
+    imports: list[AbsoluteImport],
 ) -> None:
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
@@ -535,7 +533,7 @@ def test_is_not_dependent_between_named_and_submodule_modules(
     ],
 )
 def test_is_not_dependent_between_submodule_and_named_modules(
-    imports: List[AbsoluteImport],
+    imports: list[AbsoluteImport],
 ) -> None:
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
@@ -560,7 +558,7 @@ def test_is_not_dependent_between_submodule_and_named_modules(
     ],
 )
 def test_is_not_dependent_between_submodule_modules(
-    imports: List[AbsoluteImport],
+    imports: list[AbsoluteImport],
 ) -> None:
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))

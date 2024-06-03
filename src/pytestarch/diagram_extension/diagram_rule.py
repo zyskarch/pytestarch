@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List, Optional
 
 from pytestarch import EvaluableArchitecture
 from pytestarch.diagram_extension.dependency_to_rule_converter import (
@@ -21,7 +20,7 @@ from pytestarch.query_language.multiple_rule_applier import MultipleRuleApplier
 class ModulePrefixer:
     @classmethod
     def prefix(
-        cls, parsed_dependencies: ParsedDependencies, prefix: Optional[str]
+        cls, parsed_dependencies: ParsedDependencies, prefix: str | None
     ) -> ParsedDependencies:
         modules = parsed_dependencies.all_modules
         dependencies = parsed_dependencies.dependencies
@@ -37,7 +36,7 @@ class ModulePrefixer:
         )
 
     @classmethod
-    def _add_prefix_to_module(cls, module_name: str, prefix: Optional[str]) -> str:
+    def _add_prefix_to_module(cls, module_name: str, prefix: str | None) -> str:
         if prefix is None:
             return module_name
 
@@ -59,8 +58,8 @@ class DiagramRule(FileRule, BaseModuleSpecifier, RuleApplier):
              should_only_rule: if True, edges between components will be converted into 'should only import' rules.
              If False, 'should import' rules will be generated instead.
         """
-        self._file_path: Optional[Path] = None
-        self._name_relative_to_root: Optional[str] = None
+        self._file_path: Path | None = None
+        self._name_relative_to_root: str | None = None
         self._should_only_rule = should_only_rule
 
     def from_file(self, file_path: Path) -> BaseModuleSpecifier:
@@ -94,11 +93,11 @@ class DiagramRule(FileRule, BaseModuleSpecifier, RuleApplier):
     ) -> ParsedDependencies:
         return ModulePrefixer.prefix(parsed_dependencies, self._name_relative_to_root)
 
-    def _convert_to_rules(self, dependencies: ParsedDependencies) -> List[RuleApplier]:
+    def _convert_to_rules(self, dependencies: ParsedDependencies) -> list[RuleApplier]:
         return DependencyToRuleConverter(self._should_only_rule).convert(dependencies)
 
     @classmethod
     def _apply_rules(
-        cls, rule_appliers: List[RuleApplier], evaluable: EvaluableArchitecture
+        cls, rule_appliers: list[RuleApplier], evaluable: EvaluableArchitecture
     ) -> None:
         MultipleRuleApplier(rule_appliers).assert_applies(evaluable)

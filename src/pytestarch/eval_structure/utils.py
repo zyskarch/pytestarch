@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Sequence
+from collections.abc import Sequence
 
 from pytestarch.eval_structure.evaluable_architecture import (
     Module,
@@ -10,7 +10,7 @@ from pytestarch.eval_structure.evaluable_architecture import (
 from pytestarch.eval_structure.evaluable_structures import AbstractNode
 
 
-def to_modules(nodes: List[AbstractNode]) -> List[Module]:
+def to_modules(nodes: list[AbstractNode]) -> list[Module]:
     return list(map(lambda node: Module(identifier=node), nodes))
 
 
@@ -25,7 +25,7 @@ def get_node(module_filter: ModuleFilter) -> AbstractNode:
     return module_filter.identifier
 
 
-def get_parent_nodes(module_filters: Sequence[ModuleFilter]) -> List[AbstractNode]:
+def get_parent_nodes(module_filters: Sequence[ModuleFilter]) -> list[AbstractNode]:
     result = [
         module_filter.identifier
         for module_filter in module_filters

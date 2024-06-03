@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import ast
-from typing import List, Optional, Sequence, Set
+from collections.abc import Sequence
 
 from pytestarch.eval_structure.types import Import
 from pytestarch.eval_structure_generation.file_import.import_types import (
@@ -16,9 +16,9 @@ class ImportConverter:
 
     def convert(
         self,
-        asts: List[NamedModule],
+        asts: list[NamedModule],
         absolute_import_prefix: str,
-        internal_modules: Set[str],
+        internal_modules: set[str],
     ) -> Sequence[Import]:
         """Converts ast modules to custom import modules. Filters out all modules
         that are not imports.
@@ -31,7 +31,7 @@ class ImportConverter:
             list of import objects
         """
         module_to_search = asts
-        imports: List[Import] = []
+        imports: list[Import] = []
 
         while module_to_search:
             module = module_to_search.pop()
@@ -60,8 +60,8 @@ class ImportConverter:
         module: ast.Module,
         module_name: str,
         absolute_import_prefix: str,
-        all_internal_modules: Set[str],
-    ) -> Optional[Sequence[Import]]:
+        all_internal_modules: set[str],
+    ) -> Sequence[Import] | None:
         """Calculates all imports of the given ast module.
 
         Args:
@@ -73,7 +73,7 @@ class ImportConverter:
         Returns:
             list of calculated import objects
         """
-        new_imports: Optional[Sequence[Import]] = None
+        new_imports: Sequence[Import] | None = None
 
         if isinstance(module, ast.Import):
             new_imports = []
@@ -98,7 +98,7 @@ class ImportConverter:
         cls,
         module_name: str,
         absolute_import_prefix: str,
-        all_internal_modules: Set[str],
+        all_internal_modules: set[str],
     ) -> str:
         """If the user specifies a module import start point that is not the root path, the ast module names will not contain
         the root path. Hence, they will later be flagged as external modules.

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import List, Set
-
 from pytestarch import Rule
 from pytestarch.diagram_extension.parsed_dependencies import ParsedDependencies
 from pytestarch.query_language.base_language import RuleApplier
@@ -11,7 +9,7 @@ class DependencyToRuleConverter:
     def __init__(self, should_only_rule: bool) -> None:
         self._should_only_rule = should_only_rule
 
-    def convert(self, dependencies: ParsedDependencies) -> List[RuleApplier]:
+    def convert(self, dependencies: ParsedDependencies) -> list[RuleApplier]:
         """Converts a parsed dependency object to a list of RuleAppliers.
         All explicit dependencies in the given object are converted to should (only) rules.
         All missing, but possible dependencies between the given modules are converted to 'should not' rules.
@@ -27,13 +25,13 @@ class DependencyToRuleConverter:
 
     def _convert_should_rules(
         self, dependencies: ParsedDependencies
-    ) -> List[RuleApplier]:
+    ) -> list[RuleApplier]:
         return [
             self._generate_rule(importer, importees)
             for importer, importees in dependencies.dependencies.items()
         ]
 
-    def _generate_rule(self, importer: str, importees: Set[str]) -> RuleApplier:
+    def _generate_rule(self, importer: str, importees: set[str]) -> RuleApplier:
         rule_subject = Rule().modules_that().are_named(importer)
 
         if self._should_only_rule:
@@ -46,7 +44,7 @@ class DependencyToRuleConverter:
     @classmethod
     def _convert_should_not_rules(
         cls, parsed_dependencies: ParsedDependencies
-    ) -> List[RuleApplier]:
+    ) -> list[RuleApplier]:
         # sorting in this method is necessary to generate a reliable order of returned rules
         # this helps with testing and overall consistency
         rules = []

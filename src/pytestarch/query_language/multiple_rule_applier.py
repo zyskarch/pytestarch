@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from typing import List
-
 from pytestarch import EvaluableArchitecture
 from pytestarch.query_language.base_language import RuleApplier
 
 
 class MultipleRuleApplier(RuleApplier):
-    def __init__(self, rule_appliers: List[RuleApplier]) -> None:
+    def __init__(self, rule_appliers: list[RuleApplier]) -> None:
         self._rule_appliers = rule_appliers
 
     def assert_applies(self, evaluable: EvaluableArchitecture) -> None:
