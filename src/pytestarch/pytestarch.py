@@ -8,7 +8,6 @@ from __future__ import annotations
 import os
 from pathlib import Path
 from types import ModuleType
-from typing import Optional, Tuple
 
 from pytestarch import EvaluableArchitecture
 from pytestarch.eval_structure_generation.graph_generation.graph_generator import (
@@ -25,10 +24,10 @@ DEFAULT_EXCLUSIONS = ("*__pycache__*",)
 def get_evaluable_architecture(
     root_path: str,
     module_path: str,
-    exclusions: Tuple[str, ...] = DEFAULT_EXCLUSIONS,
+    exclusions: tuple[str, ...] = DEFAULT_EXCLUSIONS,
     exclude_external_libraries: bool = True,
-    level_limit: Optional[int] = None,
-    regex_exclusions: Optional[Tuple[str, ...]] = None,
+    level_limit: int | None = None,
+    regex_exclusions: tuple[str, ...] | None = None,
 ) -> EvaluableArchitecture:
     """Constructs an evaluable object based on the given module.
 
@@ -75,10 +74,10 @@ def get_evaluable_architecture(
 def get_evaluable_architecture_for_module_objects(
     root_module: ModuleType,
     module: ModuleType,
-    exclusions: Tuple[str, ...] = DEFAULT_EXCLUSIONS,
+    exclusions: tuple[str, ...] = DEFAULT_EXCLUSIONS,
     exclude_external_libraries: bool = True,
-    level_limit: Optional[int] = None,
-    regex_exclusions: Optional[Tuple[str, ...]] = None,
+    level_limit: int | None = None,
+    regex_exclusions: tuple[str, ...] | None = None,
 ) -> EvaluableArchitecture:
     """Same functionality as get_evaluable_architecture, but root module and module to evaluate are passed in as module objects
     instead of the absolute paths to them.

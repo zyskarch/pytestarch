@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Sequence
 from pathlib import Path
-from typing import List, Optional, Sequence, Set, Tuple
 
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.networkxgraph import NetworkxGraph, Node
@@ -33,9 +33,9 @@ def generate_graph(
     root_path: Path,
     module_path: Path,
     path_diff_between_root_and_module: str,
-    exclusions: Tuple[str, ...],
+    exclusions: tuple[str, ...],
     exclude_external_libraries: bool,
-    level_limit: Optional[int],
+    level_limit: int | None,
 ) -> EvaluableArchitectureGraph:
     level_limit = _add_extra_levels_to_limit_if_root_and_module_path_differ(
         level_limit,
@@ -67,11 +67,11 @@ def generate_graph(
 
 
 def _append_external_modules_to_module_list(
-    all_modules: List[Node],
+    all_modules: list[Node],
     exclude_external_libraries: bool,
     imports: Sequence[Import],
     root_path: Path,
-) -> List[Node]:
+) -> list[Node]:
     """External modules are not detected as modules when importing the source folder - but they will of course show up
     in the imports. To ensure that all edges in the graph have nodes attached, the external modules need to be added to
     the list of modules/nodes."""
@@ -114,8 +114,8 @@ def _actual_difference_between_root_and_module(
 
 
 def _add_extra_levels_to_limit_if_root_and_module_path_differ(
-    level_limit: Optional[int], path_diff_between_root_and_module: str
-) -> Optional[int]:
+    level_limit: int | None, path_diff_between_root_and_module: str
+) -> int | None:
     """If the root and base module are not the same, the level limit needs to be increased by the number of levels
     between these two modules. Otherwise, the actual base module might not even be in the graph, let alone all required
     levels below it."""
@@ -130,17 +130,17 @@ def _add_extra_levels_to_limit_if_root_and_module_path_differ(
 
 
 def _get_imports_from_ast(
-    ast: List[NamedModule],
+    ast: list[NamedModule],
     absolute_import_prefix: str,
-    all_internal_modules: Set[str],
+    all_internal_modules: set[str],
 ) -> Sequence[Import]:
     converter = ImportConverter()
     return converter.convert(ast, absolute_import_prefix, all_internal_modules)
 
 
 def _get_all_ast_modules(
-    module_path: Path, root_path: Path, exclusions: Tuple[str, ...]
-) -> Tuple[List[str], List[NamedModule]]:
+    module_path: Path, root_path: Path, exclusions: tuple[str, ...]
+) -> tuple[list[str], list[NamedModule]]:
     config = Config(exclusions)
     file_filter = FileFilter(config)
 
@@ -150,6 +150,6 @@ def _get_all_ast_modules(
 
 
 def _get_all_internal_modules(
-    modules: List[str], internal_module_prefix: str
-) -> Set[str]:
+    modules: list[str], internal_module_prefix: str
+) -> set[str]:
     return {m for m in modules if m.startswith(internal_module_prefix)}

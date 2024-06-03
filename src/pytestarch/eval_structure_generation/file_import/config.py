@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Tuple
 
 
 @dataclass
@@ -13,4 +12,4 @@ class Config:
         e.g. test directories.
     """
 
-    excluded_directories: Tuple[str, ...]
+    excluded_directories: tuple[str, ...]

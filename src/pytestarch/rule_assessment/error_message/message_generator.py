@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections import defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import DefaultDict, Dict, Iterable, List, Optional, Set, Tuple, cast
+from typing import cast
 
 from pytestarch.eval_structure.evaluable_architecture import (
     Dependency,
@@ -36,7 +37,7 @@ class RuleViolatedMessage:
 
 
 # (Import, negated, subject singular)
-PREFIX_MAPPING: DefaultDict[Tuple[bool, bool, bool], str] = defaultdict(str)
+PREFIX_MAPPING: defaultdict[tuple[bool, bool, bool], str] = defaultdict(str)
 PREFIX_MAPPING.update(
     {
         (False, False, True): "is ",
@@ -55,7 +56,7 @@ class RuleViolationMessageBaseGenerator(ABC):
 
     def create_rule_violation_messages(
         self, rule_violations: RuleViolations
-    ) -> List[str]:
+    ) -> list[str]:
         """Create a message about each rule violation.
 
         Args:
@@ -74,8 +75,8 @@ class RuleViolationMessageBaseGenerator(ABC):
 
     def _create_violation_messages(
         self, rule_violations: RuleViolations
-    ) -> List[RuleViolatedMessage]:
-        messages: List[RuleViolatedMessage] = []
+    ) -> list[RuleViolatedMessage]:
+        messages: list[RuleViolatedMessage] = []
 
         self._extend(
             messages, self._create_should_import_violated_messages(rule_violations)
@@ -103,8 +104,8 @@ class RuleViolationMessageBaseGenerator(ABC):
 
     def _extend(
         self,
-        messages: List[RuleViolatedMessage],
-        new_messages: Optional[List[RuleViolatedMessage]],
+        messages: list[RuleViolatedMessage],
+        new_messages: list[RuleViolatedMessage] | None,
     ) -> None:
         if new_messages is not None:
             messages.extend(new_messages)
@@ -112,37 +113,37 @@ class RuleViolationMessageBaseGenerator(ABC):
     @abstractmethod
     def _create_should_import_violated_messages(
         self, rule_violations: RuleViolations
-    ) -> List[RuleViolatedMessage]:
+    ) -> list[RuleViolatedMessage]:
         pass
 
     @abstractmethod
     def _create_should_only_import_violated_messages(
         self, rule_violations: RuleViolations
-    ) -> List[RuleViolatedMessage]:
+    ) -> list[RuleViolatedMessage]:
         pass
 
     @abstractmethod
     def _create_should_not_import_violated_messages(
         self, rule_violations: RuleViolations
-    ) -> List[RuleViolatedMessage]:
+    ) -> list[RuleViolatedMessage]:
         pass
 
     @abstractmethod
     def _create_should_import_except_violated_messages(
         self, rule_violations: RuleViolations
-    ) -> List[RuleViolatedMessage]:
+    ) -> list[RuleViolatedMessage]:
         pass
 
     @abstractmethod
     def _create_should_only_import_except_violated_messages(
         self, rule_violations: RuleViolations
-    ) -> List[RuleViolatedMessage]:
+    ) -> list[RuleViolatedMessage]:
         pass
 
     @abstractmethod
     def _create_should_not_import_except_violated_messages(
         self, rule_violations: RuleViolations
-    ) -> List[RuleViolatedMessage]:
+    ) -> list[RuleViolatedMessage]:
         pass
 
 
@@ -160,15 +161,15 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
 
     def _create_should_import_violated_messages(
         self, rule_violations: RuleViolations
-    ) -> List[RuleViolatedMessage]:
+    ) -> list[RuleViolatedMessage]:
         return self._create_no_import_between_original_subject_and_objects_message(
             rule_violations.should_violations
         )
 
     def _create_no_import_between_original_subject_and_objects_message(
         self, rule_violations: Iterable[Dependency]
-    ) -> List[RuleViolatedMessage]:
-        messages: List[RuleViolatedMessage] = []
+    ) -> list[RuleViolatedMessage]:
+        messages: list[RuleViolatedMessage] = []
 
         (
             rule_objects_for_rule_subject,
@@ -196,8 +197,8 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
 
     def _add_combined_rule_objects(
         self,
-        messages: List[RuleViolatedMessage],
-        rule_objects: List[str],
+        messages: list[RuleViolatedMessage],
+        rule_objects: list[str],
         rule_subject: str,
         rule_verb: str,
     ) -> None:
@@ -209,7 +210,7 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
 
     def _get_violating_rule_subjects_and_objects(
         self, rule_violation_dependencies: Iterable[Dependency]
-    ) -> Tuple[Dict[Module, List[Module]], Set[Module]]:
+    ) -> tuple[dict[Module, list[Module]], set[Module]]:
         violating_rule_subjects = set()
         rule_objects_for_rule_subject = defaultdict(list)
         for rule_subject, rule_object in rule_violation_dependencies:
@@ -219,8 +220,8 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
         return rule_objects_for_rule_subject, violating_rule_subjects
 
     def _convert_to_names(
-        self, violating_dependencies: List[Dependency]
-    ) -> List[Tuple[str, str]]:
+        self, violating_dependencies: list[Dependency]
+    ) -> list[tuple[str, str]]:
         return [
             (dependency[0].identifier, dependency[1].identifier)
             for dependency in violating_dependencies
@@ -228,8 +229,8 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
 
     def _create_should_only_import_violated_messages(
         self, rule_violations: RuleViolations
-    ) -> List[RuleViolatedMessage]:
-        messages: List[RuleViolatedMessage] = []
+    ) -> list[RuleViolatedMessage]:
+        messages: list[RuleViolatedMessage] = []
 
         self._extend(
             messages,
@@ -248,7 +249,7 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
 
     def _create_should_only_import_forbidden_import_violated_messages(
         self, rule_violations: RuleViolations
-    ) -> List[RuleViolatedMessage]:
+    ) -> list[RuleViolatedMessage]:
         return self._create_other_violating_dependencies_message(
             rule_violations.should_only_violations_by_forbidden_import
         )
@@ -256,7 +257,7 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
     def _create_other_violating_dependencies_message(
         self,
         violating_dependencies: Iterable[Dependency],
-    ) -> List[RuleViolatedMessage]:
+    ) -> list[RuleViolatedMessage]:
         # messages are always of the type "module x imports module y"
         messages = []
 
@@ -279,29 +280,29 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
 
     def _create_should_only_import_no_import_violated_messages(
         self, rule_violations: RuleViolations
-    ) -> List[RuleViolatedMessage]:
+    ) -> list[RuleViolatedMessage]:
         return self._create_no_import_between_original_subject_and_objects_message(
             rule_violations.should_only_violations_by_no_import
         )
 
     def _create_should_not_import_violated_messages(
         self, rule_violations: RuleViolations
-    ) -> List[RuleViolatedMessage]:
+    ) -> list[RuleViolatedMessage]:
         return self._create_other_violating_dependencies_message(
             rule_violations.should_not_violations
         )
 
     def _create_should_import_except_violated_messages(
         self, rule_violations: RuleViolations
-    ) -> List[RuleViolatedMessage]:
+    ) -> list[RuleViolatedMessage]:
         return self._create_no_import_other_than_between_original_subject_and_objects_message(
             rule_violations.should_except_violations
         )
 
     def _create_no_import_other_than_between_original_subject_and_objects_message(
         self, rule_violations: Iterable[Dependency]
-    ) -> List[RuleViolatedMessage]:
-        messages: List[RuleViolatedMessage] = []
+    ) -> list[RuleViolatedMessage]:
+        messages: list[RuleViolatedMessage] = []
 
         (
             rule_objects_for_rule_subject,
@@ -331,8 +332,8 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
 
     def _add_combined_any_rule_objects(
         self,
-        messages: List[RuleViolatedMessage],
-        rule_objects: List[str],
+        messages: list[RuleViolatedMessage],
+        rule_objects: list[str],
         rule_subject: str,
         rule_verb: str,
         rule_object_type: str = ANY_MODULE_THAT_IS_NOT,
@@ -346,8 +347,8 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
 
     def _create_should_only_import_except_violated_messages(
         self, rule_violations: RuleViolations
-    ) -> List[RuleViolatedMessage]:
-        messages: List[RuleViolatedMessage] = []
+    ) -> list[RuleViolatedMessage]:
+        messages: list[RuleViolatedMessage] = []
 
         self._extend(
             messages,
@@ -366,21 +367,21 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
 
     def _create_should_only_import_except_forbidden_import_violated_messages(
         self, rule_violations: RuleViolations
-    ) -> List[RuleViolatedMessage]:
+    ) -> list[RuleViolatedMessage]:
         return self._create_other_violating_dependencies_message(
             rule_violations.should_only_except_violations_by_forbidden_import
         )
 
     def _create_should_only_import_except_no_import_violated_messages(
         self, rule_violations: RuleViolations
-    ) -> List[RuleViolatedMessage]:
+    ) -> list[RuleViolatedMessage]:
         return self._create_no_import_other_than_between_original_subject_and_objects_message(
             rule_violations.should_only_except_violations_by_no_import
         )
 
     def _create_should_not_import_except_violated_messages(
         self, rule_violations: RuleViolations
-    ) -> List[RuleViolatedMessage]:
+    ) -> list[RuleViolatedMessage]:
         return self._create_other_violating_dependencies_message(
             rule_violations.should_not_except_violations
         )
@@ -419,7 +420,7 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
 
     def _get_rule_subject_and_object_of_dependency(
         self, dependency: Dependency
-    ) -> Tuple[str, str]:
+    ) -> tuple[str, str]:
         rule_subject_name = self._get_module_name(dependency[0])
         rule_object_name = self._get_module_name(dependency[1])
 
@@ -472,8 +473,8 @@ class LayerRuleViolationMessageGenerator(RuleViolationMessageGenerator):
 
     def _create_no_import_between_original_subject_and_objects_message(
         self, rule_violations: Iterable[Dependency]
-    ) -> List[RuleViolatedMessage]:
-        messages: List[RuleViolatedMessage] = []
+    ) -> list[RuleViolatedMessage]:
+        messages: list[RuleViolatedMessage] = []
 
         (
             rule_object_layers_for_rule_subject_layer,
@@ -507,7 +508,7 @@ class LayerRuleViolationMessageGenerator(RuleViolationMessageGenerator):
 
     def _get_violating_rule_subject_and_objects_layers(
         self, rule_violation_dependencies: Iterable[Dependency]
-    ) -> Tuple[DefaultDict[str, Set[str]], Set[str]]:
+    ) -> tuple[defaultdict[str, set[str]], set[str]]:
         violating_rule_subject_layers = set()
         rule_object_layers_for_rule_subject_layer = defaultdict(set)
 
@@ -530,8 +531,8 @@ class LayerRuleViolationMessageGenerator(RuleViolationMessageGenerator):
 
     def _create_no_import_other_than_between_original_subject_and_objects_message(
         self, rule_violations: Iterable[Dependency]
-    ) -> List[RuleViolatedMessage]:
-        messages: List[RuleViolatedMessage] = []
+    ) -> list[RuleViolatedMessage]:
+        messages: list[RuleViolatedMessage] = []
 
         (
             rule_object_layers_for_rule_subject,

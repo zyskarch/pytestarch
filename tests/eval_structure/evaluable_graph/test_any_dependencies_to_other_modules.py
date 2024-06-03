@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import List
-
 import pytest
 from eval_structure.evaluable_graph.conftest import (
     MODULE_1,
@@ -29,7 +27,7 @@ from pytestarch.eval_structure_generation.file_import.import_types import Absolu
         [AbsoluteImport(SUB_MODULE_OF_1, MODULE_3)],
     ],
 )
-def test_any_to_other_between_named_modules(imports: List[AbsoluteImport]) -> None:
+def test_any_to_other_between_named_modules(imports: list[AbsoluteImport]) -> None:
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
 
@@ -55,7 +53,7 @@ def test_any_to_other_between_named_modules(imports: List[AbsoluteImport]) -> No
     ],
 )
 def test_any_to_other_between_named_and_submodule_modules(
-    imports: List[AbsoluteImport],
+    imports: list[AbsoluteImport],
 ) -> None:
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
@@ -79,7 +77,7 @@ def test_any_to_other_between_named_and_submodule_modules(
     ],
 )
 def test_any_to_other_between_submodule_and_named_modules(
-    imports: List[AbsoluteImport],
+    imports: list[AbsoluteImport],
 ) -> None:
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
@@ -103,7 +101,7 @@ def test_any_to_other_between_submodule_and_named_modules(
         [AbsoluteImport(SUB_MODULE_OF_1, MODULE_2)],
     ],
 )
-def test_any_to_other_between_submodule_modules(imports: List[AbsoluteImport]) -> None:
+def test_any_to_other_between_submodule_modules(imports: list[AbsoluteImport]) -> None:
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
 
@@ -128,7 +126,7 @@ def test_any_to_other_between_submodule_modules(imports: List[AbsoluteImport]) -
         [AbsoluteImport(SUB_MODULE_OF_1, SUB_MODULE_OF_2)],
     ],
 )
-def test_not_any_to_other_between_named_modules(imports: List[AbsoluteImport]) -> None:
+def test_not_any_to_other_between_named_modules(imports: list[AbsoluteImport]) -> None:
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
 
@@ -152,7 +150,7 @@ def test_not_any_to_other_between_named_modules(imports: List[AbsoluteImport]) -
     ],
 )
 def test_not_any_to_other_between_named_and_submodule_modules(
-    imports: List[AbsoluteImport],
+    imports: list[AbsoluteImport],
 ) -> None:
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
@@ -178,7 +176,7 @@ def test_not_any_to_other_between_named_and_submodule_modules(
     ],
 )
 def test_not_any_to_other_between_submodule_and_named_modules(
-    imports: List[AbsoluteImport],
+    imports: list[AbsoluteImport],
 ) -> None:
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
@@ -202,7 +200,7 @@ def test_not_any_to_other_between_submodule_and_named_modules(
     ],
 )
 def test_not_any_to_other_between_submodule_modules(
-    imports: List[AbsoluteImport],
+    imports: list[AbsoluteImport],
 ) -> None:
     all_modules = [MODULE_1, MODULE_2, SUB_MODULE_OF_1, SUB_MODULE_OF_2, MODULE_3]
     architecture = EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))

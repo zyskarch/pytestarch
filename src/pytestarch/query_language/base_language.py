@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Generic, List, TypeVar, Union
+from typing import Generic, TypeVar, Union
 
 from pytestarch import EvaluableArchitecture
 from pytestarch.utils.decorators import deprecated
@@ -89,20 +89,20 @@ class ModuleSpecification(Generic[ModuleSpecificationSuccessor], ABC):
 
     @abstractmethod
     def are_sub_modules_of(
-        self, modules: Union[str, List[str]]
+        self, modules: str | list[str]
     ) -> ModuleSpecificationSuccessor:
         """If multiple rule subjects are specified, this has the same effect as defining a rule per rule subject."""
         pass
 
     @abstractmethod
-    def are_named(self, names: Union[str, List[str]]) -> ModuleSpecificationSuccessor:
+    def are_named(self, names: str | list[str]) -> ModuleSpecificationSuccessor:
         """If multiple rule subjects are specified, this has the same effect as defining a rule per rule subject."""
         pass
 
     @deprecated
     @abstractmethod
     def have_name_containing(
-        self, partial_name: Union[str, List[str]]
+        self, partial_name: str | list[str]
     ) -> ModuleSpecificationSuccessor:
         """
         [DEPRECATED] Use have_name_matching instead; method will be removed in upcoming releases.
@@ -177,9 +177,7 @@ class LayerDefinition(ABC):
     or multiple modules."""
 
     @abstractmethod
-    def containing_modules(
-        self, modules: Union[str, List[str]]
-    ) -> BaseLayeredArchitecture:
+    def containing_modules(self, modules: str | list[str]) -> BaseLayeredArchitecture:
         """If a module is defined as belonging to layer X, then its submodules are also assumed to be part of layer X."""
         pass
 
@@ -250,7 +248,7 @@ LayerSpecificationSuccessor = TypeVar(
     "LayerSpecificationSuccessor", LayerBehaviorSpecification, RuleApplier
 )
 
-InputTypes = TypeVar("InputTypes", str, Union[str, List[str]])
+InputTypes = TypeVar("InputTypes", str, Union[str, list[str]])
 
 
 class LayerSpecification(Generic[LayerSpecificationSuccessor, InputTypes], ABC):
@@ -261,7 +259,7 @@ class LayerSpecification(Generic[LayerSpecificationSuccessor, InputTypes], ABC):
         pass
 
 
-class LayerRuleObject(LayerSpecification[RuleApplier, Union[str, List[str]]], ABC):
+class LayerRuleObject(LayerSpecification[RuleApplier, Union[str, list[str]]], ABC):
     pass
 
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 import pytest
 from eval_structure.evaluable_graph.conftest import MODULE_A, MODULE_B, MODULE_D

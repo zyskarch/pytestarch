@@ -4,8 +4,9 @@ and edges to its subclasses in a template pattern.
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Sequence
 from itertools import product
-from typing import Any, Iterable, List, Sequence
+from typing import Any
 
 from pytestarch.eval_structure.breadth_first_searches import (
     any_dependency_to_module_other_than,
@@ -91,5 +92,5 @@ class EvaluableArchitectureGraph(EvaluableArchitecture):
         self._graph.draw(**kwargs)  # type: ignore
 
     @property
-    def modules(self) -> List[str]:
+    def modules(self) -> list[str]:
         return self._graph.nodes

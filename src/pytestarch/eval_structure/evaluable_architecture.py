@@ -4,19 +4,9 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from bisect import bisect
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
-from typing import (
-    Any,
-    Dict,
-    Iterable,
-    List,
-    Mapping,
-    Optional,
-    Protocol,
-    Sequence,
-    Tuple,
-    Union,
-)
+from typing import Any, Protocol
 
 from pytestarch.eval_structure.exceptions import LayerMismatch
 
@@ -28,11 +18,11 @@ class LayerMapping:
     def __init__(
         self,
         layer_mapping_for_module_filters: Mapping[
-            Layer, Union[Sequence[ModuleFilter], Sequence[Module]]
+            Layer, Sequence[ModuleFilter] | Sequence[Module]
         ],
     ) -> None:
         self._layer_mapping_for_module_filters = layer_mapping_for_module_filters
-        self._module_filter_mapping: Mapping[Union[ModuleFilter, Module], Layer] = {
+        self._module_filter_mapping: Mapping[ModuleFilter | Module, Layer] = {
             module: layer
             for layer, modules in layer_mapping_for_module_filters.items()
             for module in modules
@@ -54,7 +44,7 @@ class LayerMapping:
             if key.identifier == module.identifier
         ][0]
 
-    def _get_layer_or_none(self, module_name: str) -> Optional[Layer]:
+    def _get_layer_or_none(self, module_name: str) -> Layer | None:
         layers = [
             self._module_filter_mapping[key]
             for key in self._module_filter_mapping
@@ -66,7 +56,7 @@ class LayerMapping:
 
         return None
 
-    def get_layer_for_module_name(self, module_name: str) -> Optional[Layer]:
+    def get_layer_for_module_name(self, module_name: str) -> Layer | None:
         """Attempts to find the layer the given module belongs to. If the module does not appear in the
         layer definition itself, it is checked whether the module is a submodule of one of the modules in the layer
         definition. If so, the layer of the parent module is returned. Otherwise, None is returned.
@@ -219,14 +209,14 @@ class ModuleGroup(Module):
         return False
 
 
-Dependency = Tuple[Module, Module]
+Dependency = tuple[Module, Module]
 # key: user-requested dependency
 # values: list of exact modules that show this dependency
-ExplicitlyRequestedDependenciesByBaseModules = Dict[Dependency, List[Dependency]]
+ExplicitlyRequestedDependenciesByBaseModules = dict[Dependency, list[Dependency]]
 # key: module that either has dependencies or that others are dependent on that were not explicitly requested
 # via the rule the user has specified
 # value: importer and importee that were not found
-NotExplicitlyRequestedDependenciesByBaseModule = Dict[Module, List[Dependency]]
+NotExplicitlyRequestedDependenciesByBaseModule = dict[Module, list[Dependency]]
 
 
 class EvaluableArchitecture(Protocol):
@@ -311,6 +301,6 @@ class EvaluableArchitecture(Protocol):
         raise NotImplementedError()
 
     @property
-    def modules(self) -> List[str]:
+    def modules(self) -> list[str]:
         """Return names of all modules that are present in this architecture."""
         raise NotImplementedError()

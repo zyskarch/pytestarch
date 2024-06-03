@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import List, Set
-
 from pytestarch.eval_structure.evaluable_architecture import Dependency, ModuleFilter
 from pytestarch.eval_structure.evaluable_structures import AbstractGraph, AbstractNode
 from pytestarch.eval_structure.utils import get_node, get_parent_nodes, to_modules
@@ -9,7 +7,7 @@ from pytestarch.eval_structure.utils import get_node, get_parent_nodes, to_modul
 
 def get_dependency_between_modules(
     graph: AbstractGraph, dependent: ModuleFilter, dependent_upon: ModuleFilter
-) -> List[Dependency]:
+) -> list[Dependency]:
     dependent_node = get_node(dependent)
     dependent_upon_nodes = get_all_submodules_of(graph, dependent_upon)
 
@@ -44,8 +42,8 @@ def get_dependency_between_modules(
 
 
 def any_dependency_to_module_other_than(  # noqa: C901
-    graph: AbstractGraph, dependent: ModuleFilter, dependent_upons: Set[ModuleFilter]
-) -> List[Dependency]:
+    graph: AbstractGraph, dependent: ModuleFilter, dependent_upons: set[ModuleFilter]
+) -> list[Dependency]:
     # nodes to exclude are nodes that once reached will not have their submodules analysed next
     nodes_to_exclude = set()
     for dependent_upon in dependent_upons:
@@ -109,8 +107,8 @@ def any_dependency_to_module_other_than(  # noqa: C901
 
 
 def any_other_dependency_to_module_than(  # noqa: C901
-    graph: AbstractGraph, dependents: Set[ModuleFilter], dependent_upon: ModuleFilter
-) -> List[Dependency]:
+    graph: AbstractGraph, dependents: set[ModuleFilter], dependent_upon: ModuleFilter
+) -> list[Dependency]:
     # submodules of the dependent upon module do not count as an import that is not the dependent upon module
     # submodules of and including the dependent do not count as allowed imports
 
@@ -177,7 +175,7 @@ def any_other_dependency_to_module_than(  # noqa: C901
 
 def get_all_submodules_of(
     graph: AbstractGraph, module: ModuleFilter
-) -> Set[AbstractNode]:
+) -> set[AbstractNode]:
     """Returns all submodules of a given module.
 
     Args:

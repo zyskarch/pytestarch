@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from functools import partial
-from typing import Dict, List, Optional, Sequence, Tuple, Type, Union
 
 from pytestarch import EvaluableArchitecture, Rule
 from pytestarch.eval_structure.evaluable_architecture import (
@@ -38,7 +38,7 @@ class LayeredArchitecture(BaseLayeredArchitecture, LayerName, LayerDefinition):
     layer L as well."""
 
     def __init__(self) -> None:
-        self._modules_by_layer_name: Dict[str, Sequence[ModuleFilter]] = {}
+        self._modules_by_layer_name: dict[str, Sequence[ModuleFilter]] = {}
 
     @property
     def layer_mapping(self) -> LayerMapping:
@@ -63,7 +63,7 @@ class LayeredArchitecture(BaseLayeredArchitecture, LayerName, LayerDefinition):
 
         return self
 
-    def _get_layers_without_modules(self) -> List[str]:
+    def _get_layers_without_modules(self) -> list[str]:
         underspecified_layers = [
             layer
             for layer, modules in self._modules_by_layer_name.items()
@@ -71,7 +71,7 @@ class LayeredArchitecture(BaseLayeredArchitecture, LayerName, LayerDefinition):
         ]
         return underspecified_layers
 
-    def containing_modules(self, modules: Union[str, List[str]]) -> LayeredArchitecture:
+    def containing_modules(self, modules: str | list[str]) -> LayeredArchitecture:
         layers_without_modules = self._get_layers_without_modules()
         if not layers_without_modules or len(layers_without_modules) > 1:
             raise ImproperlyConfigured(
@@ -128,7 +128,7 @@ class LayeredArchitecture(BaseLayeredArchitecture, LayerName, LayerDefinition):
     def __getitem__(self, layer: str) -> Sequence[ModuleFilter]:
         return self._modules_by_layer_name[layer]
 
-    def _to_module_objects(self, modules: List[str]) -> Sequence[ModuleFilter]:
+    def _to_module_objects(self, modules: list[str]) -> Sequence[ModuleFilter]:
         return [ModuleNameFilter(name=module) for module in modules]
 
     def _from_regex_to_module_objects(self, regex: str) -> Sequence[ModuleFilter]:
@@ -151,10 +151,10 @@ class LayerRule(
     """
 
     def __init__(
-        self, rule_matcher_class: Type[RuleMatcher] = LayerRuleMatcher
+        self, rule_matcher_class: type[RuleMatcher] = LayerRuleMatcher
     ) -> None:
         self._rule = None
-        self._architecture: Optional[LayeredArchitecture] = None
+        self._architecture: LayeredArchitecture | None = None
         self._rule_matcher_class = rule_matcher_class
 
     def based_on(self, architecture: LayeredArchitecture) -> LayerBase:
@@ -174,7 +174,7 @@ class LayerRule(
 
         return self
 
-    def are_named(self, layers: Union[str, List[str]]) -> LayerBehaviorSpecification:
+    def are_named(self, layers: str | list[str]) -> LayerBehaviorSpecification:
         if self._rule is None:
             raise ImproperlyConfigured(
                 "Please start with 'layers_that' to ensure the rule is properly set up."
@@ -261,10 +261,10 @@ class LayerRule(
         self._rule.assert_applies(evaluable)
 
     @classmethod
-    def _listify(cls, layers: Union[str, List[str]]) -> List[str]:
-        return layers if isinstance(layers, List) else [layers]
+    def _listify(cls, layers: str | list[str]) -> list[str]:
+        return layers if isinstance(layers, list) else [layers]
 
-    def _get_all_modules_in_layers(self, layers: List[str]) -> List[Tuple[str, bool]]:
+    def _get_all_modules_in_layers(self, layers: list[str]) -> list[tuple[str, bool]]:
         if self._architecture is None:
             raise ImproperlyConfigured(
                 "Please specify an architecture to base the layers on first."

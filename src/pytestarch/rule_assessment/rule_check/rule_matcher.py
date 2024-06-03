@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
 
 from pytestarch.eval_structure.evaluable_architecture import (
     EvaluableArchitecture,
@@ -80,7 +79,7 @@ class RuleMatcher(ABC):
 
     @abstractmethod
     def _get_rule_violation_detector(
-        self, module_name_conversion_mapping: Dict[str, List[Module]]
+        self, module_name_conversion_mapping: dict[str, list[Module]]
     ) -> RuleViolationBaseDetector:
         pass
 
@@ -96,7 +95,7 @@ class RuleMatcher(ABC):
 
     def _get_not_explicitly_requested_dependencies(
         self, evaluable: EvaluableArchitecture
-    ) -> Optional[NotExplicitlyRequestedDependenciesByBaseModule]:
+    ) -> NotExplicitlyRequestedDependenciesByBaseModule | None:
         if (
             self._behavior_requirement.not_explicitly_requested_dependency_required
             or self._behavior_requirement.not_explicitly_requested_dependency_not_allowed
@@ -122,7 +121,7 @@ class RuleMatcher(ABC):
     def _get_explicitly_requested_dependencies(
         self,
         evaluable: EvaluableArchitecture,
-    ) -> Optional[ExplicitlyRequestedDependenciesByBaseModules]:
+    ) -> ExplicitlyRequestedDependenciesByBaseModules | None:
         if (
             self._behavior_requirement.explicitly_requested_dependency_required
             or self._behavior_requirement.explicitly_requested_dependency_not_allowed
@@ -156,7 +155,7 @@ class RuleMatcher(ABC):
             self._module_requirement.rule_specified_with_importer_as_rule_subject,
         )
 
-    def _create_module_name_regex_conversion_mapping(self) -> Dict[str, List[Module]]:
+    def _create_module_name_regex_conversion_mapping(self) -> dict[str, list[Module]]:
         """Maps between a regex and the actual modules it represents."""
 
         result = {
@@ -179,7 +178,7 @@ class DefaultRuleMatcher(RuleMatcher):
     """To be used for rules that operate on modules, such as "module X should not import module Y."""
 
     def _get_rule_violation_detector(
-        self, _: Dict[str, List[Module]]
+        self, _: dict[str, list[Module]]
     ) -> RuleViolationBaseDetector:
         return RuleViolationDetector(
             self._updated_module_requirement, self._behavior_requirement
@@ -210,7 +209,7 @@ class LayerRuleMatcher(RuleMatcher):
         self._layer_mapping = layer_mapping
 
     def _get_rule_violation_detector(
-        self, module_name_conversion_mapping: Dict[str, List[Module]]
+        self, module_name_conversion_mapping: dict[str, list[Module]]
     ) -> RuleViolationBaseDetector:
         self._updated_layer_mapping = self._update_layer_mapping(
             self._layer_mapping, module_name_conversion_mapping
@@ -233,7 +232,7 @@ class LayerRuleMatcher(RuleMatcher):
     def _update_layer_mapping(
         cls,
         layer_mapping: LayerMapping,
-        module_name_conversion_mapping: Dict[str, List[Module]],
+        module_name_conversion_mapping: dict[str, list[Module]],
     ) -> LayerMapping:
         return LayerMapping(
             {
@@ -249,8 +248,8 @@ class LayerRuleMatcher(RuleMatcher):
         cls,
         layer: Layer,
         layer_mapping: LayerMapping,
-        module_name_conversion_mapping: Dict[str, List[Module]],
-    ) -> List[Module]:
+        module_name_conversion_mapping: dict[str, list[Module]],
+    ) -> list[Module]:
         modules_potentially_with_regexes = layer_mapping.get_module_filters(layer)
 
         result = []

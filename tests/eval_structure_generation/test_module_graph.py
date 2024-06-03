@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
-from typing import List, Sequence, Tuple
 
 import pytest
 
@@ -26,7 +26,7 @@ ROOT_PATH = Path(__file__).parent.parent.parent.resolve()
 def modules_and_ast(
     root_path: Path = ROOT_PATH,
     search_path: Path = Path(ROOT_PATH / "tests/resources/importer"),
-) -> Tuple[List[str], List[NamedModule]]:
+) -> tuple[list[str], list[NamedModule]]:
     return Parser(
         FileFilter(
             Config(
@@ -43,15 +43,15 @@ def modules_and_ast(
 
 
 @pytest.fixture(scope="module")
-def imports(modules_and_ast: Tuple[List[str], List[NamedModule]]) -> Sequence[Import]:
+def imports(modules_and_ast: tuple[list[str], list[NamedModule]]) -> Sequence[Import]:
     return ImportConverter().convert(modules_and_ast[1], "", set())
 
 
 @pytest.fixture(scope="module")
 def all_modules(
-    modules_and_ast: Tuple[List[str], List[NamedModule]],
-    imports: List[Import],
-) -> List[str]:
+    modules_and_ast: tuple[list[str], list[NamedModule]],
+    imports: list[Import],
+) -> list[str]:
     return ImporteeModuleCalculator(ROOT_PATH).calculate_importee_modules(
         imports,
         modules_and_ast[0],
@@ -59,7 +59,7 @@ def all_modules(
 
 
 @pytest.fixture(scope="module")
-def module_graph(all_modules: List[str], imports: List[Import]) -> NetworkxGraph:
+def module_graph(all_modules: list[str], imports: list[Import]) -> NetworkxGraph:
     return NetworkxGraph(all_modules, imports)
 
 

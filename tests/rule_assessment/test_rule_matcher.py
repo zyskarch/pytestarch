@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import fields
-from typing import List, Set
 
 import pytest
 
@@ -566,10 +565,10 @@ multiple_violations_test_cases = [
     multiple_violations_test_cases,
 )
 def test_multiple_violations_due_to_multiple_rule_objects(
-    imports: List[AbsoluteImport],
+    imports: list[AbsoluteImport],
     rule: Rule,
-    expected_violations: List[str],
-    expected_violating_dependencies: List[Set[Dependency]],
+    expected_violations: list[str],
+    expected_violating_dependencies: list[set[Dependency]],
 ) -> None:
     evaluable = EvaluableArchitectureGraph(NetworkxGraph(ALL_MODULES, imports))
     matcher = rule._prepare_rule_matcher()

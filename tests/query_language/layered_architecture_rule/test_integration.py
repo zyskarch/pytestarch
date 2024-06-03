@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import List, Mapping, Union
+from collections.abc import Mapping
 
 import pytest
 from integration.interesting_rules_for_tests import (
@@ -17,7 +17,7 @@ from pytestarch import EvaluableArchitecture, LayeredArchitecture, LayerRule
 
 
 def _get_layered_architecture(
-    layers: Mapping[str, Union[List[str], str]], module_regex: bool = False
+    layers: Mapping[str, list[str] | str], module_regex: bool = False
 ) -> LayeredArchitecture:
     arch = LayeredArchitecture()
 
