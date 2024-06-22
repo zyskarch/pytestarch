@@ -807,7 +807,7 @@ for which the user can then define architectural rules.</p>
           <tr class="doc-section-item">
             <td><code>exclusions</code></td>
             <td>
-                  <code><span title="typing.Tuple">Tuple</span>[str, ...]</code>
+                  <code>tuple[str, ...]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -837,7 +837,7 @@ Can only be specified if regex_exclusions is not specified.</p>
           <tr class="doc-section-item">
             <td><code>level_limit</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[int]</code>
+                  <code>int | None</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -854,7 +854,7 @@ then assigned to X instead, if Y is above the level limit.</p>
           <tr class="doc-section-item">
             <td><code>regex_exclusions</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="typing.Tuple">Tuple</span>[str, ...]]</code>
+                  <code>tuple[str, ...] | None</code>
             </td>
             <td>
               <div class="doc-md-description">

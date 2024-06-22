@@ -1447,7 +1447,7 @@
 
 
 <h4 id="src.pytestarch.eval_structure.evaluable_architecture.EvaluableArchitecture.modules" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">modules</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></code>
+            <code class="highlight language-python"><span class="n">modules</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
@@ -2313,7 +2313,7 @@ match the regex pattern.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Sequence">Sequence</span>[<span title="pytestarch.eval_structure.evaluable_architecture.ModuleFilter">ModuleFilter</span>]</code>
+                  <code><span title="collections.abc.Sequence">Sequence</span>[<span title="pytestarch.eval_structure.evaluable_architecture.ModuleFilter">ModuleFilter</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2325,7 +2325,7 @@ match the regex pattern.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.List">List</span>[<span title="pytestarch.eval_structure.evaluable_architecture.Module">Module</span>]]</code>
+                  <code>dict[str, list[<span title="pytestarch.eval_structure.evaluable_architecture.Module">Module</span>]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2449,7 +2449,7 @@ Import('A.B', 'C.D.E') results in
           <tr class="doc-section-item">
             <td><code>all_modules</code></td>
             <td>
-                  <code><span title="typing.List">List</span>[<span title="src.pytestarch.eval_structure.networkxgraph.Node">Node</span>]</code>
+                  <code>list[<span title="src.pytestarch.eval_structure.networkxgraph.Node">Node</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2463,7 +2463,7 @@ Import('A.B', 'C.D.E') results in
           <tr class="doc-section-item">
             <td><code>imports</code></td>
             <td>
-                  <code><span title="typing.Sequence">Sequence</span>[<span title="pytestarch.eval_structure.types.Import">Import</span>]</code>
+                  <code><span title="collections.abc.Sequence">Sequence</span>[<span title="pytestarch.eval_structure.types.Import">Import</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2477,7 +2477,7 @@ Import('A.B', 'C.D.E') results in
           <tr class="doc-section-item">
             <td><code>level_limit</code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[int]</code>
+                  <code>int | None</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2549,7 +2549,7 @@ Import('A.B', 'C.D.E') results in
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<span title="src.pytestarch.eval_structure.networkxgraph.Node">Node</span>]</code>
+                  <code>list[<span title="src.pytestarch.eval_structure.networkxgraph.Node">Node</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2618,7 +2618,7 @@ Import('A.B', 'C.D.E') results in
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[<span title="src.pytestarch.eval_structure.networkxgraph.Node">Node</span>]</code>
+                  <code>list[<span title="src.pytestarch.eval_structure.networkxgraph.Node">Node</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2671,7 +2671,7 @@ Import('A.B', 'C.D.E') results in
           <tr class="doc-section-item">
             <td><code>aliases</code></td>
             <td>
-                  <code><span title="typing.Dict">Dict</span>[str, str]</code>
+                  <code>Dict[str, str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2920,7 +2920,7 @@ C.d.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[str]</code>
+                  <code>list[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3000,7 +3000,7 @@ C.d.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[str]</code>
+                  <code>list[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3081,7 +3081,7 @@ returned: [a, a.b]</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.List">List</span>[str]</code>
+                  <code>list[str]</code>
             </td>
             <td>
               <div class="doc-md-description">
