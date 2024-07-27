@@ -2,6 +2,10 @@
 
 This project uses semantic versioning and follows [keep a changelog](https://keepachangelog.com).
 
+## [3.0.1] -- 2024-07-25
+### Fixed
+- Regex syntax error in newer python versions
+
 ## [3.0.0] -- 2024-05-27
 ### Added 
 - Support for python 2.12
