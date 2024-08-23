@@ -1,13 +1,13 @@
 # Development Guide
 
-If you want to help develop PyTestArch, please read the following guide on setting up the development environment 
+If you want to help develop PyTestArch, please read the following guide on setting up the development environment
 and on which requirements need to be fulfilled for a PR to be ready for approval.
 
 ## Setting up
 [Poetry](https://python-poetry.org/) is used for dependency and packaging management. Install poetry if you haven't already.
 Run `poetry install` to create a virtual environment with the required dependencies.
 
-There are also git hooks for black, flake8, isort, and bandit available via `pre-commit install`.
+There are also git hooks for ruff and mypy available via `pre-commit install`.
 
 ## Running the test suite
 To make sure that everything works as expected, run `nox`.
