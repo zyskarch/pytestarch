@@ -2,6 +2,11 @@
 
 This project uses semantic versioning and follows [keep a changelog](https://keepachangelog.com).
 
+## [3.1.0] -- 2024-09-20
+### Added
+- Filter for external dependencies.
+
+
 ## [3.0.1] -- 2024-07-25
 ### Fixed
 - Regex syntax error in newer python versions

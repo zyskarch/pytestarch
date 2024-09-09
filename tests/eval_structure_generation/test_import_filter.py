@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pytestarch.eval_structure_generation.file_import.import_filter import ImportFilter
+from pytestarch.eval_structure_generation.file_import.import_filter import (
+    ExternalImportFilter,
+)
 from pytestarch.eval_structure_generation.file_import.import_types import AbsoluteImport
 
 ROOT_PATH = Path("A.B")
@@ -14,7 +16,7 @@ imports = [
 
 
 def test_import_filter_excludes_external_dependencies() -> None:
-    filter = ImportFilter(True, str(ROOT_PATH))
+    filter = ExternalImportFilter(True, str(ROOT_PATH), ())
     filtered_imports = filter.filter(imports)
 
     assert len(filtered_imports) == 1
@@ -22,7 +24,7 @@ def test_import_filter_excludes_external_dependencies() -> None:
 
 
 def test_import_filter_includes_internal_dependencies() -> None:
-    filter = ImportFilter(False, str(ROOT_PATH))
+    filter = ExternalImportFilter(False, str(ROOT_PATH), ())
     filtered_imports = filter.filter(imports)
 
     assert len(filtered_imports) == 2

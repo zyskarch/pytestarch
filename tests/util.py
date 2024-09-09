@@ -10,5 +10,5 @@ class MockFileFilter(FileFilter):
     def __init__(self):
         super().__init__(Config(tuple()))
 
-    def is_excluded(self, path: Path) -> bool:
+    def is_excluded(self, obj: Path | str) -> bool:  # type: ignore
         return False
