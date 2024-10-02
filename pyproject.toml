@@ -6,7 +6,7 @@ authors = ["zyskarch <zyskarch@gmail.com>"]
 maintainers = ["zyskarch <zyskarch@gmail.com>"]
 readme = "README.md"
 license = "Apache-2.0"
-documentation = "https://zyskarch.github.io/pytestarch/"
+documentation = "https://zyskarch.github.io/pytestarch/latest"
 repository = "https://github.com/zyskarch/pytestarch"
 
 keywords = ["architecture", "test"]
