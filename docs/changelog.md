@@ -2,6 +2,10 @@
 
 This project uses semantic versioning and follows [keep a changelog](https://keepachangelog.com).
 
+## [3.1.1] -- 2024-10-02
+### Fixed
+- Link to documentation
+
 ## [3.1.0] -- 2024-09-16
 ### Added
 - Filter for external dependencies.
