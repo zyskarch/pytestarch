@@ -41,7 +41,7 @@ def get_dependency_between_modules(
     return dependencies  # type: ignore
 
 
-def any_dependency_to_module_other_than(  # noqa: C901
+def any_dependency_to_module_other_than(
     graph: AbstractGraph, dependent: ModuleFilter, dependent_upons: set[ModuleFilter]
 ) -> list[Dependency]:
     # nodes to exclude are nodes that once reached will not have their submodules analysed next
@@ -106,7 +106,7 @@ def any_dependency_to_module_other_than(  # noqa: C901
     return nodes_fulfilling_criteria  # type: ignore
 
 
-def any_other_dependency_to_module_than(  # noqa: C901
+def any_other_dependency_to_module_than(
     graph: AbstractGraph, dependents: set[ModuleFilter], dependent_upon: ModuleFilter
 ) -> list[Dependency]:
     # submodules of the dependent upon module do not count as an import that is not the dependent upon module

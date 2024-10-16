@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import pytest
-import resources
-from resources import importer
 
+import resources
 from pytestarch import EvaluableArchitecture
 from pytestarch.pytestarch import get_evaluable_architecture_for_module_objects
+from resources import importer
 
 
 @pytest.fixture(scope="session")

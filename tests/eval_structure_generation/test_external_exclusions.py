@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import resources
-from resources import project_with_nested_external_dependencies
-
 from pytestarch.pytestarch import get_evaluable_architecture_for_module_objects
+from resources import project_with_nested_external_dependencies
 
 
 def test_external_dependencies_present() -> None:

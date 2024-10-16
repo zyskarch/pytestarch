@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import io as io_import  # noqa: F401
 import sys  # noqa: F401
-import typing  # noqa: F401 E401
-from ast import *  # noqa: F401 F403
+import typing
+from ast import *  # noqa: F403
 from os import path as p  # noqa: F401
 from os import read  # noqa: F401
 from pathlib import Path
 
-import pytest  # noqa: F401 E401
+import pytest  # noqa: F401
 
 from pytestarch.pytestarch import get_evaluable_architecture
 

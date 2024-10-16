@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from eval_structure.evaluable_graph.conftest import (
     MODULE_A,
     MODULE_B,
@@ -9,7 +10,6 @@ from eval_structure.evaluable_graph.conftest import (
     MODULE_E,
     MODULE_F,
 )
-
 from pytestarch.eval_structure.breadth_first_searches import get_all_submodules_of
 from pytestarch.eval_structure.evaluable_architecture import ModuleNameFilter
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph

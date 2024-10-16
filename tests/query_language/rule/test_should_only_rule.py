@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pytestarch import EvaluableArchitecture, Rule
 from query_language.rule.conftest import (
     MODULE_1,
     MODULE_2,
@@ -11,8 +12,6 @@ from query_language.rule.test_rule import (
     assert_rule_applies,
     assert_rule_does_not_apply,
 )
-
-from pytestarch import EvaluableArchitecture, Rule
 
 
 def test_should_only_be_imported_except_named_named_positive(

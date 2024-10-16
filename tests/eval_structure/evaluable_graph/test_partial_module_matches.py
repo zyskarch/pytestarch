@@ -3,9 +3,9 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 import pytest
+
 from eval_structure.evaluable_graph.conftest import MODULE_A, MODULE_B, MODULE_D
 from integration.interesting_rules_for_tests import A, B, C
-
 from pytestarch import Rule
 from pytestarch.eval_structure.evaluable_architecture import (
     EvaluableArchitecture,
