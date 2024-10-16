@@ -33,7 +33,7 @@ matplotlib = { version = "^3.9", optional = true }
 [tool.poetry.extras]
 visualization = ["matplotlib"]
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 mkdocs = "1.6.0"
 mkdocstrings-python = "1.10.3"
 mkdocs-material = "9.5.25"
@@ -48,7 +48,7 @@ coverage = "^7.5.2"
 mike = "2.1.1"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=1.8.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
