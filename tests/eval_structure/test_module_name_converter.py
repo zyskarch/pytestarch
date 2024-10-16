@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import pytest
-from integration.interesting_rules_for_tests import PROJECT_ROOT
 
+from integration.interesting_rules_for_tests import PROJECT_ROOT
 from pytestarch import EvaluableArchitecture
 from pytestarch.eval_structure.evaluable_architecture import ModuleNameRegexFilter
 from pytestarch.eval_structure.module_name_converter import ModuleNameConverter

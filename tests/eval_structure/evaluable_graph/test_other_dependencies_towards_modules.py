@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from eval_structure.evaluable_graph.conftest import (
     MODULE_1,
     MODULE_2,
@@ -8,7 +9,6 @@ from eval_structure.evaluable_graph.conftest import (
     SUB_MODULE_OF_1,
     SUB_MODULE_OF_2,
 )
-
 from pytestarch.eval_structure.evaluable_architecture import (
     Module,
     ModuleGroup,

@@ -3,16 +3,16 @@ from __future__ import annotations
 import os
 
 import pytest
+
 from integration.interesting_rules_for_tests import (
     partial_name_match_test_cases,
     single_rule_subject_multiple_rule_objects_error_message_test_cases,
     single_rule_subject_single_rule_object_error_message_test_cases,
 )
+from pytestarch import EvaluableArchitecture, Rule, get_evaluable_architecture
 from resources import nested_root_module_mismatch_project, root_module_mismatch_project
 from resources.nested_root_module_mismatch_project.dir1.dir2 import nested_app
 from resources.root_module_mismatch_project import app
-
-from pytestarch import EvaluableArchitecture, Rule, get_evaluable_architecture
 
 
 @pytest.mark.parametrize(

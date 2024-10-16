@@ -3,16 +3,16 @@ from __future__ import annotations
 import os
 
 import pytest
+
 from integration.interesting_rules_for_tests import (
     rules_for_level_limit_1,
     rules_for_no_level_limits,
 )
+from pytestarch import EvaluableArchitecture, Rule, get_evaluable_architecture
+from pytestarch.eval_structure.networkxgraph import NetworkxGraph
 from resources.test_project import src
 from resources.test_project.src import moduleA
 from resources.test_project.src.moduleA import submoduleA1
-
-from pytestarch import EvaluableArchitecture, Rule, get_evaluable_architecture
-from pytestarch.eval_structure.networkxgraph import NetworkxGraph
 
 
 @pytest.mark.parametrize(

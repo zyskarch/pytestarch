@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+from matplotlib.pyplot import subplots
+
 from eval_structure.evaluable_graph.conftest import (
     MODULE_1,
     MODULE_2,
@@ -8,8 +10,6 @@ from eval_structure.evaluable_graph.conftest import (
     MODULE_E,
     SUB_MODULE_OF_2,
 )
-from matplotlib.pyplot import subplots
-
 from pytestarch import EvaluableArchitecture
 
 
