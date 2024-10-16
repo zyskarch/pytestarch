@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pytestarch import EvaluableArchitecture
+from pytestarch.eval_structure.evaluable_architecture import EvaluableArchitecture
 from pytestarch.query_language.base_language import RuleApplier
 
 

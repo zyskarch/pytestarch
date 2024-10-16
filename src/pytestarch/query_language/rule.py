@@ -4,8 +4,8 @@ from collections.abc import Sequence
 from dataclasses import dataclass, replace
 from typing import Callable
 
-from pytestarch import EvaluableArchitecture
 from pytestarch.eval_structure.evaluable_architecture import (
+    EvaluableArchitecture,
     ModuleFilter,
     ModuleNameFilter,
     ModuleNameRegexFilter,

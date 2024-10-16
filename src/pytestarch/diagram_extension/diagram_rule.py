@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pytestarch import EvaluableArchitecture
 from pytestarch.diagram_extension.dependency_to_rule_converter import (
     DependencyToRuleConverter,
 )
 from pytestarch.diagram_extension.diagram_parser import PumlParser
 from pytestarch.diagram_extension.parsed_dependencies import ParsedDependencies
+from pytestarch.eval_structure.evaluable_graph import EvaluableArchitecture
 from pytestarch.query_language.base_language import (
     BaseModuleSpecifier,
     FileRule,

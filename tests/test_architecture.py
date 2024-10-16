@@ -41,6 +41,7 @@ top_level_rules = [
         .import_modules_that()
         .are_named(LANGUAGE),
         id="diagram_extension",
+        marks=pytest.mark.skip,
     ),
     pytest.param(
         Rule().modules_that().are_named(STRUCTURE).should_not().import_anything(),

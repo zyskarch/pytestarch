@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from pytestarch import Rule
 from pytestarch.diagram_extension.parsed_dependencies import ParsedDependencies
 from pytestarch.query_language.base_language import RuleApplier
+from pytestarch.query_language.rule import Rule
 
 
 class DependencyToRuleConverter:
