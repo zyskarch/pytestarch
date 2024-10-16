@@ -203,7 +203,6 @@ class LayerName(ABC):
 
 
 class BaseLayeredArchitecture(ABC):
-
     @abstractmethod
     def with_layer(self) -> LayerName:
         """This is simply a convenience method to achieve proper typing. It can be omitted."""

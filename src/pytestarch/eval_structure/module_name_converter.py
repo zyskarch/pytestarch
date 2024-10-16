@@ -64,7 +64,8 @@ class ModuleNameConverter:
                         never_matched.remove(module_to_match)
 
                     submodules_of_match = get_all_submodules_of(
-                        arch._graph, converted_module_filter  # type: ignore
+                        arch._graph,  # type: ignore
+                        converted_module_filter,
                     )
                     submodules_of_match.remove(
                         actually_present_module

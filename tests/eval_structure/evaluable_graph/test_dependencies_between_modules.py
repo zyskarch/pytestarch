@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from eval_structure.evaluable_graph.conftest import (
     MODULE_1,
     MODULE_2,
@@ -19,7 +20,6 @@ from eval_structure.evaluable_graph.conftest import (
     SUB_MODULE_OF_1,
     SUB_MODULE_OF_2,
 )
-
 from pytestarch import EvaluableArchitecture
 from pytestarch.eval_structure.evaluable_architecture import (
     Module,
@@ -35,159 +35,99 @@ from pytestarch.eval_structure_generation.file_import.import_types import Absolu
 def test_a_depends_on_non_b(evaluable: EvaluableArchitecture) -> None:
     assert evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_1], [MODULE_FILTER_OBJECT_2]
-    )[
-        MODULE_OBJECT_1
-    ]
+    )[MODULE_OBJECT_1]
     assert evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_1], [MODULE_FILTER_OBJECT_3]
-    )[
-        MODULE_OBJECT_1
-    ]
+    )[MODULE_OBJECT_1]
     assert evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_1], [MODULE_FILTER_OBJECT_4]
-    )[
-        MODULE_OBJECT_1
-    ]
+    )[MODULE_OBJECT_1]
     assert evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_1], [SUB_MODULE_FILTER_OBJECT_2]
-    )[
-        MODULE_OBJECT_1
-    ]
+    )[MODULE_OBJECT_1]
     assert evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_1], [MODULE_FILTER_OBJECT_6]
-    )[
-        MODULE_OBJECT_1
-    ]
+    )[MODULE_OBJECT_1]
 
     assert not evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_2], [MODULE_FILTER_OBJECT_1]
-    )[
-        MODULE_OBJECT_2
-    ]
+    )[MODULE_OBJECT_2]
     assert not evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_2], [MODULE_FILTER_OBJECT_3]
-    )[
-        MODULE_OBJECT_2
-    ]
+    )[MODULE_OBJECT_2]
     assert not evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_2], [MODULE_FILTER_OBJECT_4]
-    )[
-        MODULE_OBJECT_2
-    ]
+    )[MODULE_OBJECT_2]
     assert not evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_2], [SUB_MODULE_FILTER_OBJECT_2]
-    )[
-        MODULE_OBJECT_2
-    ]
+    )[MODULE_OBJECT_2]
     assert not evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_2], [MODULE_FILTER_OBJECT_6]
-    )[
-        MODULE_OBJECT_2
-    ]
+    )[MODULE_OBJECT_2]
 
     assert evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_3], [MODULE_FILTER_OBJECT_1]
-    )[
-        MODULE_OBJECT_3
-    ]
+    )[MODULE_OBJECT_3]
     assert evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_3], [MODULE_FILTER_OBJECT_2]
-    )[
-        MODULE_OBJECT_3
-    ]
+    )[MODULE_OBJECT_3]
     assert evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_3], [MODULE_FILTER_OBJECT_4]
-    )[
-        MODULE_OBJECT_3
-    ]
+    )[MODULE_OBJECT_3]
     assert evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_3], [SUB_MODULE_FILTER_OBJECT_2]
-    )[
-        MODULE_OBJECT_3
-    ]
+    )[MODULE_OBJECT_3]
     assert evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_3], [MODULE_FILTER_OBJECT_6]
-    )[
-        MODULE_OBJECT_3
-    ]
+    )[MODULE_OBJECT_3]
 
     assert evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_4], [MODULE_FILTER_OBJECT_1]
-    )[
-        MODULE_OBJECT_4
-    ]
+    )[MODULE_OBJECT_4]
     assert not evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_4], [MODULE_FILTER_OBJECT_2]
-    )[
-        MODULE_OBJECT_4
-    ]
+    )[MODULE_OBJECT_4]
     assert evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_4], [MODULE_FILTER_OBJECT_3]
-    )[
-        MODULE_OBJECT_4
-    ]
+    )[MODULE_OBJECT_4]
     assert not evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_4], [SUB_MODULE_FILTER_OBJECT_2]
-    )[
-        MODULE_OBJECT_4
-    ]
+    )[MODULE_OBJECT_4]
     assert evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_4], [MODULE_FILTER_OBJECT_6]
-    )[
-        MODULE_OBJECT_4
-    ]
+    )[MODULE_OBJECT_4]
 
     assert not evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [SUB_MODULE_FILTER_OBJECT_2], [MODULE_FILTER_OBJECT_1]
-    )[
-        SUB_MODULE_OBJECT_2
-    ]
+    )[SUB_MODULE_OBJECT_2]
     assert not evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [SUB_MODULE_FILTER_OBJECT_2], [MODULE_FILTER_OBJECT_2]
-    )[
-        SUB_MODULE_OBJECT_2
-    ]
+    )[SUB_MODULE_OBJECT_2]
     assert not evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [SUB_MODULE_FILTER_OBJECT_2], [MODULE_FILTER_OBJECT_3]
-    )[
-        SUB_MODULE_OBJECT_2
-    ]
+    )[SUB_MODULE_OBJECT_2]
     assert not evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [SUB_MODULE_FILTER_OBJECT_2], [MODULE_FILTER_OBJECT_4]
-    )[
-        SUB_MODULE_OBJECT_2
-    ]
+    )[SUB_MODULE_OBJECT_2]
     assert not evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [SUB_MODULE_FILTER_OBJECT_2], [MODULE_FILTER_OBJECT_6]
-    )[
-        SUB_MODULE_OBJECT_2
-    ]
+    )[SUB_MODULE_OBJECT_2]
 
     assert not evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_6], [MODULE_FILTER_OBJECT_1]
-    )[
-        MODULE_OBJECT_6
-    ]
+    )[MODULE_OBJECT_6]
     assert not evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_6], [MODULE_FILTER_OBJECT_2]
-    )[
-        MODULE_OBJECT_6
-    ]
+    )[MODULE_OBJECT_6]
     assert not evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_6], [MODULE_FILTER_OBJECT_3]
-    )[
-        MODULE_OBJECT_6
-    ]
+    )[MODULE_OBJECT_6]
     assert not evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_6], [MODULE_FILTER_OBJECT_4]
-    )[
-        MODULE_OBJECT_6
-    ]
+    )[MODULE_OBJECT_6]
     assert not evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [MODULE_FILTER_OBJECT_6], [SUB_MODULE_FILTER_OBJECT_2]
-    )[
-        MODULE_OBJECT_6
-    ]
+    )[MODULE_OBJECT_6]
 
 
 def test_non_a_depends_on_b(evaluable: EvaluableArchitecture) -> None:
