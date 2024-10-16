@@ -4,6 +4,7 @@ import re
 from collections.abc import Mapping
 
 import pytest
+
 from integration.interesting_rules_for_tests import (
     LayerRuleSetup,
     LayerRuleSingleModulePerLayerTestCase,
@@ -12,7 +13,6 @@ from integration.interesting_rules_for_tests import (
     layer_rule_error_messages_regex_module_specification_test_cases,
     layer_rule_error_messages_test_cases,
 )
-
 from pytestarch import EvaluableArchitecture, LayeredArchitecture, LayerRule
 
 
@@ -75,7 +75,8 @@ def test_rule_violated_raises_proper_error_message(
     rule = _get_layer_rule(test_case.rule_setup, arch)
 
     with pytest.raises(
-        AssertionError, match=re.escape(test_case.expected_error_message)  # type: ignore
+        AssertionError,
+        match=re.escape(test_case.expected_error_message),  # type: ignore
     ):
         rule.assert_applies(flat_project_1)
 
@@ -92,6 +93,7 @@ def test_rule_violated_modules_based_on_regex_raises_proper_error_message(
     rule = _get_layer_rule(test_case.rule_setup, arch)
 
     with pytest.raises(
-        AssertionError, match=re.escape(test_case.expected_error_message)  # type: ignore
+        AssertionError,
+        match=re.escape(test_case.expected_error_message),  # type: ignore
     ):
         rule.assert_applies(flat_project_1)

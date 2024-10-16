@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from eval_structure.evaluable_graph.conftest import (
     MODULE_1,
     MODULE_2,
@@ -8,7 +9,6 @@ from eval_structure.evaluable_graph.conftest import (
     SUB_MODULE_OF_1,
     SUB_MODULE_OF_2,
 )
-
 from pytestarch.eval_structure.evaluable_architecture import (
     Module,
     ModuleGroup,
@@ -38,9 +38,7 @@ def test_any_to_other_between_named_modules(imports: list[AbsoluteImport]) -> No
 
     assert architecture.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [module_filter_1], [module_filter_2]
-    )[
-        module_1
-    ]
+    )[module_1]
 
 
 @pytest.mark.parametrize(
@@ -65,9 +63,7 @@ def test_any_to_other_between_named_and_submodule_modules(
 
     assert architecture.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [module_filter_1], [module_filter_2]
-    )[
-        module_1
-    ]
+    )[module_1]
 
 
 @pytest.mark.parametrize(
@@ -89,9 +85,7 @@ def test_any_to_other_between_submodule_and_named_modules(
 
     assert architecture.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [module_filter_1], [module_filter_2]
-    )[
-        module_1
-    ]
+    )[module_1]
 
 
 @pytest.mark.parametrize(
@@ -112,9 +106,7 @@ def test_any_to_other_between_submodule_modules(imports: list[AbsoluteImport]) -
 
     assert architecture.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [module_filter_1], [module_filter_2]
-    )[
-        module_1
-    ]
+    )[module_1]
 
 
 @pytest.mark.parametrize(
@@ -137,9 +129,7 @@ def test_not_any_to_other_between_named_modules(imports: list[AbsoluteImport]) -
 
     assert not architecture.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [module_filter_1], [module_filter_2]
-    )[
-        module_1
-    ]
+    )[module_1]
 
 
 @pytest.mark.parametrize(
@@ -162,9 +152,7 @@ def test_not_any_to_other_between_named_and_submodule_modules(
 
     assert not architecture.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [module_filter_1], [module_filter_2]
-    )[
-        module_1
-    ]
+    )[module_1]
 
 
 @pytest.mark.parametrize(
@@ -187,9 +175,7 @@ def test_not_any_to_other_between_submodule_and_named_modules(
     module_1 = ModuleGroup(identifier=MODULE_1)
     assert not architecture.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [module_filter_1], [module_filter_2]
-    )[
-        module_1
-    ]
+    )[module_1]
 
 
 @pytest.mark.parametrize(
@@ -212,6 +198,4 @@ def test_not_any_to_other_between_submodule_modules(
 
     assert not architecture.any_dependencies_from_dependents_to_modules_other_than_dependent_upons(
         [module_filter_1], [module_filter_2]
-    )[
-        module_1
-    ]
+    )[module_1]

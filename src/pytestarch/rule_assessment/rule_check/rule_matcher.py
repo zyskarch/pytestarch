@@ -100,16 +100,10 @@ class RuleMatcher(ABC):
             self._behavior_requirement.not_explicitly_requested_dependency_required
             or self._behavior_requirement.not_explicitly_requested_dependency_not_allowed
         ):
-            if (
-                not self._updated_module_requirement.rule_specified_with_importer_as_rule_object
-            ):
-                not_explicitly_requested_dependency_check_method = (
-                    evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons
-                )
+            if not self._updated_module_requirement.rule_specified_with_importer_as_rule_object:
+                not_explicitly_requested_dependency_check_method = evaluable.any_dependencies_from_dependents_to_modules_other_than_dependent_upons
             else:
-                not_explicitly_requested_dependency_check_method = (
-                    evaluable.any_other_dependencies_on_dependent_upons_than_from_dependents
-                )
+                not_explicitly_requested_dependency_check_method = evaluable.any_other_dependencies_on_dependent_upons_than_from_dependents
 
             return not_explicitly_requested_dependency_check_method(
                 self._updated_module_requirement.importers,
