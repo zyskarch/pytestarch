@@ -39,9 +39,8 @@ top_level_rules = [
         .are_named(DIAGRAM)
         .should_only()
         .import_modules_that()
-        .are_named(LANGUAGE),
+        .are_named([LANGUAGE, STRUCTURE]),
         id="diagram_extension",
-        marks=pytest.mark.skip,
     ),
     pytest.param(
         Rule().modules_that().are_named(STRUCTURE).should_not().import_anything(),
