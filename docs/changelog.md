@@ -2,6 +2,12 @@
 
 This project uses semantic versioning and follows [keep a changelog](https://keepachangelog.com).
 
+## 4.0.0 -- 2024-XX-XX
+### Changed
+- Mechanism of exporting library modules
+- Python formatting
+
+
 ## [3.1.1] -- 2024-10-02
 ### Fixed
 - Link to documentation

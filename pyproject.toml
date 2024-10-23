@@ -46,6 +46,7 @@ pre-commit = "3.7.1"
 pytest = "^8.2.1"
 coverage = "^7.5.2"
 mike = "2.1.1"
+ruff = "^0.7.0"
 
 [build-system]
 requires = ["poetry-core>=1.8.0"]
