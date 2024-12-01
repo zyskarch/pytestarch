@@ -77,20 +77,20 @@ class Rule(
         return self
 
     def are_sub_modules_of(  # type: ignore
-        self, modules: str | list[str]
+        self, modules: str | Sequence[str]
     ) -> BehaviorSpecification:
         self._set_modules(
             modules, lambda name: ParentModuleNameFilter(parent_module=name)
         )
         return self
 
-    def are_named(self, names: str | list[str]) -> BehaviorSpecification:  # type: ignore
+    def are_named(self, names: str | Sequence[str]) -> BehaviorSpecification:  # type: ignore
         self._set_modules(names, lambda name: ModuleNameFilter(name=name))
         return self
 
     @deprecated
     def have_name_containing(
-        self, partial_names: str | list[str]
+        self, partial_names: str | Sequence[str]
     ) -> BehaviorSpecification:
         self._set_modules(
             partial_names,
@@ -109,7 +109,7 @@ class Rule(
 
     def _set_modules(
         self,
-        module_names: str | list[str],
+        module_names: str | Sequence[str],
         create_module_fn: Callable[[str], ModuleFilter],
     ) -> None:
         if self._modules_to_check_to_be_specified_next is None:
@@ -124,7 +124,9 @@ class Rule(
         else:
             self._configuration.modules_to_check_against = modules
 
-    def _add_modules(self, modules: list[tuple[str, bool]]) -> BehaviorSpecification:
+    def _add_modules(
+        self, modules: Sequence[tuple[str, bool]]
+    ) -> BehaviorSpecification:
         module_names = []
         module_creation_fn = []
 
@@ -143,8 +145,8 @@ class Rule(
 
     def _append_modules(
         self,
-        module_names: list[str],
-        create_module_fns: list[Callable[[str], ModuleFilter]],
+        module_names: Sequence[str],
+        create_module_fns: Sequence[Callable[[str], ModuleFilter]],
     ) -> None:
         modules = [fn(n) for n, fn in zip(module_names, create_module_fns)]
         if self._modules_to_check_to_be_specified_next:
