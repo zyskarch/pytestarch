@@ -6,6 +6,7 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 ### Changed
 - Mechanism of exporting library modules
 - Python formatting
+- Support for python 3.13
 
 
 ## [3.1.1] -- 2024-10-02
@@ -23,7 +24,7 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 
 ## [3.0.0] -- 2024-05-27
 ### Added 
-- Support for python 2.12
+- Support for python 3.12
 
 ### Removed
 - Support for python 3.8
