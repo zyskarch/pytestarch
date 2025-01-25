@@ -1,13 +1,12 @@
-[tool.poetry]
+[project]
 name = "PyTestArch"
 version = "3.1.1"
+requires-python = ">=3.9"
 description = "Test framework for software architecture based on imports between modules"
-authors = ["zyskarch <zyskarch@gmail.com>"]
-maintainers = ["zyskarch <zyskarch@gmail.com>"]
+authors = [{ name = "zyskarch", email = "zyskarch@gmail.com" }]
+maintainers = [{ name = "zyskarch", email = "zyskarch@gmail.com" }]
 readme = "README.md"
 license = "Apache-2.0"
-documentation = "https://zyskarch.github.io/pytestarch/latest"
-repository = "https://github.com/zyskarch/pytestarch"
 
 keywords = ["architecture", "test"]
 classifiers = [
@@ -23,16 +22,15 @@ classifiers = [
     "Topic :: Software Development :: Testing :: Unit",
 ]
 
-[tool.poetry.urls]
-"Bug Tracker" = "https://github.com/zyskarch/pytestarch/issues"
+dependencies = ["networkx>=3.2"]
 
-[tool.poetry.dependencies]
-python = "^3.9"
-networkx = "^3.2"
-matplotlib = { version = "^3.9", optional = true }
+[project.optional-dependencies]
+visualization = ["matplotlib>=3.9"]
 
-[tool.poetry.extras]
-visualization = ["matplotlib"]
+[project.urls]
+issues = "https://github.com/zyskarch/pytestarch/issues"
+documentation = "https://zyskarch.github.io/pytestarch/latest"
+repository = "https://github.com/zyskarch/pytestarch"
 
 [tool.poetry.group.dev.dependencies]
 mkdocs = "1.6.0"
@@ -50,7 +48,7 @@ mike = "2.1.1"
 ruff = "^0.7.0"
 
 [build-system]
-requires = ["poetry-core>=1.8.0"]
+requires = ["poetry-core>=2.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
