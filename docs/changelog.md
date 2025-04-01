@@ -2,12 +2,14 @@
 
 This project uses semantic versioning and follows [keep a changelog](https://keepachangelog.com).
 
-## 4.0.0 -- 2024-XX-XX
+## 4.0.0 -- 2024-04-01
 ### Changed
 - Mechanism of exporting library modules
 - Python formatting
 - Support for python 3.13
 
+### Fixed
+- KeyError when trying to check for imports of submodule by same submodule
 
 ## [3.1.1] -- 2024-10-02
 ### Fixed
