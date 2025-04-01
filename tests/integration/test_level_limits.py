@@ -51,12 +51,11 @@ def test_architecture_based_on_string_modules(
         )
     ],
 )
-def test_same_submodule(
+def test_same_submodule_as_importer_shows_same_behavior(
     rule_without_submodule: Rule,
     rule_with_submodule: Rule,
     graph_based_on_string_module_names: EvaluableArchitecture,
 ) -> None:
-    # todo: try all other verbs etc if this works
     with pytest.raises(AssertionError) as e1:
         rule_without_submodule.assert_applies(graph_based_on_string_module_names)
 
