@@ -5,7 +5,6 @@ import os
 import pytest
 
 from integration.interesting_rules_for_tests import (
-    A,
     rules_for_level_limit_1,
     rules_for_no_level_limits,
 )
@@ -30,39 +29,6 @@ def test_architecture_based_on_string_modules(
     else:
         with pytest.raises(AssertionError):
             rule.assert_applies(graph_based_on_string_module_names)
-
-
-@pytest.mark.parametrize(
-    "rule_without_submodule, rule_with_submodule",
-    [
-        (
-            Rule()
-            .modules_that()
-            .are_sub_modules_of(A)
-            .should_not()
-            .be_imported_by_modules_except_modules_that()
-            .are_sub_modules_of(A),
-            Rule()
-            .modules_that()
-            .are_sub_modules_of(A)
-            .should_not()
-            .be_imported_by_modules_except_modules_that()
-            .are_named(A),
-        )
-    ],
-)
-def test_same_submodule_as_importer_shows_same_behavior(
-    rule_without_submodule: Rule,
-    rule_with_submodule: Rule,
-    graph_based_on_string_module_names: EvaluableArchitecture,
-) -> None:
-    with pytest.raises(AssertionError) as e1:
-        rule_without_submodule.assert_applies(graph_based_on_string_module_names)
-
-    with pytest.raises(AssertionError) as e2:
-        rule_with_submodule.assert_applies(graph_based_on_string_module_names)
-
-    assert str(e1.value) == str(e2.value)
 
 
 @pytest.mark.parametrize(

@@ -5,6 +5,7 @@ import os
 import pytest
 
 from integration.interesting_rules_for_tests import (
+    A,
     partial_name_match_test_cases,
     single_rule_subject_multiple_rule_objects_error_message_test_cases,
     single_rule_subject_single_rule_object_error_message_test_cases,
@@ -153,3 +154,32 @@ def test_nested_root_module_match_handled_as_expected() -> None:
         match='"nested_app.red.red" is imported by "nested_app.green.green".\n"nested_app.red.red2" is imported by "nested_app.green.green".\n"nested_app.red.red3" is imported by "nested_app.green.green".',
     ):
         rule.assert_applies(evaluable)
+
+
+def test_same_submodule_as_importer_shows_same_behavior(
+    graph_based_on_string_module_names: EvaluableArchitecture,
+) -> None:
+    rule_without_submodule = (
+        Rule()
+        .modules_that()
+        .are_sub_modules_of(A)
+        .should_not()
+        .be_imported_by_modules_except_modules_that()
+        .are_sub_modules_of(A)
+    )
+    rule_with_submodule = (
+        Rule()
+        .modules_that()
+        .are_sub_modules_of(A)
+        .should_not()
+        .be_imported_by_modules_except_modules_that()
+        .are_named(A)
+    )
+
+    with pytest.raises(AssertionError) as e1:
+        rule_without_submodule.assert_applies(graph_based_on_string_module_names)
+
+    with pytest.raises(AssertionError) as e2:
+        rule_with_submodule.assert_applies(graph_based_on_string_module_names)
+
+    assert str(e1.value) == str(e2.value)
