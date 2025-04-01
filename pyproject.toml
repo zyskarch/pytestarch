@@ -1,6 +1,6 @@
 [project]
 name = "PyTestArch"
-version = "3.1.1"
+version = "4.0.0"
 requires-python = ">=3.9"
 description = "Test framework for software architecture based on imports between modules"
 authors = [{ name = "zyskarch", email = "zyskarch@gmail.com" }]

@@ -75,7 +75,10 @@ def any_dependency_to_module_other_than(
             # the true submodules are excluded
             # reason: if something imports B, then it imports something that is not B.X (and B.X is a dependent_upon module)
             # (but we do not care if it imports B.X.M, as this is part of B.X)
-            nodes_to_exclude.remove(dependent_upon.identifier)
+            try:
+                nodes_to_exclude.remove(dependent_upon.identifier)
+            except KeyError:
+                pass
 
     nodes_to_check = list(nodes_that_do_not_fulfill_criterion)
     checked_nodes = set()
@@ -145,7 +148,10 @@ def any_other_dependency_to_module_than(
             # if the dependent module is defined via a parent module, this parent module counts as an allowed import
             # reason: we are looking for dependencies other than module A.X. Parent module A is not (only) A.X, so it counts
             # (submodule A.X.M does not count, as it is not anything else but A.X)
-            nodes_to_exclude.remove(dependent.identifier)
+            try:
+                nodes_to_exclude.remove(dependent.identifier)
+            except KeyError:
+                pass
 
     checked_nodes = set()
 
