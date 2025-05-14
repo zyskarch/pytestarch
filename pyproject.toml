@@ -1,7 +1,7 @@
 [project]
 name = "PyTestArch"
 version = "4.0.1"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 description = "Test framework for software architecture based on imports between modules"
 authors = [{ name = "zyskarch", email = "zyskarch@gmail.com" }]
 maintainers = [{ name = "zyskarch", email = "zyskarch@gmail.com" }]
@@ -10,11 +10,11 @@ license = "Apache-2.0"
 
 keywords = ["architecture", "test"]
 classifiers = [
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.9",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Intended Audience :: Developers",
