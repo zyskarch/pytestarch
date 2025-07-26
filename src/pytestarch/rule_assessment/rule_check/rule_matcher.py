@@ -256,6 +256,6 @@ class LayerRuleMatcher(RuleMatcher):
                 )
 
             else:
-                result = result + module_name_conversion_mapping[module.identifier]
+                result.extend(module_name_conversion_mapping.get(module.identifier, []))
 
         return result
