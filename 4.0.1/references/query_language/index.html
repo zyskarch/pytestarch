@@ -1,0 +1,2723 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../general/">
+      
+      
+        <link rel="next" href="../eval_structure/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
+    
+    
+      
+        <title>Query Language - PyTestArch</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6543a935.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#query-language" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PyTestArch" class="md-header__button md-logo" aria-label="PyTestArch" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PyTestArch
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Query Language
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/zyskarch/pytestarch" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PyTestArch" class="md-nav__button md-logo" aria-label="PyTestArch" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    PyTestArch
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/zyskarch/pytestarch" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Features
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Features
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../features/general/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    General Concept
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../features/module_import_checks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Module Dependency Rules
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../features/layer_architecture_checks/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Layer Architecture Dependency Rules
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../features/plantuml/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Module Dependency Rule Generation from PlantUML Component Diagrams
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../features/visualization/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Visualization
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Changelog
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../general/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    General
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Query Language
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Query Language
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language" class="md-nav__link">
+    <span class="md-ellipsis">
+      base_language
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="base_language">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.AccessSpecification" class="md-nav__link">
+    <span class="md-ellipsis">
+      AccessSpecification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.BaseLayeredArchitecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      BaseLayeredArchitecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BaseLayeredArchitecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.BaseLayeredArchitecture.with_layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      with_layer
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.BaseModuleSpecifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      BaseModuleSpecifier
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BaseModuleSpecifier">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.BaseModuleSpecifier.base_module_included_in_module_names" class="md-nav__link">
+    <span class="md-ellipsis">
+      base_module_included_in_module_names
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.BaseModuleSpecifier.with_base_module" class="md-nav__link">
+    <span class="md-ellipsis">
+      with_base_module
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.BehaviorBaseSpecification" class="md-nav__link">
+    <span class="md-ellipsis">
+      BehaviorBaseSpecification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.DependencySpecification" class="md-nav__link">
+    <span class="md-ellipsis">
+      DependencySpecification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.FileRule" class="md-nav__link">
+    <span class="md-ellipsis">
+      FileRule
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="FileRule">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.FileRule.from_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      from_file
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.LayerBase" class="md-nav__link">
+    <span class="md-ellipsis">
+      LayerBase
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.LayerDefinition" class="md-nav__link">
+    <span class="md-ellipsis">
+      LayerDefinition
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="LayerDefinition">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.LayerDefinition.containing_modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      containing_modules
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.LayerDefinition.have_modules_with_names_matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      have_modules_with_names_matching
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.LayerName" class="md-nav__link">
+    <span class="md-ellipsis">
+      LayerName
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.LayerRuleBase" class="md-nav__link">
+    <span class="md-ellipsis">
+      LayerRuleBase
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.LayerSpecification" class="md-nav__link">
+    <span class="md-ellipsis">
+      LayerSpecification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.ModuleSpecification" class="md-nav__link">
+    <span class="md-ellipsis">
+      ModuleSpecification
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ModuleSpecification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.ModuleSpecification.are_named" class="md-nav__link">
+    <span class="md-ellipsis">
+      are_named
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.ModuleSpecification.are_sub_modules_of" class="md-nav__link">
+    <span class="md-ellipsis">
+      are_sub_modules_of
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.ModuleSpecification.have_name_containing" class="md-nav__link">
+    <span class="md-ellipsis">
+      have_name_containing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.ModuleSpecification.have_name_matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      have_name_matching
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.RelationshipSpecification" class="md-nav__link">
+    <span class="md-ellipsis">
+      RelationshipSpecification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.RuleApplier" class="md-nav__link">
+    <span class="md-ellipsis">
+      RuleApplier
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RuleApplier">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.RuleApplier.assert_applies" class="md-nav__link">
+    <span class="md-ellipsis">
+      assert_applies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.RuleBase" class="md-nav__link">
+    <span class="md-ellipsis">
+      RuleBase
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      rule
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="rule">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.rule.Rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rule
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.layered_architecture_rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      layered_architecture_rule
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="layered_architecture_rule">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.layered_architecture_rule.LayerRule" class="md-nav__link">
+    <span class="md-ellipsis">
+      LayerRule
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.layered_architecture_rule.LayeredArchitecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      LayeredArchitecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="LayeredArchitecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.layered_architecture_rule.LayeredArchitecture.with_layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      with_layer
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.multiple_rule_applier" class="md-nav__link">
+    <span class="md-ellipsis">
+      multiple_rule_applier
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="multiple_rule_applier">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.multiple_rule_applier.MultipleRuleApplier" class="md-nav__link">
+    <span class="md-ellipsis">
+      MultipleRuleApplier
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MultipleRuleApplier">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.multiple_rule_applier.MultipleRuleApplier.assert_applies" class="md-nav__link">
+    <span class="md-ellipsis">
+      assert_applies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../eval_structure/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Evaluation Structures
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../eval_structure_generation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Evaluation Structure Generation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagram_extension/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Diagram Extension
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rule_assessment/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Rule Assessment
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language" class="md-nav__link">
+    <span class="md-ellipsis">
+      base_language
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="base_language">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.AccessSpecification" class="md-nav__link">
+    <span class="md-ellipsis">
+      AccessSpecification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.BaseLayeredArchitecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      BaseLayeredArchitecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BaseLayeredArchitecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.BaseLayeredArchitecture.with_layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      with_layer
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.BaseModuleSpecifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      BaseModuleSpecifier
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BaseModuleSpecifier">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.BaseModuleSpecifier.base_module_included_in_module_names" class="md-nav__link">
+    <span class="md-ellipsis">
+      base_module_included_in_module_names
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.BaseModuleSpecifier.with_base_module" class="md-nav__link">
+    <span class="md-ellipsis">
+      with_base_module
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.BehaviorBaseSpecification" class="md-nav__link">
+    <span class="md-ellipsis">
+      BehaviorBaseSpecification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.DependencySpecification" class="md-nav__link">
+    <span class="md-ellipsis">
+      DependencySpecification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.FileRule" class="md-nav__link">
+    <span class="md-ellipsis">
+      FileRule
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="FileRule">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.FileRule.from_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      from_file
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.LayerBase" class="md-nav__link">
+    <span class="md-ellipsis">
+      LayerBase
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.LayerDefinition" class="md-nav__link">
+    <span class="md-ellipsis">
+      LayerDefinition
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="LayerDefinition">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.LayerDefinition.containing_modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      containing_modules
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.LayerDefinition.have_modules_with_names_matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      have_modules_with_names_matching
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.LayerName" class="md-nav__link">
+    <span class="md-ellipsis">
+      LayerName
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.LayerRuleBase" class="md-nav__link">
+    <span class="md-ellipsis">
+      LayerRuleBase
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.LayerSpecification" class="md-nav__link">
+    <span class="md-ellipsis">
+      LayerSpecification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.ModuleSpecification" class="md-nav__link">
+    <span class="md-ellipsis">
+      ModuleSpecification
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ModuleSpecification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.ModuleSpecification.are_named" class="md-nav__link">
+    <span class="md-ellipsis">
+      are_named
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.ModuleSpecification.are_sub_modules_of" class="md-nav__link">
+    <span class="md-ellipsis">
+      are_sub_modules_of
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.ModuleSpecification.have_name_containing" class="md-nav__link">
+    <span class="md-ellipsis">
+      have_name_containing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.ModuleSpecification.have_name_matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      have_name_matching
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.RelationshipSpecification" class="md-nav__link">
+    <span class="md-ellipsis">
+      RelationshipSpecification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.RuleApplier" class="md-nav__link">
+    <span class="md-ellipsis">
+      RuleApplier
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RuleApplier">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.RuleApplier.assert_applies" class="md-nav__link">
+    <span class="md-ellipsis">
+      assert_applies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.base_language.RuleBase" class="md-nav__link">
+    <span class="md-ellipsis">
+      RuleBase
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      rule
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="rule">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.rule.Rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rule
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.layered_architecture_rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      layered_architecture_rule
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="layered_architecture_rule">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.layered_architecture_rule.LayerRule" class="md-nav__link">
+    <span class="md-ellipsis">
+      LayerRule
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.layered_architecture_rule.LayeredArchitecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      LayeredArchitecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="LayeredArchitecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.layered_architecture_rule.LayeredArchitecture.with_layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      with_layer
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.multiple_rule_applier" class="md-nav__link">
+    <span class="md-ellipsis">
+      multiple_rule_applier
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="multiple_rule_applier">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.multiple_rule_applier.MultipleRuleApplier" class="md-nav__link">
+    <span class="md-ellipsis">
+      MultipleRuleApplier
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MultipleRuleApplier">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#src.pytestarch.query_language.multiple_rule_applier.MultipleRuleApplier.assert_applies" class="md-nav__link">
+    <span class="md-ellipsis">
+      assert_applies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="query-language">Query Language</h1>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="src.pytestarch.query_language.base_language" class="doc doc-heading">
+            <code>base_language</code>
+
+
+</h2>
+
+    <div class="doc doc-contents first">
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="src.pytestarch.query_language.base_language.AccessSpecification" class="doc doc-heading">
+            <code>AccessSpecification</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="src.pytestarch.query_language.base_language.RelationshipSpecification" href="#src.pytestarch.query_language.base_language.RelationshipSpecification">RelationshipSpecification</a></code>, <code><span title="abc.ABC">ABC</span></code></p>
+
+
+      <p>Offers functionality to specify which kind of imports between layers in a layer architecture are expected.
+Access is defined as the layer equivalent of import between modules, e.g. if layer L consists of module X, and
+layer M of module Y, layer L accesses layer M if module X import module Y.</p>
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="src.pytestarch.query_language.base_language.BaseLayeredArchitecture" class="doc doc-heading">
+            <code>BaseLayeredArchitecture</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="abc.ABC">ABC</span></code></p>
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="src.pytestarch.query_language.base_language.BaseLayeredArchitecture.with_layer" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">with_layer</span><span class="p">()</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+  </span>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+      <p>This is simply a convenience method to achieve proper typing. It can be omitted.</p>
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="src.pytestarch.query_language.base_language.BaseModuleSpecifier" class="doc doc-heading">
+            <code>BaseModuleSpecifier</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="abc.ABC">ABC</span></code></p>
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="src.pytestarch.query_language.base_language.BaseModuleSpecifier.base_module_included_in_module_names" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">base_module_included_in_module_names</span><span class="p">()</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+  </span>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+      <p>If the diagram contains fully qualified module names.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="src.pytestarch.query_language.base_language.BaseModuleSpecifier.with_base_module" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">with_base_module</span><span class="p">(</span><span class="n">name_relative_to_root</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+  </span>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Sets the name of the base module that was turned into an Evaluable.
+This enables the user to not having to include the entire name relative
+to the root module in
+the diagram.
+Example: root module is named 'src'
+Base module: my_project
+diagram generated for modules in src.my_project.components:
+    src.my_project.components.A, src.my_project.components.B
+    -&gt; components are named 'A', 'B' in diagram
+name_relative_to_root: src.my_project.components</p>
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="src.pytestarch.query_language.base_language.BehaviorBaseSpecification" class="doc doc-heading">
+            <code>BehaviorBaseSpecification</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="typing.Generic">Generic</span>[<span title="src.pytestarch.query_language.base_language.U">U</span>]</code>, <code><span title="abc.ABC">ABC</span></code></p>
+
+
+      <p>Offers functionality to specify whether dependencies are expected or not.</p>
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="src.pytestarch.query_language.base_language.DependencySpecification" class="doc doc-heading">
+            <code>DependencySpecification</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="src.pytestarch.query_language.base_language.RelationshipSpecification" href="#src.pytestarch.query_language.base_language.RelationshipSpecification">RelationshipSpecification</a></code>, <code><span title="abc.ABC">ABC</span></code></p>
+
+
+      <p>Offers functionality to specify which kind of dependencies are expected.</p>
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="src.pytestarch.query_language.base_language.FileRule" class="doc doc-heading">
+            <code>FileRule</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="abc.ABC">ABC</span></code></p>
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="src.pytestarch.query_language.base_language.FileRule.from_file" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">from_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+  </span>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Set the path to the file containing the rules that should be
+applied to the evaluable.</p>
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="src.pytestarch.query_language.base_language.LayerBase" class="doc doc-heading">
+            <code>LayerBase</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="abc.ABC">ABC</span></code></p>
+
+
+      <p>Offers an entry point to specifying detailed information about Layer Rule
+Subjects.</p>
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="src.pytestarch.query_language.base_language.LayerDefinition" class="doc doc-heading">
+            <code>LayerDefinition</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="abc.ABC">ABC</span></code></p>
+
+
+      <p>Offers functionality to define which modules a layer contains. Can either be a single
+or multiple modules.</p>
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="src.pytestarch.query_language.base_language.LayerDefinition.containing_modules" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">containing_modules</span><span class="p">(</span><span class="n">modules</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+  </span>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+      <p>If a module is defined as belonging to layer X, then its submodules are also assumed to be part of layer X.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="src.pytestarch.query_language.base_language.LayerDefinition.have_modules_with_names_matching" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">have_modules_with_names_matching</span><span class="p">(</span><span class="n">regex</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+  </span>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+      <p>If a module is defined as belonging to layer X, then its submodules are also assumed to be part of layer X.
+Note that no attempt will be made to ensure that the regex patterns for different layers are mutually exclusive.
+Also note that regex expressions can have unexpected results if predicates apply to modules, but not their submodules.
+This is often the case for regex expressions with negations. Refer to the documentation of the module import feature for more details.</p>
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="src.pytestarch.query_language.base_language.LayerName" class="doc doc-heading">
+            <code>LayerName</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="abc.ABC">ABC</span></code></p>
+
+
+      <p>Offers functionality to specify the name of a yet to be defined layer.</p>
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="src.pytestarch.query_language.base_language.LayerRuleBase" class="doc doc-heading">
+            <code>LayerRuleBase</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="typing.Generic">Generic</span>[<span title="src.pytestarch.query_language.base_language.X">X</span>]</code></p>
+
+
+      <p>Entry point to defining a rule based on a layered architecture.</p>
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="src.pytestarch.query_language.base_language.LayerSpecification" class="doc doc-heading">
+            <code>LayerSpecification</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="typing.Generic">Generic</span>[<span title="src.pytestarch.query_language.base_language.LayerSpecificationSuccessor">LayerSpecificationSuccessor</span>, <span title="src.pytestarch.query_language.base_language.InputTypes">InputTypes</span>]</code>, <code><span title="abc.ABC">ABC</span></code></p>
+
+
+      <p>Offers functionality to specify detail information about Layer Rule Subjects or Objects.</p>
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="src.pytestarch.query_language.base_language.ModuleSpecification" class="doc doc-heading">
+            <code>ModuleSpecification</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="typing.Generic">Generic</span>[<span title="src.pytestarch.query_language.base_language.ModuleSpecificationSuccessor">ModuleSpecificationSuccessor</span>]</code>, <code><span title="abc.ABC">ABC</span></code></p>
+
+
+      <p>Offers functionality to specify detail information about Rule
+Subjects or Objects.</p>
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="src.pytestarch.query_language.base_language.ModuleSpecification.are_named" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">are_named</span><span class="p">(</span><span class="n">names</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+  </span>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+      <p>If multiple rule subjects are specified, this has the same effect as defining a rule per rule subject.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="src.pytestarch.query_language.base_language.ModuleSpecification.are_sub_modules_of" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">are_sub_modules_of</span><span class="p">(</span><span class="n">modules</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+  </span>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+      <p>If multiple rule subjects are specified, this has the same effect as defining a rule per rule subject.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="src.pytestarch.query_language.base_language.ModuleSpecification.have_name_containing" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">have_name_containing</span><span class="p">(</span><span class="n">partial_name</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+  </span>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+      <p>[DEPRECATED] Use have_name_matching instead; method will be removed in upcoming releases.
+If multiple rule subjects are specified, this has the same effect as defining a rule per rule subject.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="src.pytestarch.query_language.base_language.ModuleSpecification.have_name_matching" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">have_name_matching</span><span class="p">(</span><span class="n">regex</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+  </span>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Note that regex expressions can have unexpected results if predicates apply to modules, but not their submodules.
+This is often the case for regex expressions with negations. Refer to the documentation of the module import feature for more details.
+If multiple rule subjects are specified, this has the same effect as defining a rule per rule subject.</p>
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="src.pytestarch.query_language.base_language.RelationshipSpecification" class="doc doc-heading">
+            <code>RelationshipSpecification</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="abc.ABC">ABC</span></code></p>
+
+
+      <p>Base class for different types of relationships between modules, layers, etc.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="src.pytestarch.query_language.base_language.RuleApplier" class="doc doc-heading">
+            <code>RuleApplier</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="abc.ABC">ABC</span></code></p>
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="src.pytestarch.query_language.base_language.RuleApplier.assert_applies" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">assert_applies</span><span class="p">(</span><span class="n">evaluable</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+  </span>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Calculates whether it (the rule) applies to a given EvaluableArchitecture.
+This means calculating which behavior is wanted and then
+checking this to the state the Evaluable represents.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>evaluable</code></td>
+            <td>
+                  <code><span title="pytestarch.eval_structure.evaluable_architecture.EvaluableArchitecture">EvaluableArchitecture</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>module dependency structure to compare the rule against</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code>AssertionError</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>if the rule does not apply to the evaluable object</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="src.pytestarch.query_language.base_language.RuleBase" class="doc doc-heading">
+            <code>RuleBase</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="abc.ABC">ABC</span></code></p>
+
+
+      <p>Entry point to each architectural rule.</p>
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="src.pytestarch.query_language.rule" class="doc doc-heading">
+            <code>rule</code>
+
+
+</h2>
+
+    <div class="doc doc-contents first">
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="src.pytestarch.query_language.rule.Rule" class="doc doc-heading">
+            <code>Rule</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pytestarch.query_language.base_language.DependencySpecification">DependencySpecification</span></code>, <code><span title="pytestarch.query_language.base_language.RuleBase">RuleBase</span></code>, <code><span title="pytestarch.query_language.base_language.BehaviorSpecification">BehaviorSpecification</span></code>, <code><span title="pytestarch.query_language.base_language.RuleObject">RuleObject</span></code>, <code><span title="pytestarch.query_language.base_language.RuleSubject">RuleSubject</span></code>, <code><span title="pytestarch.query_language.base_language.RuleApplier">RuleApplier</span></code></p>
+
+
+      <p>Represents an architectural rule of the form
+Module1 [verb, such as 'should'] [import type, such as 'import'] Module2</p>
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="src.pytestarch.query_language.layered_architecture_rule" class="doc doc-heading">
+            <code>layered_architecture_rule</code>
+
+
+</h2>
+
+    <div class="doc doc-contents first">
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="src.pytestarch.query_language.layered_architecture_rule.LayerRule" class="doc doc-heading">
+            <code>LayerRule</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pytestarch.query_language.base_language.RuleApplier">RuleApplier</span></code>, <code><span title="pytestarch.query_language.base_language.LayerRuleBase">LayerRuleBase</span>[<a class="autorefs autorefs-internal" title="src.pytestarch.query_language.layered_architecture_rule.LayeredArchitecture" href="#src.pytestarch.query_language.layered_architecture_rule.LayeredArchitecture">LayeredArchitecture</a>]</code>, <code><span title="pytestarch.query_language.base_language.LayerRuleSubject">LayerRuleSubject</span></code>, <code><span title="pytestarch.query_language.base_language.LayerRuleObject">LayerRuleObject</span></code>, <code><span title="pytestarch.query_language.base_language.AccessSpecification">AccessSpecification</span></code>, <code><span title="pytestarch.query_language.base_language.LayerBehaviorSpecification">LayerBehaviorSpecification</span></code>, <code><span title="pytestarch.query_language.base_language.LayerSpecification">LayerSpecification</span></code>, <code><span title="pytestarch.query_language.base_language.LayerBase">LayerBase</span></code></p>
+
+
+      <p>Represents an architectural rule of the form
+Layer X [verb, such as 'should'] [access type, such as 'be accessed by'] Layer Y
+The modules that each layer contains are to be specified via a LayeredArchitecture object.</p>
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="src.pytestarch.query_language.layered_architecture_rule.LayeredArchitecture" class="doc doc-heading">
+            <code>LayeredArchitecture</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pytestarch.query_language.base_language.BaseLayeredArchitecture">BaseLayeredArchitecture</span></code>, <code><span title="pytestarch.query_language.base_language.LayerName">LayerName</span></code>, <code><span title="pytestarch.query_language.base_language.LayerDefinition">LayerDefinition</span></code></p>
+
+
+      <p>Can be used to define layers within an architecture that are each comprised of modules.
+Note that if a module X is specified as belonging to layer L, all of its submodules are assumed to be part of
+layer L as well.</p>
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="src.pytestarch.query_language.layered_architecture_rule.LayeredArchitecture.with_layer" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">with_layer</span><span class="p">()</span></code>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+      <p>This is simply a convenience method to achieve proper typing. It can be omitted.</p>
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="src.pytestarch.query_language.multiple_rule_applier" class="doc doc-heading">
+            <code>multiple_rule_applier</code>
+
+
+</h2>
+
+    <div class="doc doc-contents first">
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="src.pytestarch.query_language.multiple_rule_applier.MultipleRuleApplier" class="doc doc-heading">
+            <code>MultipleRuleApplier</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pytestarch.query_language.base_language.RuleApplier">RuleApplier</span></code></p>
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="src.pytestarch.query_language.multiple_rule_applier.MultipleRuleApplier.assert_applies" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">assert_applies</span><span class="p">(</span><span class="n">evaluable</span><span class="p">)</span></code>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Checks a number of rules against the given evaluable and returns an aggregated error message if at least
+one tests fails.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>evaluable</code></td>
+            <td>
+                  <code><span title="pytestarch.eval_structure.evaluable_architecture.EvaluableArchitecture">EvaluableArchitecture</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.081f42fc.min.js"></script>
+      
+    
+  </body>
+</html>
