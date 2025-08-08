@@ -2,6 +2,10 @@
 
 This project uses semantic versioning and follows [keep a changelog](https://keepachangelog.com).
 
+## 4.0.1 -- 2025-08-08
+### Fixed
+- KeyError when not including all layers with regexes in a Layer rule.
+
 ## 4.0.0 -- 2024-04-01
 ### Changed
 - Mechanism of exporting library modules
