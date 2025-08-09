@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         python-version: [ "3.9", "3.10", "3.11", "3.12", "3.13" ]
-        poetry-version: [2.0.1]
+        poetry-version: [2.1.4]
 
     steps:
       - uses: actions/checkout@v4
