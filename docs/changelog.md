@@ -2,6 +2,10 @@
 
 This project uses semantic versioning and follows [keep a changelog](https://keepachangelog.com).
 
+## 4.0.2 TBD
+### Fixed
+- Straightforward error message when using wildcards in `are_named` rules.
+
 ## 4.0.1 -- 2025-08-08
 ### Fixed
 - KeyError when not including all layers with regexes in a Layer rule.
