@@ -60,8 +60,7 @@ class ModuleNameConverter:
                     converted_module_filters.add(converted_module_filter)
                     conversion_mapping[module_to_match].append(converted_module)
 
-                    if module_to_match in never_matched:
-                        never_matched.remove(module_to_match)
+                    never_matched.discard(module_to_match)
 
                     submodules_of_match = get_all_submodules_of(
                         arch._graph,  # type: ignore
