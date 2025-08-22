@@ -241,7 +241,7 @@ class Rule(
     def __str__(self) -> str:
         self._assert_required_configuration_present()
 
-        method_name = f'{"should" if self._configuration.should else "should only" if self._configuration.should_only else "should not"}'
+        method_name = f"{'should' if self._configuration.should else 'should only' if self._configuration.should_only else 'should not'}"
 
         subject_prefix = (
             "Sub modules of "
@@ -251,7 +251,7 @@ class Rule(
         if self._configuration.rule_object_anything:
             object_message = "anything "
         else:
-            object_message = f'modules that are {"sub modules of" if self._configuration.modules_to_check_against[0].identifier_is_parent_module else "named"} '  # type: ignore
+            object_message = f"modules that are {'sub modules of' if self._configuration.modules_to_check_against[0].identifier_is_parent_module else 'named'} "  # type: ignore
 
         combined_rule_subjects = self._combine_names(
             self._configuration.modules_to_check  # type: ignore
@@ -262,8 +262,8 @@ class Rule(
         return (
             f'{subject_prefix}"{combined_rule_subjects}" '
             f"{method_name} "
-            f'{"import" if self._configuration.import_ else "be imported by"} '
-            f'{"modules except " if self._configuration.except_present else ""}'
+            f"{'import' if self._configuration.import_ else 'be imported by'} "
+            f"{'modules except ' if self._configuration.except_present else ''}"
             f"{object_message}"
             f'"{combined_rule_objects}".'
         )
