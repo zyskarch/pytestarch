@@ -85,6 +85,18 @@ class Rule(
         return self
 
     def are_named(self, names: str | Sequence[str]) -> BehaviorSpecification:  # type: ignore
+        # Check for wildcard usage and suggest alternative
+        if isinstance(names, str):
+            if "*" in names:
+                raise ImproperlyConfigured(
+                    f'Wildcard "*" detected in module name "{names}". Use "have_name_matching" with a regex pattern instead.'
+                )
+        else:
+            for name in names:
+                if "*" in name:
+                    raise ImproperlyConfigured(
+                        f'Wildcard "*" detected in module name "{name}". Use "have_name_matching" with a regex pattern instead.'
+                    )
         self._set_modules(names, lambda name: ModuleNameFilter(name=name))
         return self
 
