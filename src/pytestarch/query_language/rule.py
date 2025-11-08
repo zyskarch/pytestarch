@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
-from typing import Callable
 
 from pytestarch.eval_structure.evaluable_architecture import (
     EvaluableArchitecture,
