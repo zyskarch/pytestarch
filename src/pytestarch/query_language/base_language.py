@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Generic, TypeVar, Union
+from typing import Generic, TypeVar
 
 from pytestarch.eval_structure.evaluable_architecture import EvaluableArchitecture
 from pytestarch.utils.decorators import deprecated
@@ -247,7 +247,7 @@ LayerSpecificationSuccessor = TypeVar(
     "LayerSpecificationSuccessor", LayerBehaviorSpecification, RuleApplier
 )
 
-InputTypes = TypeVar("InputTypes", str, Union[str, list[str]])
+InputTypes = TypeVar("InputTypes", str, str | list[str])
 
 
 class LayerSpecification(Generic[LayerSpecificationSuccessor, InputTypes], ABC):
@@ -258,7 +258,7 @@ class LayerSpecification(Generic[LayerSpecificationSuccessor, InputTypes], ABC):
         pass
 
 
-class LayerRuleObject(LayerSpecification[RuleApplier, Union[str, list[str]]], ABC):
+class LayerRuleObject(LayerSpecification[RuleApplier, str | list[str]], ABC):
     pass
 
 

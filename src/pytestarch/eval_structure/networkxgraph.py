@@ -140,7 +140,7 @@ class NetworkxGraph(AbstractGraph):
             self._graph.add_edge(node_start, node_end, inherits=inherits)
 
     def __contains__(self, item) -> bool:
-        if not isinstance(item, (str, tuple)):
+        if not isinstance(item, str | tuple):
             raise TypeError(EXPECTED_EDGE_AND_NODE_TYPES)
 
         if isinstance(item, str):
