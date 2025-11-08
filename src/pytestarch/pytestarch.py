@@ -22,8 +22,8 @@ DEFAULT_EXCLUSIONS = ("*__pycache__*",)
 
 
 def get_evaluable_architecture(
-    root_path: str,
-    module_path: str,
+    root_path: str | Path,
+    module_path: str | Path,
     exclusions: tuple[str, ...] = DEFAULT_EXCLUSIONS,
     exclude_external_libraries: bool = True,
     level_limit: int | None = None,
