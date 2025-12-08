@@ -73,7 +73,7 @@ class ModuleNameConverter:
 
         if never_matched:
             raise ImpossibleMatch(
-                f'No modules found that match: {", ".join(never_matched)}'
+                f"No modules found that match: {', '.join(never_matched)}"
             )
 
         all_converted_modules = list(converted_module_filters) + other_modules  # type: ignore

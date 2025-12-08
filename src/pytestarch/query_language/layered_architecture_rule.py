@@ -54,7 +54,7 @@ class LayeredArchitecture(BaseLayeredArchitecture, LayerName, LayerDefinition):
 
         if underspecified_layers:
             raise ImproperlyConfigured(
-                f'Specify the modules of layer(s) {", ".join(underspecified_layers)} first.'
+                f"Specify the modules of layer(s) {', '.join(underspecified_layers)} first."
             )
 
         if name in self._modules_by_layer_name:
@@ -94,7 +94,7 @@ class LayeredArchitecture(BaseLayeredArchitecture, LayerName, LayerDefinition):
 
         if duplicates:
             raise ImproperlyConfigured(
-                f'Module(s) {", ".join(duplicates)} already assigned to a layer.'
+                f"Module(s) {', '.join(duplicates)} already assigned to a layer."
             )
 
         self._modules_by_layer_name[layers_without_modules[0]] = (
@@ -124,7 +124,7 @@ class LayeredArchitecture(BaseLayeredArchitecture, LayerName, LayerDefinition):
             f"Layer {layer}: [{', '.join(map(lambda m: m.identifier, modules))}]"
             for layer, modules in self._modules_by_layer_name.items()
         ]
-        return f'Layered Architecture: {"; ".join(layers)}'
+        return f"Layered Architecture: {'; '.join(layers)}"
 
     def __getitem__(self, layer: str) -> Sequence[ModuleFilter]:
         return self._modules_by_layer_name[layer]

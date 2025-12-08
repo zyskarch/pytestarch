@@ -132,8 +132,7 @@ def test_edges_between_parent_and_child_modules_as_expected(
         "pytestarch.tests.resources.importer.level0.level1.level2.level3.level4.level5",
     ) in module_graph
     assert (
-        "pytestarch.tests.resources.importer.level0.level1.level2."
-        "level3.level4.level5",
+        "pytestarch.tests.resources.importer.level0.level1.level2.level3.level4.level5",
         "pytestarch.tests.resources.importer.level0.level1.level2."
         "level3.level4.level5.module_level_5",
     ) in module_graph
