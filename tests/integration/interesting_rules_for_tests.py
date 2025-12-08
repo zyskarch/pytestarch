@@ -1388,7 +1388,7 @@ multiple_rule_subjects_multiple_rule_objects_error_message_test_cases = [
         .should()
         .import_modules_that()
         .are_named([B]),
-        f'"{C}" does not import "{B}".\n' f'"{FILE_C}" does not import "{B}".',
+        f'"{C}" does not import "{B}".\n"{FILE_C}" does not import "{B}".',
         id="two subjects violate should rule",
     ),
     pytest.param(
@@ -1398,7 +1398,7 @@ multiple_rule_subjects_multiple_rule_objects_error_message_test_cases = [
         .should_not()
         .import_modules_that()
         .are_named([C]),
-        f'"{FILE_A}" imports "{FILE_C}".\n' f'"{FILE_A2}" imports "{FILE_C}".',
+        f'"{FILE_A}" imports "{FILE_C}".\n"{FILE_A2}" imports "{FILE_C}".',
         id="one subject violates should_not rule",
     ),
     pytest.param(
@@ -1485,7 +1485,7 @@ multiple_rule_subjects_multiple_rule_objects_error_message_test_cases = [
         .should_not()
         .import_modules_except_modules_that()
         .are_named([C]),
-        f'"{FILE_A11}" imports "{FILE_B1}".\n' f'"{FILE_B2}" imports "{FILE_A11}".',
+        f'"{FILE_A11}" imports "{FILE_B1}".\n"{FILE_B2}" imports "{FILE_A11}".',
         id="two subjects violate should_not except rule",
     ),
     pytest.param(
@@ -1515,7 +1515,7 @@ multiple_rule_subjects_multiple_rule_objects_error_message_test_cases = [
         .should()
         .be_imported_by_modules_that()
         .are_named([C]),
-        f'"{A}" is not imported by "{C}".\n' f'"{B}" is not imported by "{C}".',
+        f'"{A}" is not imported by "{C}".\n"{B}" is not imported by "{C}".',
         id="two subjects violate should be imported rule",
     ),
     pytest.param(
