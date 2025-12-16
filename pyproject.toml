@@ -25,7 +25,7 @@ classifiers = [
 dependencies = ["networkx>=3.2"]
 
 [project.optional-dependencies]
-visualization = ["matplotlib>=3.9"]
+visualization = ["matplotlib>=3.10"]
 
 [project.urls]
 issues = "https://github.com/zyskarch/pytestarch/issues"
