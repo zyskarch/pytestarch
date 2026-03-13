@@ -144,11 +144,7 @@ class Rule(
         for module, name_is_regex in modules:
             module_names.append(module)
             module_creation_fn.append(
-                lambda name: (
-                    ModuleNameFilter(name=name)
-                    if not name_is_regex
-                    else ModuleNameRegexFilter(name=name)
-                )
+                ModuleNameRegexFilter if name_is_regex else ModuleNameFilter
             )
 
         self._append_modules(module_names, module_creation_fn)

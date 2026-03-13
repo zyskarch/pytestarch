@@ -11,6 +11,7 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 ### Fixed
 - Straightforward error message when using wildcards in `are_named` rules.
 - Typo in docstring of `get_evaluable_architecture(..)`.
+- Module filter uses regex when activated instead of only if last module.
 
 ## 4.0.1 -- 2025-08-08
 ### Fixed
