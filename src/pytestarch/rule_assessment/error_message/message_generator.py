@@ -219,14 +219,6 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
 
         return rule_objects_for_rule_subject, violating_rule_subjects
 
-    def _convert_to_names(
-        self, violating_dependencies: list[Dependency]
-    ) -> list[tuple[str, str]]:
-        return [
-            (dependency[0].identifier, dependency[1].identifier)
-            for dependency in violating_dependencies
-        ]
-
     def _create_should_only_import_violated_messages(
         self, rule_violations: RuleViolations
     ) -> list[RuleViolatedMessage]:
