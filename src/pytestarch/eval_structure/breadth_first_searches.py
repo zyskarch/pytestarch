@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pytestarch.eval_structure.evaluable_architecture import Dependency, ModuleFilter
 from pytestarch.eval_structure.evaluable_structures import AbstractGraph, AbstractNode
-from pytestarch.eval_structure.utils import get_node, get_parent_nodes, to_modules
+from pytestarch.eval_structure.utils import get_node, get_parent_nodes, to_module
 
 
 def get_dependency_between_modules(
@@ -16,7 +16,7 @@ def get_dependency_between_modules(
     nodes_to_check = [dependent_node]
     checked_nodes = set()
 
-    dependencies = []
+    dependencies: list[Dependency] = []
 
     while nodes_to_check:
         node = nodes_to_check.pop()
@@ -37,8 +37,8 @@ def get_dependency_between_modules(
                 and node not in nodes_to_exclude
                 and child not in nodes_to_exclude
             ):
-                dependencies.append(tuple(to_modules([node, child])))
-    return dependencies  # type: ignore
+                dependencies.append((to_module(node), to_module(child)))
+    return dependencies
 
 
 def any_dependency_to_module_other_than(
@@ -51,7 +51,7 @@ def any_dependency_to_module_other_than(
             continue
         nodes_to_exclude.update(get_all_submodules_of(graph, dependent_upon))
 
-    nodes_fulfilling_criteria = []
+    nodes_fulfilling_criteria: list[Dependency] = []
 
     # nodes that count as not fulfilling the criterion are nodes that would technically fulfill the criterion,
     # but have to be excluded for consistency reasons. For example, if the dependent is called A and has two
@@ -102,11 +102,13 @@ def any_dependency_to_module_other_than(
                     child not in nodes_to_exclude
                     and child not in nodes_that_do_not_fulfill_criterion
                 ):
-                    nodes_fulfilling_criteria.append(tuple(to_modules([node, child])))
+                    nodes_fulfilling_criteria.append(
+                        (to_module(node), to_module(child))
+                    )
                 else:
                     nodes_to_check.append(child)
 
-    return nodes_fulfilling_criteria  # type: ignore
+    return nodes_fulfilling_criteria
 
 
 def any_other_dependency_to_module_than(
@@ -122,7 +124,7 @@ def any_other_dependency_to_module_than(
             continue
         nodes_to_exclude.update(get_all_submodules_of(graph, dependent))
 
-    nodes_fulfilling_criteria = []
+    nodes_fulfilling_criteria: list[Dependency] = []
 
     # nodes that count as not fulfilling the criterion are nodes that would technically fulfill the criterion,
     # but have to be excluded for consistency reasons. For example, if the dependent upon is called A and has two
@@ -171,12 +173,14 @@ def any_other_dependency_to_module_than(
                     parent not in nodes_to_exclude
                     and parent not in nodes_that_count_as_not_fulfilling_criterion
                 ):
-                    nodes_fulfilling_criteria.append(tuple(to_modules([parent, node])))
+                    nodes_fulfilling_criteria.append(
+                        (to_module(parent), to_module(node))
+                    )
 
                 if parent not in nodes_to_exclude:
                     nodes_to_check.append(parent)
 
-    return nodes_fulfilling_criteria  # type: ignore
+    return nodes_fulfilling_criteria
 
 
 def get_all_submodules_of(

@@ -10,8 +10,12 @@ from pytestarch.eval_structure.evaluable_architecture import (
 from pytestarch.eval_structure.evaluable_structures import AbstractNode
 
 
+def to_module(node: AbstractNode) -> Module:
+    return Module(identifier=node)
+
+
 def to_modules(nodes: list[AbstractNode]) -> list[Module]:
-    return list(map(lambda node: Module(identifier=node), nodes))
+    return list(map(to_module, nodes))
 
 
 def filter_to_module(filter: ModuleFilter) -> Module:
