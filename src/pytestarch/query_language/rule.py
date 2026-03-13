@@ -299,9 +299,7 @@ class Rule(
                 object_message,
             ]
 
-            error_message = (
-                f"Specify {', '.join(filter(lambda m: len(m) > 0, messages))}."
-            )
+            error_message = f"Specify {', '.join(filter(None, messages))}."
 
             raise ImproperlyConfigured(error_message)
 
