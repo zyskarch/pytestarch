@@ -3,7 +3,10 @@ from __future__ import annotations
 from pytestarch.eval_structure.evaluable_architecture import EvaluableArchitecture
 from pytestarch.query_language.base_language import RuleApplier
 from pytestarch.query_language.exceptions import ImproperlyConfigured
-from pytestarch.query_language.layered_architecture_rule import LayeredArchitecture, LayerRule
+from pytestarch.query_language.layered_architecture_rule import (
+    LayeredArchitecture,
+    LayerRule,
+)
 from pytestarch.query_language.multiple_rule_applier import MultipleRuleApplier
 
 
@@ -50,7 +53,11 @@ def layered_architecture(
         if not allowed:
             rule: RuleApplier = rule_base.should_not().access_any_layer()
         else:
-            rule = rule_base.should_only().access_layers_that().are_named(allowed)
+            rule = (
+                rule_base.should_not()
+                .access_layers_except_layers_that()
+                .are_named(allowed)
+            )
         rules.append(rule)
 
     return MultipleRuleApplier(rules)
@@ -168,10 +175,12 @@ class HexagonalArchitecture(RuleApplier):
         # Each inner layer may only access previously listed inner layers
         for i, layer in enumerate(inner_layers):
             if layer in self._layers:
-                allowed_dependencies[layer] = [l for l in inner_layers[:i] if l in self._layers]
+                allowed_dependencies[layer] = [
+                    name for name in inner_layers[:i] if name in self._layers
+                ]
 
         # Each adapter may access all configured inner layers
-        configured_inner = [l for l in inner_layers if l in self._layers]
+        configured_inner = [name for name in inner_layers if name in self._layers]
         for layer_key in self._layers:
             if layer_key.startswith(self._ADAPTER_LAYER_PREFIX):
                 allowed_dependencies[layer_key] = configured_inner

@@ -14,8 +14,7 @@ MODEL = "flat_test_project_1.model"
 UTIL = "flat_test_project_1.util"
 LOGGING_UTIL = "flat_test_project_1.logging_util"
 EXPORTER = "flat_test_project_1.exporter"
-RUNTIME = "flat_test_project_1.runtime"
-ORCHESTRATION = "flat_test_project_1.orchestration"
+IMPORTER = "flat_test_project_1.importer"
 SERVICES = "flat_test_project_1.services"
 PERSISTENCE = "flat_test_project_1.persistence"
 
@@ -26,11 +25,13 @@ def test_returns_multiple_rule_applier() -> None:
 
 
 def test_valid_onion_architecture_passes(flat_project_1: EvaluableArchitecture) -> None:
-    # model (domain) imports nothing - valid
-    # persistence (application) imports model and util - util is outside the three layers, so only model is checked
-    # exporter (infrastructure) imports logging_util, model, util - but only logging_util is application, model is domain
-    # This passes because infrastructure may access both domain and application
-    onion_architecture(MODEL, PERSISTENCE, EXPORTER).assert_applies(flat_project_1)
+    # domain = [model, util]: both import nothing
+    # application = logging_util: imports only util (in domain) - valid
+    # infrastructure = importer: imports model and util (both in domain) - valid
+    # All imports stay within the defined layers, so "may only access" rules hold.
+    onion_architecture([MODEL, UTIL], LOGGING_UTIL, IMPORTER).assert_applies(
+        flat_project_1
+    )
 
 
 def test_domain_accessing_application_violates_onion(

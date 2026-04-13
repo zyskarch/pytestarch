@@ -4,7 +4,6 @@ import pytest
 
 from pytestarch import EvaluableArchitecture, HexagonalArchitecture
 from pytestarch.query_language.exceptions import ImproperlyConfigured
-from pytestarch.query_language.multiple_rule_applier import MultipleRuleApplier
 
 # Fully-qualified module names from flat_test_project_1.
 MODEL = "flat_test_project_1.model"
