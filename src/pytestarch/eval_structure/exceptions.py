@@ -7,3 +7,7 @@ class ImpossibleMatch(Exception):
 
 class LayerMismatch(Exception):
     pass
+
+
+class NotInGraph(Exception):
+    pass
