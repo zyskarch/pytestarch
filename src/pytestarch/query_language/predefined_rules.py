@@ -129,17 +129,23 @@ class HexagonalArchitecture(RuleApplier):
 
     def domain_models(self, *modules: str) -> HexagonalArchitecture:
         """Configure the domain models layer."""
-        self._layers[self._DOMAIN_MODELS_LAYER] = list(modules) if len(modules) > 1 else modules[0]
+        self._layers[self._DOMAIN_MODELS_LAYER] = (
+            list(modules) if len(modules) > 1 else modules[0]
+        )
         return self
 
     def domain_services(self, *modules: str) -> HexagonalArchitecture:
         """Configure the domain services layer."""
-        self._layers[self._DOMAIN_SERVICES_LAYER] = list(modules) if len(modules) > 1 else modules[0]
+        self._layers[self._DOMAIN_SERVICES_LAYER] = (
+            list(modules) if len(modules) > 1 else modules[0]
+        )
         return self
 
     def application_services(self, *modules: str) -> HexagonalArchitecture:
         """Configure the application services layer."""
-        self._layers[self._APPLICATION_SERVICES_LAYER] = list(modules) if len(modules) > 1 else modules[0]
+        self._layers[self._APPLICATION_SERVICES_LAYER] = (
+            list(modules) if len(modules) > 1 else modules[0]
+        )
         return self
 
     def adapter(self, name: str, *modules: str) -> HexagonalArchitecture:
@@ -150,7 +156,9 @@ class HexagonalArchitecture(RuleApplier):
             *modules: Module name(s) that make up this adapter.
         """
         if not modules:
-            raise ImproperlyConfigured(f"Adapter '{name}' must have at least one module.")
+            raise ImproperlyConfigured(
+                f"Adapter '{name}' must have at least one module."
+            )
         layer_key = f"{self._ADAPTER_LAYER_PREFIX}{name}"
         self._layers[layer_key] = list(modules) if len(modules) > 1 else modules[0]
         return self
