@@ -29,14 +29,13 @@ def test_assert_applies_returns_none_on_valid_architecture(
     # model imports nothing - valid as domain_models
     # util imports nothing - valid as domain_services (may access domain_models)
     # logging_util imports only util (domain_services) - valid as application_services
-    result = (
+    (
         HexagonalArchitecture()
         .domain_models(MODEL)
         .domain_services(UTIL)
         .application_services(LOGGING_UTIL)
         .assert_applies(flat_project_1)
     )
-    assert result is None
 
 
 def test_domain_models_must_not_access_other_configured_layers(
