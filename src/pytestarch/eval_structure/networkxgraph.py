@@ -180,6 +180,9 @@ class NetworkxGraph(AbstractGraph):
 
         Returns:
             all predecessor nodes
+
+        Raises:
+            NotInGraph: if node is not present in the dependency graph
         """
         self._raise_if_node_missing(node)
         return sorted(self._graph.predecessors(node))
@@ -192,6 +195,9 @@ class NetworkxGraph(AbstractGraph):
 
         Returns:
             all successor nodes
+
+        Raises:
+            NotInGraph: if node is not present in the dependency graph
         """
         self._raise_if_node_missing(node)
         return sorted(self._graph.successors(node))
