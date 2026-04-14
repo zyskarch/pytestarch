@@ -172,6 +172,19 @@ class HexagonalArchitecture(RuleApplier):
         self._build_rules().assert_applies(evaluable)
 
     def _build_rules(self) -> MultipleRuleApplier:
+        """Build the complete set of layered architecture rules from the configured layers.
+
+        Inner layers are ordered from most restricted to least restricted
+        (domain_models → domain_services → application_services). Each inner layer
+        may only access layers that appear before it in this ordering. Adapters are
+        outermost and may access all configured inner layers.
+
+        Only layers that have been explicitly configured (via the builder methods) are
+        included in the rule set; unconfigured layers are silently ignored.
+
+        Returns:
+            MultipleRuleApplier enforcing all hexagonal architecture dependency rules.
+        """
         inner_layers = [
             self._DOMAIN_MODELS_LAYER,
             self._DOMAIN_SERVICES_LAYER,

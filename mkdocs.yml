@@ -23,6 +23,7 @@ nav:
       - 'General Concept': 'features/general.md'
       - 'Module Dependency Rules': 'features/module_import_checks.md'
       - 'Layer Architecture Dependency Rules': 'features/layer_architecture_checks.md'
+      - 'Predefined Architecture Rules': 'features/predefined_architecture_checks.md'
       - 'Module Dependency Rule Generation from PlantUML Component Diagrams': 'features/plantuml.md'
       - 'Visualization': 'features/visualization.md'
   - Changelog: 'changelog.md'
