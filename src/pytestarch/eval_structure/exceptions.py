@@ -9,7 +9,7 @@ class LayerMismatch(Exception):
     pass
 
 
-class NotInGraph(Exception):
+class ModuleUnknown(Exception):
     """Raised when a queried module is not present in the dependency graph.
 
     The exception message includes actionable guidance on common causes,

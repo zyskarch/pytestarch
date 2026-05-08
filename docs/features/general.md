@@ -115,7 +115,7 @@ This has been achieved by setting the `exclude_external_libraries` flag in the `
 not located hierarchically below the root path, in this case "test_project", will be excluded from the graph.
 
 ### Module not found in graph
-If a rule references a module that does not appear in the dependency graph, PyTestArch raises a `NotInGraph` error with an actionable message. Common causes are:
+If a rule references a module that does not appear in the dependency graph, PyTestArch raises a `ModuleUnknown` error with an actionable message. Common causes are:
 
 - **External library excluded**: the module belongs to a third-party package and `exclude_external_libraries=True` (the default). Pass `exclude_external_libraries=False` to `get_evaluable_architecture()` to include it.
 - **Module never imported**: the module exists but is not imported by any code under the scanned `module_path`, so it was never added to the graph.

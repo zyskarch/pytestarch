@@ -10,7 +10,7 @@ import networkx as nx
 from networkx import draw_networkx, has_path, spring_layout
 
 from pytestarch.eval_structure.evaluable_structures import AbstractGraph, AbstractNode
-from pytestarch.eval_structure.exceptions import NotInGraph
+from pytestarch.eval_structure.exceptions import ModuleUnknown
 from pytestarch.eval_structure.types import Import, get_parent_modules
 
 EXPECTED_EDGE_AND_NODE_TYPES = "Only str and tuple of two str supported."
@@ -182,9 +182,9 @@ class NetworkxGraph(AbstractGraph):
             all predecessor nodes
 
         Raises:
-            NotInGraph: if node is not present in the dependency graph
+            ModuleUnknown: if node is not present in the dependency graph
         """
-        self._raise_if_node_missing(node)
+        self._assert_node_exists(node)
         return sorted(self._graph.predecessors(node))
 
     def direct_successor_nodes(self, node: Node) -> list[Node]:
@@ -197,9 +197,9 @@ class NetworkxGraph(AbstractGraph):
             all successor nodes
 
         Raises:
-            NotInGraph: if node is not present in the dependency graph
+            ModuleUnknown: if node is not present in the dependency graph
         """
-        self._raise_if_node_missing(node)
+        self._assert_node_exists(node)
         return sorted(self._graph.successors(node))
 
     def parent_child_relationship(
@@ -304,14 +304,14 @@ class NetworkxGraph(AbstractGraph):
         except StopIteration:  # no alias for module or parent module
             return module_name
 
-    def _raise_if_node_missing(self, node: Node) -> None:
-        """Raises NotInGraph with a diagnostic message if node is absent from the graph.
+    def _assert_node_exists(self, node: Node) -> None:
+        """Raises ModuleUnknown with a diagnostic message if node is absent from the graph.
 
         Args:
             node: the node to check for existence
         """
         if not self._graph.has_node(node):
-            raise NotInGraph(
+            raise ModuleUnknown(
                 f"'{node}' was not found in the dependency graph.\n"
                 "If it is an external library, ensure "
                 "'exclude_external_libraries=False' is passed to "
