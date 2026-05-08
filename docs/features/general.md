@@ -114,6 +114,13 @@ node names "os" at all.
 This has been achieved by setting the `exclude_external_libraries` flag in the `get_evaluable_architecture` function. All modules that 
 not located hierarchically below the root path, in this case "test_project", will be excluded from the graph.
 
+### Module not found in graph
+If a rule references a module that does not appear in the dependency graph, PyTestArch raises a `ModuleUnknown` error with an actionable message. Common causes are:
+
+- **External library excluded**: the module belongs to a third-party package and `exclude_external_libraries=True` (the default). Pass `exclude_external_libraries=False` to `get_evaluable_architecture()` to include it.
+- **Module never imported**: the module exists but is not imported by any code under the scanned `module_path`, so it was never added to the graph.
+- **Misspelled module name**: module names in rules must match the fully qualified import name (e.g. `mypackage.service`, not `service`).
+
 
 <br>
 # Additional Notes

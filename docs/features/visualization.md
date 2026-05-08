@@ -8,6 +8,12 @@ addressed by specifying (short) aliases for the module names by using the keywor
 and all its submodules unless the submodule also has an alias, in that case the
 submodule's alias takes priority.
 
+The following additional keyword arguments are supported:
+
+* `spacing` (float): controls the optimal distance between nodes in the layout
+* `ax`: draws the graph onto an existing matplotlib `Axes` object (passed through to `draw_networkx`)
+* Any other keyword argument accepted by networkx's `draw_networkx` function can also be passed through
+
 ## Alias Examples:
 Consider an architecture with modules `long_root_name, long_root_name.submodule,
 long_root_name.submodule.sub_submodule, long_root_name.other_submodule` then the 

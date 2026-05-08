@@ -48,12 +48,12 @@ Modules can also be specified via a regex, using the method "have_modules_with_n
 
 
 ### Layer rules
-After defining a layered architecture, layer rules can not be defined based on it. Using the `arch` object defined
+After defining a layered architecture, layer rules can now be defined based on it. Using the `arch` object defined
 above, the dependency rule that could not properly be defined in the regular syntax can then be defined as:
 ```
 rule = (
     LayerRule()
-    .based_on(arch).   # needs to be passed in first
+    .based_on(arch)   # needs to be passed in first
     .layers_that() 
     .are_named("import") 
     .should_only() 
@@ -79,7 +79,7 @@ is not part of any layer. A rule like
 ```
 LayerRule().based_on(arch).layers_that().are_named("A").should_only().access_layers_that().are_named("B")
 ```
-would raise an AssertionException, as module M also imports module O.
+would raise an AssertionError, as module M also imports module O.
 
 
 For an explanation of the meaning of the different verb markers used (e.g. should, except) refer to 
