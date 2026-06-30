@@ -51,8 +51,7 @@ class Parser:
         """Converts a given python file to an ast module and its name."""
         absolute_path = path.resolve()
         if self._file_should_be_parsed(absolute_path):
-            with open(absolute_path) as file:
-                code = file.read()
+            code = absolute_path.read_bytes()
 
             module_name = self._get_module_name(path)
             self._all_modules.append(module_name)

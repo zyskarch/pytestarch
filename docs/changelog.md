@@ -14,6 +14,7 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 - Typo in docstring of `get_evaluable_architecture(..)`.
 - Module filter uses regex when activated instead of only if last module.
 - Descriptive error message with actionable guidance when a queried module is not present in the dependency graph.
+- Parser no longer errors out on windows due to unspecified encoding.
 
 ## 4.0.1 -- 2025-08-08
 ### Fixed

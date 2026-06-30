@@ -1,6 +1,11 @@
 from __future__ import annotations
 
+import os
+import subprocess
+import sys
 from pathlib import Path
+
+import pytest
 
 from pytestarch.eval_structure_generation.file_import.config import Config
 from pytestarch.eval_structure_generation.file_import.file_filter import FileFilter
@@ -42,3 +47,49 @@ def test_parser_parses_all_files_in_directory() -> None:
     }
 
     assert set(map(lambda module: module.name, parsed_modules)) == expected_modules
+
+
+@pytest.mark.parametrize(
+    "contents",
+    [
+        "print('content')",
+        "print('「content」😭')",
+    ],
+)
+def test_parser_reads_special_chars(tmp_path, contents) -> None:
+    """
+    Tests that parser handles special chars in the file it parses.
+    """
+    code_file = tmp_path / "code.py"
+    code_file.write_text(contents)
+    result: subprocess.CompletedProcess = subprocess.run(  # noqa:S603 // Input is entirely controlled by test.
+        [
+            sys.executable,
+            "-c",
+            f"""
+from pytestarch.eval_structure_generation import file_import as fi
+from pytestarch.utils.partial_match_to_regex_converter import (
+    convert_partial_match_to_regex,
+)
+from pathlib import Path
+fi.parser.Parser(
+    fi.file_filter.FileFilter(fi.config.Config((convert_partial_match_to_regex("*__pycache__"),))),
+    Path("{tmp_path!s}")
+).parse(Path("{tmp_path!s}"))
+            """,
+        ],
+        env={
+            **os.environ,
+            **{
+                "LC_ALL": "C",
+                "PYTHONUTF8": "0",
+                "LANG": "C",
+                "PYTHONCOERCELOCALE": "0",
+            },
+        },
+        capture_output=True,
+    )
+
+    assert "UnicodeDecodeError" not in result.stderr.decode("utf-8"), (
+        "Parser fails to parse code files with utf-8 character contents."
+    )
