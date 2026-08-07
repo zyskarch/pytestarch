@@ -70,7 +70,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*.py" = [
+"tests/**/*.py" = [
     "S101", # assert statement
     "E743", # ambiguous function name
 ]
