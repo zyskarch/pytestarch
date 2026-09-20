@@ -1,7 +1,7 @@
 [project]
 name = "PyTestArch"
 version = "4.0.1"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 description = "Test framework for software architecture based on imports between modules"
 authors = [{ name = "zyskarch", email = "zyskarch@gmail.com" }]
 maintainers = [{ name = "zyskarch", email = "zyskarch@gmail.com" }]
@@ -10,11 +10,11 @@ license = "Apache-2.0"
 
 keywords = ["architecture", "test"]
 classifiers = [
+    "Programming Language :: Python :: 3.15",
     "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.10",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Intended Audience :: Developers",
@@ -22,10 +22,10 @@ classifiers = [
     "Topic :: Software Development :: Testing :: Unit",
 ]
 
-dependencies = ["networkx>=3.2"]
+dependencies = ["networkx>=3.6"]
 
 [project.optional-dependencies]
-visualization = ["matplotlib>=3.10"]
+visualization = ["matplotlib>=3.11"]
 
 [project.urls]
 issues = "https://github.com/zyskarch/pytestarch/issues"
@@ -36,11 +36,11 @@ repository = "https://github.com/zyskarch/pytestarch"
 zensical = "0.0.63"
 mkdocstrings-python = "2.0.8"
 mike = { git = "https://github.com/squidfunk/mike.git" }
-nox = "2025.11.12"
-pre-commit = "4.6.1"
-pytest = "^9.1.0"
-coverage = "^7.5.2"
-ruff = "^0.16.0"
+nox = "2026.8.17"
+pre-commit = "4.6.2"
+pytest = "^9.1.1"
+coverage = "^7.16.1"
+ruff = "^0.16.8"
 
 [build-system]
 requires = ["poetry-core>=2.0"]

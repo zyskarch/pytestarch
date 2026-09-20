@@ -5,7 +5,7 @@ import nox
 locations = "src", "tests", "noxfile.py"
 
 
-@nox.session(python=["3.10", "3.11", "3.12", "3.13", "3.14"])
+@nox.session(python=["3.11", "3.12", "3.13", "3.14", "3.15"])
 def tests(session):
     session.run("poetry", "env", "activate")
     session.run("poetry", "install", "--extras", "visualization", external=True)
