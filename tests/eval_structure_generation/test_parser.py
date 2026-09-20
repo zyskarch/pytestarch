@@ -61,7 +61,7 @@ def test_parser_reads_special_chars(tmp_path, contents) -> None:
     Tests that parser handles special chars in the file it parses.
     """
     code_file = tmp_path / "code.py"
-    code_file.write_text(contents)
+    code_file.write_text(contents, encoding="utf-8")
     result: subprocess.CompletedProcess = subprocess.run(  # noqa:S603 // Input is entirely controlled by test.
         [
             sys.executable,
