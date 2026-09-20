@@ -241,10 +241,16 @@ class RuleViolationDetector(RuleViolationBaseDetector):
     this class decides whether any of the requirements have been violated and how.
 
     ExplicitlyRequestedDependenciesByBaseModules follow this structure:
+
+    ```
     {(requested dependency, e.g. from A to B): [list of dependencies found that qualifiy as the requested dependency, e.g. A.a1 imports B, A.a2 imports B]}
+    ```
 
     NotExplicitlyRequestedDependenciesByBaseModule on the other hand are structured like this:
-    {Module for which not explicitly requested dependencies (either from or to this module) were found: [list of such dependencies]}.
+
+    ```
+    {Module for which not explicitly requested dependencies (either from or to this module) were found: [list of such dependencies]}
+    ```
 
     The output is a rule violation object which for each type of rule contains a list of (rule subject, rule object) modules which violate the rule. These are ordered according
     to the order the user used when specifying the rule, i.e. the rule subject is the original rule subject no matter if the rule is an import

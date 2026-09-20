@@ -8,6 +8,7 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 - Support for python 3.14
 - Accept `pathlib.Path`s in `get_evaluable_architecture(..)`
 - Readme examples and links to documentation
+- Documentation is now built with zensical instead of mkdocs
 
 ### Fixed
 - Straightforward error message when using wildcards in `are_named` rules.
@@ -15,6 +16,8 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 - Module filter uses regex when activated instead of only if last module.
 - Descriptive error message with actionable guidance when a queried module is not present in the dependency graph.
 - Parser no longer errors out on windows due to unspecified encoding.
+- Docstring formatting in the API reference: dependency structure examples in the rule assessment docs and the PlantUML arrow operators are now rendered as code.
+- `site_url` is configured, so the generated sitemap lists all pages and pages define proper canonical URLs (`https://zyskarch.github.io/pytestarch/latest/`).
 
 ## 4.0.1 -- 2025-08-08
 ### Fixed
