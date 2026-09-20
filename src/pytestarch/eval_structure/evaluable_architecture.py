@@ -296,7 +296,8 @@ class EvaluableArchitecture(Protocol):
         Args:
             **kwargs: Any formatting options available for networkx' drawing function, as this is currently the only
                 available backend.
-                Exception: If 'spacing' is set, this will be interpreted as the parameter 'k' of the spring layout (https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.spring_layout.html#networkx.drawing.layout.spring_layout).
+                Exception: If 'spacing' is set, this will be interpreted as the parameter 'k' of the spring layout
+                ([networkx spring layout](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.spring_layout.html#networkx.drawing.layout.spring_layout)).
         """
         raise NotImplementedError()
 

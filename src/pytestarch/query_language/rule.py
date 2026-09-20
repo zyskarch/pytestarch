@@ -53,8 +53,8 @@ class Rule(
     RuleSubject,
     RuleApplier,
 ):
-    """Represents an architectural rule of the form
-    Module1 [verb, such as 'should'] [import type, such as 'import'] Module2
+    r"""Represents an architectural rule of the form
+    Module1 \[verb, such as 'should'\] \[import type, such as 'import'\] Module2
     """
 
     def __init__(

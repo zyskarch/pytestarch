@@ -57,7 +57,7 @@ class PumlParser(DiagramParser):
             * component names must be enclosed in square brackets
             * exception: if a component as been given an alias via `[module name] as alias`, then the alias should not be
                 wrapped in square brackets
-            * dependencies must be with either -->, ->, <--, <-, -text->, or <-text-. The dependee is to be placed
+            * dependencies must be with either `-->`, `->`, `<--`, `<-`, `-text->`, or `<-text-`. The dependee is to be placed
                 on the side of the arrow head, the dependor on the opposite side
         Args:
             file_path: .puml file to parse

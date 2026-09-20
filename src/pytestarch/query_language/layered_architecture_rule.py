@@ -146,8 +146,8 @@ class LayerRule(
     LayerSpecification,
     LayerBase,
 ):
-    """Represents an architectural rule of the form
-    Layer X [verb, such as 'should'] [access type, such as 'be accessed by'] Layer Y
+    r"""Represents an architectural rule of the form
+    Layer X \[verb, such as 'should'\] \[access type, such as 'be accessed by'\] Layer Y
     The modules that each layer contains are to be specified via a LayeredArchitecture object.
     """
 

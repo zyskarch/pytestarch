@@ -1,3 +1,4 @@
+# Visualization
 ## Visualizing architecture
 The graph structure can be plotted with `evaluable_architecture.visualize()` (requires
 matplotlib - this is not installed as a dependency by default: please install `pytestarch[visualization]`), which plots the dependency graph.

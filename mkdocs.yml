@@ -1,7 +1,13 @@
 site_name: PyTestArch
 
+site_url: https://zyskarch.github.io/pytestarch/latest/
+
 theme:
   name: "material"
+  variant: classic
+  font:
+    text: Roboto
+    code: Roboto Mono
 
 plugins:
   - search
@@ -12,6 +18,7 @@ plugins:
             show_source: false
             show_root_heading: true
             show_root_full_path: false
+            show_signature_annotations: true
 extra:
   version:
     provider: mike
@@ -37,3 +44,11 @@ nav:
 
 
 repo_url: https://github.com/zyskarch/pytestarch
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: false
+  - pymdownx.superfences
