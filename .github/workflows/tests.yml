@@ -8,14 +8,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.11", "3.12", "3.13", "3.14", "3.15"]
         poetry-version: ["2.5.1"]
         os: [ubuntu-latest]
         include:
-          - python-version: "3.12"
+          - python-version: "3.14"
             poetry-version: "2.5.1"
             os: windows-latest
-          - python-version: "3.12"
+          - python-version: "3.14"
             poetry-version: "2.5.1"
             os: macos-latest
 
@@ -26,6 +26,7 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
       - name: setup poetry
         uses: abatilo/actions-poetry@3765cf608f2d4a72178a9fc5b918668e542b89b1 # v4.0.0
         with:

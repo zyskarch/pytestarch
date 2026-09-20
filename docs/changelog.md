@@ -5,7 +5,11 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 ## 4.0.2 TBD
 ### Changed
 - Drop support for python 3.9
+- Drop support for python 3.10
 - Support for python 3.14
+- Support for python 3.15
+- Increased minimum dependency versions: networkx >=3.6, matplotlib >=3.11
+- Updated development dependencies
 - Accept `pathlib.Path`s in `get_evaluable_architecture(..)`
 - Readme examples and links to documentation
 - Documentation is now built with zensical instead of mkdocs
