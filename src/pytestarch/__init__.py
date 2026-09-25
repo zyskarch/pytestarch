@@ -1,8 +1,15 @@
 from pytestarch.diagram_extension.diagram_rule import DiagramRule
-from pytestarch.eval_structure.evaluable_architecture import EvaluableArchitecture
+from pytestarch.eval_structure.evaluable_architecture import (
+    EvaluableArchitecture,
+)
 from pytestarch.query_language.layered_architecture_rule import (
     LayeredArchitecture,
     LayerRule,
+)
+from pytestarch.query_language.predefined_rules import (
+    HexagonalArchitecture,
+    layered_architecture,
+    onion_architecture,
 )
 from pytestarch.query_language.rule import Rule
 
@@ -16,7 +23,10 @@ __all__ = [
     "EvaluableArchitecture",
     "get_evaluable_architecture",
     "get_evaluable_architecture_for_module_objects",
+    "HexagonalArchitecture",
+    "layered_architecture",
     "LayeredArchitecture",
     "LayerRule",
+    "onion_architecture",
     "Rule",
 ]

@@ -3,6 +3,9 @@
 This project uses semantic versioning and follows [keep a changelog](https://keepachangelog.com).
 
 ## 4.0.2 TBD
+### Added
+- Predefined architecture rules: `layered_architecture()`, `onion_architecture()`, and `HexagonalArchitecture` builder for common architectural patterns.
+
 ### Changed
 - Drop support for python 3.9
 - Support for python 3.14
