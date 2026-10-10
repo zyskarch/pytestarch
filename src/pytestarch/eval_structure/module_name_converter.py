@@ -27,8 +27,8 @@ class ModuleNameConverter:
         """Converts each regex pattern that serves to identify module names into actual modules that match this pattern.
 
         Args:
-            - modules: list of modules, some of which may need converting since their names are regex patterns
-            - arch: architecture that contains actual modules
+            modules: list of modules, some of which may need converting since their names are regex patterns
+            arch: architecture that contains actual modules
 
         Returns:
             - list of module filters, now without any regex patterns. Will be used for later dependency graph queries.

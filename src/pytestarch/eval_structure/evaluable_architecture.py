@@ -236,8 +236,8 @@ class EvaluableArchitecture(Protocol):
         matches.
 
         Args:
-            dependent: Module(s)
-            dependent_upon: Module(s)
+            dependents: Module(s)
+            dependent_upons: Module(s)
 
         Returns:
             Importer and importee per pair of dependent and dependent_upon module if there are any
@@ -260,8 +260,8 @@ class EvaluableArchitecture(Protocol):
             Y's parent is such a module, as this parent module can and usually will also contain other modules than Y.
 
         Args:
-            dependent: Module
-            dependent_upon: Module
+            dependents: Module
+            dependent_upons: Module
 
         Returns:
             All modules other than dependent_upon on which dependent module as any dependency per dependent module
@@ -282,8 +282,8 @@ class EvaluableArchitecture(Protocol):
         If the dependent upon module is defined via a parent module, this parent module is not taken into account.
 
         Args:
-            dependent: Module
-            dependent_upon: Module
+            dependents: Module
+            dependent_upons: Module
 
         Returns:
             All modules other than dependent that have any dependency on the dependent upon module per dependent_upon module

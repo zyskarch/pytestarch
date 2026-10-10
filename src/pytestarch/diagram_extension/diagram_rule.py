@@ -56,7 +56,7 @@ class DiagramRule(FileRule, BaseModuleSpecifier, RuleApplier):
 
         Args:
              should_only_rule: if True, edges between components will be converted into 'should only import' rules.
-             If False, 'should import' rules will be generated instead.
+                 If False, 'should import' rules will be generated instead.
         """
         self._file_path: Path | None = None
         self._name_relative_to_root: str | None = None

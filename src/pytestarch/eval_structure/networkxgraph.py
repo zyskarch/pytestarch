@@ -233,8 +233,8 @@ class NetworkxGraph(AbstractGraph):
                 priority, e.g. with the same modules as above and
                 aliases == {'a': 'A', 'a.c': 'C'} the plot labels will be A, A.b, C,
                 C.d.
-            Remaining keyword args are passed to draw_networkx. Notably, "ax" can be
-            used to draw the graph onto an existing matploblib Axis object.
+            **kwargs: Remaining keyword args are passed to draw_networkx. Notably, "ax"
+                can be used to draw the graph onto an existing matploblib Axis object.
         """
         try:
             import matplotlib  # noqa: F401
