@@ -4,8 +4,9 @@ If you want to help develop PyTestArch, please read the following guide on setti
 and on which requirements need to be fulfilled for a PR to be ready for approval.
 
 ## Setting up
-[Poetry](https://python-poetry.org/) is used for dependency and packaging management. Install poetry if you haven't already.
-Run `poetry install` to create a virtual environment with the required dependencies.
+[uv](https://docs.astral.sh/uv/) is used for dependency and packaging management. Install uv if you haven't already.
+Run `uv sync` to create a virtual environment with the required dependencies. Add the optional visualization
+dependencies with `uv sync --extra visualization`.
 
 There are also git hooks for ruff and mypy available via `pre-commit install`.
 

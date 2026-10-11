@@ -17,7 +17,7 @@ are mentioned in the changelog. If they are not, update the changelog and open a
 
 ### Bump version
 In accordance with what you just specified in the changelog, run
-`poetry version [patch/minor/major]`
+`uv version --bump [patch/minor/major]`
 to set the package version.
 
 

@@ -4,6 +4,7 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 
 ## 5.0.1 -- TBD
 ### Changed
+- Switched dependency and packaging management from Poetry to [uv](https://docs.astral.sh/uv/): `pyproject.toml` now uses a `hatchling` build backend and PEP 735 dependency groups.
 - Added root `index.html` with redirect to latest (`https://zyskarch.github.io/pytestarch/` resolves to `https://zyskarch.github.io/pytestarch/latest/`).
 
 ### Fixed
