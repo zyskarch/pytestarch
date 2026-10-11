@@ -24,6 +24,8 @@ from resources import nested_root_module_mismatch_project, root_module_mismatch_
 from resources.from_import_project import app as from_import_app
 from resources.nested_root_module_mismatch_project.dir1.dir2 import nested_app
 from resources.root_module_mismatch_project import app
+from resources.test_project import src
+from resources.test_project.src import moduleA
 
 
 @pytest.mark.parametrize(
@@ -527,3 +529,23 @@ def test_same_importer_same_importee_handled_correctly(
     else:
         with pytest.raises(AssertionError, match=expected_error):
             rule.assert_applies(evaluable)
+
+
+def test_importee_module_calculator_does_not_add_internal_modules_as_external() -> None:
+    """With exclude_external_libraries=False, modules that belong to the scanned
+    root module must NOT appear as spurious extra nodes in the graph.
+
+    See https://github.com/zyskarch/pytestarch/issues/144."""
+    level_2_graph = get_evaluable_architecture(
+        os.path.dirname(src.__file__),
+        os.path.dirname(moduleA.__file__),
+        ("*__pycache__", "*__init__.py", "*Test.py"),
+        exclude_external_libraries=False,
+    )
+
+    nodes = set(level_2_graph._graph._graph.nodes)  # type: ignore
+    # 'src.moduleB' and 'src.moduleC' are imported by files inside moduleA,
+    # but they start with the root module name 'src', so they must not be
+    # added as external dependency nodes to the graph.
+    assert "src.moduleB" not in nodes
+    assert "src.moduleC" not in nodes

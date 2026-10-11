@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import ast
 from collections.abc import Callable, Sequence
-from typing import TypeVar
 
 from pytestarch.eval_structure.types import Import
 from pytestarch.eval_structure_generation.file_import.import_types import (
@@ -10,8 +9,6 @@ from pytestarch.eval_structure_generation.file_import.import_types import (
     NamedModule,
     RelativeImport,
 )
-
-ImportT = TypeVar("ImportT", bound=Import)
 
 
 class ImportConverter:
@@ -140,8 +137,8 @@ class ImportConverter:
         cls,
         imported_name: str,
         all_internal_modules: set[str],
-        create_import: Callable[[str], ImportT],
-    ) -> ImportT | None:
+        create_import: Callable[[str], Import],
+    ) -> Import | None:
         """Handles imports of the form "from <module> import <name>": <name> may
         refer to a submodule of <module> instead of an attribute. In this case,
         the import is also an import of <module>.<name>.

@@ -17,6 +17,9 @@ from pytestarch.eval_structure_generation.file_import.import_types import NamedM
 from pytestarch.eval_structure_generation.file_import.importee_module_calculator import (
     ImporteeModuleCalculator,
 )
+from pytestarch.eval_structure_generation.file_import.internal_module import (
+    is_submodule_of,
+)
 from pytestarch.eval_structure_generation.file_import.parser import Parser
 
 
@@ -47,7 +50,7 @@ def generate_graph(
 
     all_modules, ast = _get_all_ast_modules(module_path, root_path, exclusions)
 
-    internal_module_prefix = _get_internal_module_prefix(
+    internal_module_name = _get_internal_module_name(
         path_diff_between_root_and_module, root_path
     )
 
@@ -56,18 +59,22 @@ def generate_graph(
         _get_absolute_import_prefix(
             path_diff_between_root_and_module, root_path, module_path
         ),
-        _get_all_internal_modules(all_modules, internal_module_prefix),
+        _get_all_internal_modules(all_modules, internal_module_name),
     )
 
     if external_exclusions is None:
         external_exclusions = ()
 
     imports = _remove_excluded_imports(
-        exclude_external_libraries, imports, internal_module_prefix, external_exclusions
+        exclude_external_libraries, imports, internal_module_name, external_exclusions
     )
 
     all_modules = _append_external_modules_to_module_list(
-        all_modules, exclude_external_libraries, imports, root_path, external_exclusions
+        all_modules,
+        exclude_external_libraries,
+        imports,
+        root_path.name,
+        external_exclusions,
     )
     return EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports, level_limit))
 
@@ -76,7 +83,7 @@ def _append_external_modules_to_module_list(
     all_modules: list[Node],
     exclude_external_libraries: bool,
     imports: Sequence[Import],
-    root_path: Path,
+    root_module_name: str,
     external_exclusions: tuple[str, ...],
 ) -> list[Node]:
     """External modules are not detected as modules when importing the source folder - but they will of course show up
@@ -85,7 +92,7 @@ def _append_external_modules_to_module_list(
     if exclude_external_libraries:
         return all_modules
 
-    all_modules = ImporteeModuleCalculator(root_path).calculate_importee_modules(
+    all_modules = ImporteeModuleCalculator(root_module_name).calculate_importee_modules(
         imports,
         all_modules,
     )
@@ -101,28 +108,31 @@ def _append_external_modules_to_module_list(
 def _remove_excluded_imports(
     exclude_external_libraries: bool,
     imports: Sequence[Import],
-    internal_module_prefix: str,
+    internal_module_name: str,
     external_exclusions: tuple[str, ...],
 ) -> Sequence[Import]:
     import_filter = ExternalImportFilter(
-        exclude_external_libraries, internal_module_prefix, external_exclusions
+        exclude_external_libraries, internal_module_name, external_exclusions
     )
     return import_filter.filter(imports)
 
 
-def _get_internal_module_prefix(
+def _get_internal_module_name(
     path_diff_between_root_and_module: str, root_path: Path
 ) -> str:
     """In general, all internal modules should start with the root module name to be able to differentiate between
     internal and external modules. If the root and base module differ, the modules between them also need to be taken
     into account, as not-root.a.b-modules are external, but root.a.b.base-modules are internal.
+
+    The returned name carries no trailing dot: it is matched boundary-safely, so the internal
+    module itself ('root', or 'root.a.b' if the scanned module lies below the root) also counts as internal.
     """
-    internal_module_prefix = root_path.name + "."
+    internal_module_name = root_path.name
 
     if _actual_difference_between_root_and_module(path_diff_between_root_and_module):
-        internal_module_prefix += path_diff_between_root_and_module
+        internal_module_name += f".{path_diff_between_root_and_module}"
 
-    return internal_module_prefix
+    return internal_module_name
 
 
 def _actual_difference_between_root_and_module(
@@ -170,6 +180,12 @@ def _get_all_ast_modules(
 
 
 def _get_all_internal_modules(
-    modules: list[str], internal_module_prefix: str
+    modules: list[str], internal_module_name: str
 ) -> set[str]:
-    return {m for m in modules if m.startswith(internal_module_prefix)}
+    """All parsed modules that are submodules of the internal module.
+
+    The internal module itself is not included: this set backs the converter's exact-name
+    lookups when resolving 'from <module> import <name>' statements to submodule imports
+    and when adjusting absolute import prefixes, so only names below the internal module count.
+    """
+    return {m for m in modules if is_submodule_of(m, internal_module_name)}

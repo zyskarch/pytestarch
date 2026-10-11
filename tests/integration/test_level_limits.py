@@ -144,16 +144,15 @@ def test_edges_correctly_calculated_for_level_2_module_path_no_external_dependen
         exclude_external_libraries=False,
     )
 
-    assert len(level_2_graph._graph._graph.edges) == 23  # type: ignore
+    assert len(level_2_graph._graph._graph.edges) == 15  # type: ignore
 
     for edge in [
         ("src", "src.moduleA"),
-        ("src", "src.moduleB"),  # must not be src.moduleA.src.moduleB
-        ("src", "src.moduleC"),
         ("src.moduleA", "src.moduleA.fileA"),
         ("src.moduleA", "src.moduleA.submoduleA1"),
         ("src.moduleA", "src.moduleA.submoduleA2"),
-        ("src.moduleA.fileA", "src.moduleC.fileC"),
+        ("src.moduleA.submoduleA1", "src.moduleA.submoduleA1.fileA1"),
+        ("src.moduleA.submoduleA1", "src.moduleA.submoduleA1.fileA1_b"),
         ("src.moduleA.submoduleA1", "src.moduleA.submoduleA1.submoduleA11"),
         (
             "src.moduleA.submoduleA1.submoduleA11",
@@ -163,17 +162,26 @@ def test_edges_correctly_calculated_for_level_2_module_path_no_external_dependen
             "src.moduleA.submoduleA1.submoduleA11.fileA11",
             "os",
         ),  # must not be src.moduleA.os!
+        ("src.moduleA.submoduleA2", "src.moduleA.submoduleA2.fileA2"),
+    ]:
+        assert edge in level_2_graph._graph  # type: ignore
+
+    # internal importees (starting with 'src') must not be added as nodes (#144)
+    actual_edges = set(level_2_graph._graph._graph.edges)  # type: ignore
+    for non_edge in [
+        ("src", "src.moduleB"),
+        ("src", "src.moduleC"),
+        ("src.moduleA.fileA", "src.moduleC.fileC"),
         (
             "src.moduleA.submoduleA1.submoduleA11.fileA11",
             "src.moduleB.submoduleB1.fileB1",
         ),
-        ("src.moduleA.submoduleA2", "src.moduleA.submoduleA2.fileA2"),
         ("src.moduleA.submoduleA2.fileA2", "src.moduleC.fileC"),
         ("src.moduleB", "src.moduleB.submoduleB1"),
         ("src.moduleB.submoduleB1", "src.moduleB.submoduleB1.fileB1"),
         ("src.moduleC", "src.moduleC.fileC"),
     ]:
-        assert edge in level_2_graph._graph  # type: ignore
+        assert non_edge not in actual_edges
 
 
 def test_edges_correctly_calculated_for_level_3_module_path() -> None:
@@ -207,21 +215,31 @@ def test_edges_correctly_calculated_for_level_3_module_path_no_external_dependen
         exclude_external_libraries=False,
     )
 
-    assert len(level_3_graph._graph._graph.edges) == 14  # type: ignore
+    assert len(level_3_graph._graph._graph.edges) == 10  # type: ignore
 
     for edge in [
-        ("src", "src.moduleB"),
+        ("src", "src.moduleA"),
+        ("src.moduleA", "src.moduleA.submoduleA1"),
+        ("src.moduleA.submoduleA1", "src.moduleA.submoduleA1.fileA1"),
+        ("src.moduleA.submoduleA1", "src.moduleA.submoduleA1.fileA1_b"),
         ("src.moduleA.submoduleA1", "src.moduleA.submoduleA1.submoduleA11"),
         (
             "src.moduleA.submoduleA1.submoduleA11",
             "src.moduleA.submoduleA1.submoduleA11.fileA11",
         ),
         ("src.moduleA.submoduleA1.submoduleA11.fileA11", "os"),
+    ]:
+        assert edge in level_3_graph._graph  # type: ignore
+
+    # internal importees (starting with 'src') must not be added as nodes (#144)
+    actual_edges = set(level_3_graph._graph._graph.edges)  # type: ignore
+    for non_edge in [
+        ("src", "src.moduleB"),
+        ("src.moduleB", "src.moduleB.submoduleB1"),
+        ("src.moduleB.submoduleB1", "src.moduleB.submoduleB1.fileB1"),
         (
             "src.moduleA.submoduleA1.submoduleA11.fileA11",
             "src.moduleB.submoduleB1.fileB1",
         ),
-        ("src.moduleB", "src.moduleB.submoduleB1"),
-        ("src.moduleB.submoduleB1", "src.moduleB.submoduleB1.fileB1"),
     ]:
-        assert edge in level_3_graph._graph  # type: ignore
+        assert non_edge not in actual_edges

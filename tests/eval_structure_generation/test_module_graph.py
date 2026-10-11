@@ -52,7 +52,7 @@ def all_modules(
     modules_and_ast: tuple[list[str], list[NamedModule]],
     imports: list[Import],
 ) -> list[str]:
-    return ImporteeModuleCalculator(ROOT_PATH).calculate_importee_modules(
+    return ImporteeModuleCalculator(ROOT_PATH.name).calculate_importee_modules(
         imports,
         modules_and_ast[0],
     )
@@ -64,8 +64,8 @@ def module_graph(all_modules: list[str], imports: list[Import]) -> NetworkxGraph
 
 
 def test_node_edge_count_as_expected(module_graph: NetworkxGraph) -> None:
-    assert module_graph.nodes_number == 36
-    assert module_graph.edges_number == 43
+    assert module_graph.nodes_number == 35
+    assert module_graph.edges_number == 41
 
 
 def test_expected_nodes_present(module_graph: NetworkxGraph) -> None:
@@ -100,7 +100,8 @@ def test_expected_nodes_present(module_graph: NetworkxGraph) -> None:
     assert "ast" in module_graph
     assert "sys" in module_graph
     assert "pytestarch" in module_graph
-    assert "pytestarch.pytestarch" in module_graph
+    # internal module: must not be added as an external dependency node
+    assert "pytestarch.pytestarch" not in module_graph
     assert "pytest" in module_graph
 
 
@@ -140,7 +141,6 @@ def test_edges_between_parent_and_child_modules_as_expected(
         "pytestarch.tests.resources.importer.level0",
         "pytestarch.tests.resources.importer.level0.test_dummy",
     ) in module_graph
-    assert ("pytestarch", "pytestarch.pytestarch") in module_graph
 
 
 def test_edges_between_importers_and_importees_as_expected(
@@ -186,17 +186,5 @@ def test_edges_between_importers_and_importees_as_expected(
     ) in module_graph
     assert (
         "pytestarch.tests.resources.importer.level0.test_dummy",
-        "pytestarch.pytestarch",
-    ) in module_graph
-    assert (
-        "pytestarch.tests.resources.importer.level0.test_dummy",
         "pytest",
     ) in module_graph
-
-
-def test_graph_connections_as_expected(module_graph: NetworkxGraph) -> None:
-    assert (
-        "pytestarch.tests.resources.importer.level0.test_dummy",
-        "pytest",
-    ) in module_graph
-    assert ("pytestarch", "pytestarch.pytestarch") in module_graph

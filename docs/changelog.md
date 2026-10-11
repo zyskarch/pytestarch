@@ -8,10 +8,13 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 - Added root `index.html` with redirect to latest (`https://zyskarch.github.io/pytestarch/` resolves to `https://zyskarch.github.io/pytestarch/latest/`).
 - Absolute imports of the form `from <package> import <module>` are now recognized as imports of `<package>.<module>`, allowing rules defined via `are_named` and similar to match them ([#145](https://github.com/zyskarch/pytestarch/issues/145)).
 - Relative imports of the form `from .<package> import <module>` are now recognized as imports of `<package>.<module>` as well ([#145](https://github.com/zyskarch/pytestarch/issues/145)).
+- In partial scans (`module_path` being a submodule of `root_path`) with `exclude_external_libraries` set to `False`, internal modules outside the scanned `module_path` are no longer added as nodes to the dependency graph.
 
 ### Fixed
 - Canonical URLs point to the correct versioned page instead of `/latest/<version>/`.
 - `from . import <name>` no longer turns imported attributes or `*` into imports of non-existent `<package>.<name>` modules.
+- Internal modules are no longer added to the graph as spurious external dependency nodes when `exclude_external_libraries` is set to `False` (partially fixes [#144](https://github.com/zyskarch/pytestarch/issues/144)).
+- Imports of the scanned module itself are no longer classified as external when `exclude_external_libraries` is set to `True`; previously only submodules counted as internal.
 
 
 ## 5.0.0 -- 2026-10-11
