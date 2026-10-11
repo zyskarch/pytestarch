@@ -118,12 +118,20 @@ class ImportConverter:
                         new_imports.append(submodule_import)
             else:
                 new_imports = []
-                for alias in module.names:
+                if module.module is not None:
                     new_imports.append(
-                        RelativeImport(
-                            module_name, module.module, alias.name, module.level
-                        )
+                        RelativeImport(module_name, module.module, None, module.level)
                     )
+                for alias in module.names:
+                    relative_submodule_import = self._import_of_internal_submodule(
+                        alias.name,
+                        all_internal_modules,
+                        lambda name: RelativeImport(
+                            module_name, module.module, name, module.level
+                        ),
+                    )
+                    if relative_submodule_import is not None:
+                        new_imports.append(relative_submodule_import)
 
         return new_imports
 

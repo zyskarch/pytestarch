@@ -149,6 +149,41 @@ def test_import_from_package_of_attribute_does_not_create_module() -> None:
     assert "app.helper" not in evaluable.modules
 
 
+def test_relative_import_from_package_of_submodule_detected_by_rule() -> None:
+    evaluable = get_evaluable_architecture(
+        os.path.dirname(from_import_app.__file__),
+        os.path.dirname(from_import_app.__file__),
+        ("*__pycache__", "*__init__.py", "*Test.py"),
+    )
+
+    rule = (
+        Rule()
+        .modules_that()
+        .are_named("app.maroon")
+        .should_not()
+        .import_modules_that()
+        .are_named("app.indigo.util")
+    )
+
+    with pytest.raises(
+        AssertionError,
+        match='"app.maroon" imports "app.indigo.util".',
+    ):
+        rule.assert_applies(evaluable)
+
+
+def test_relative_import_from_module_of_attribute_does_not_create_module() -> None:
+    evaluable = get_evaluable_architecture(
+        os.path.dirname(from_import_app.__file__),
+        os.path.dirname(from_import_app.__file__),
+        ("*__pycache__", "*__init__.py", "*Test.py"),
+        exclude_external_libraries=False,
+    )
+
+    assert isinstance(evaluable, EvaluableArchitectureGraph)
+    assert "app.web.helper" not in evaluable.modules
+
+
 def test_nested_root_module_mismatch_handled_as_expected() -> None:
     evaluable = get_evaluable_architecture(
         os.path.dirname(nested_root_module_mismatch_project.__file__),

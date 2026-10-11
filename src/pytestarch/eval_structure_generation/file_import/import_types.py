@@ -50,12 +50,13 @@ class RelativeImport(Import):
             raise ImportException(
                 "Either name of module of of import needs to be specified."
             )
-        self._module_name = module_name or import_name
+        self._module_name = module_name
+        self._import_name = import_name
         self._level = level
 
         self._importee = self._calculate_importee()
 
-        self._importee_module_hierarchy = get_parent_modules(self._module_name)  # type: ignore
+        self._importee_module_hierarchy = get_parent_modules(self._importee)
 
     def importee(self) -> str:
         return self._importee
@@ -64,4 +65,8 @@ class RelativeImport(Import):
         return self._importee_module_hierarchy
 
     def _calculate_importee(self) -> str:
-        return self._importer_module_hierarchy[-self._level] + "." + self._module_name  # type: ignore
+        return (
+            self._importer_module_hierarchy[-self._level]
+            + "."
+            + ".".join(part for part in (self._module_name, self._import_name) if part)
+        )

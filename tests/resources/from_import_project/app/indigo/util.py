@@ -1,0 +1,2 @@
+def utility() -> None:
+    pass
