@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import ast
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
+from typing import TypeVar
 
 from pytestarch.eval_structure.types import Import
 from pytestarch.eval_structure_generation.file_import.import_types import (
@@ -9,6 +10,8 @@ from pytestarch.eval_structure_generation.file_import.import_types import (
     NamedModule,
     RelativeImport,
 )
+
+ImportT = TypeVar("ImportT", bound=Import)
 
 
 class ImportConverter:
@@ -98,6 +101,21 @@ class ImportConverter:
                         ),
                     )
                 ]
+                for alias in module.names:
+                    submodule_import = self._import_of_internal_submodule(
+                        alias.name,
+                        all_internal_modules,
+                        lambda name: AbsoluteImport(
+                            module_name,
+                            self._adjust_with_root_prefix(
+                                f"{module.module}.{name}",
+                                absolute_import_prefix,
+                                all_internal_modules,
+                            ),
+                        ),
+                    )
+                    if submodule_import is not None:
+                        new_imports.append(submodule_import)
             else:
                 new_imports = []
                 for alias in module.names:
@@ -108,6 +126,39 @@ class ImportConverter:
                     )
 
         return new_imports
+
+    @classmethod
+    def _import_of_internal_submodule(
+        cls,
+        imported_name: str,
+        all_internal_modules: set[str],
+        create_import: Callable[[str], ImportT],
+    ) -> ImportT | None:
+        """Handles imports of the form "from <module> import <name>": <name> may
+        refer to a submodule of <module> instead of an attribute. In this case,
+        the import is also an import of <module>.<name>.
+
+        Only names that are known internal modules are taken into account, so
+        that imported functions, classes and constants do not end up as imports
+        of non-existent modules. "from <module> import *" cannot be resolved
+        statically and is therefore skipped.
+
+        Args:
+            imported_name: name of the imported submodule or attribute
+            all_internal_modules: set of all internal modules
+            create_import: builds the import of the submodule for a given name
+
+        Returns: import of the submodule, or None if the imported name is not a known internal module
+        """
+        if imported_name == "*":
+            return None
+
+        candidate = create_import(imported_name)
+
+        if candidate.importee() not in all_internal_modules:
+            return None
+
+        return candidate
 
     @classmethod
     def _adjust_with_root_prefix(

@@ -21,6 +21,7 @@ from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.networkxgraph import NetworkxGraph
 from pytestarch.eval_structure_generation.file_import.import_types import AbsoluteImport
 from resources import nested_root_module_mismatch_project, root_module_mismatch_project
+from resources.from_import_project import app as from_import_app
 from resources.nested_root_module_mismatch_project.dir1.dir2 import nested_app
 from resources.root_module_mismatch_project import app
 
@@ -111,6 +112,41 @@ def test_root_module_match_handled_as_expected() -> None:
         match='"app.red.red" is imported by "app.green.green".\n"app.red.red2" is imported by "app.green.green".\n"app.red.red3" is imported by "app.green.green".',
     ):
         rule.assert_applies(evaluable)
+
+
+def test_import_from_package_of_submodule_detected_by_rule() -> None:
+    evaluable = get_evaluable_architecture(
+        os.path.dirname(from_import_app.__file__),
+        os.path.dirname(from_import_app.__file__),
+        ("*__pycache__", "*__init__.py", "*Test.py"),
+    )
+
+    rule = (
+        Rule()
+        .modules_that()
+        .are_named("app.web")
+        .should_not()
+        .be_imported_by_modules_that()
+        .are_sub_modules_of("app.green")
+    )
+
+    with pytest.raises(
+        AssertionError,
+        match='"app.web" is imported by "app.green.green".',
+    ):
+        rule.assert_applies(evaluable)
+
+
+def test_import_from_package_of_attribute_does_not_create_module() -> None:
+    evaluable = get_evaluable_architecture(
+        os.path.dirname(from_import_app.__file__),
+        os.path.dirname(from_import_app.__file__),
+        ("*__pycache__", "*__init__.py", "*Test.py"),
+        exclude_external_libraries=False,
+    )
+
+    assert isinstance(evaluable, EvaluableArchitectureGraph)
+    assert "app.helper" not in evaluable.modules
 
 
 def test_nested_root_module_mismatch_handled_as_expected() -> None:
