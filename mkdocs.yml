@@ -1,6 +1,6 @@
 site_name: PyTestArch
 
-site_url: https://zyskarch.github.io/pytestarch/latest/
+site_url: https://zyskarch.github.io/pytestarch/
 
 theme:
   name: "material"

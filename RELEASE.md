@@ -1,5 +1,5 @@
 # How to release a new version
-In order to deploy the newest version of PyTestArch to PyPI, the following steps are required:
+In order to release a new version of PyTestArch to PyPI, the following steps are required:
 
 
 ### Check out release branch
@@ -10,13 +10,13 @@ Create a new release branch based on the current `main` branch.
 Run all tests just to be safe.
 
 
-### Ensure that changelog is up-to-date
-Each PR should come with an update of the [changelog](docs/changelog.md). Make sure that all recent features/bug fixes/...
+### Ensure that the changelog is up-to-date
+Each PR should come with an update to the [changelog](docs/changelog.md). Make sure that all recent features, bug fixes, and other changes
 are mentioned in the changelog. If they are not, update the changelog and open a PR for this first.
 
 
 ### Bump version
-In according to what you just specified in the changelog, run
+In accordance with what you just specified in the changelog, run
 `poetry version [patch/minor/major]`
 to set the package version.
 
@@ -35,9 +35,12 @@ Then share the tag via
 
 
 ## Release a new version of the documentation
-Run `mike deploy --push --update-aliases <insert new version> latest`. This will update the project's documentation 
-hosted on GitHub Pages.
+Run `mike deploy --push --update-aliases <insert new version> latest`. This will update the project's documentation hosted on GitHub Pages.
+
+
+### One-time setup: redirect the site root to the latest version
+Run `mike set-default --push latest` once to creaet a `index.html` that redirects to latest from the root page.
 
 
 ## Release a new version of PyTestArch
-Create a release via GitHub. This will trigger the `Release` GitHub Action, which will push the newest version to PyPI.
+Create a release via GitHub. This will trigger the `Release` GitHub Action, which will publish the new version to PyPI.

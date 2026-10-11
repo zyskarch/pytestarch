@@ -2,7 +2,15 @@
 
 This project uses semantic versioning and follows [keep a changelog](https://keepachangelog.com).
 
-## 5.0.0 -- 2026-10-10
+## 5.0.1 -- TBD
+### Changed
+- Added root `index.html` with redirect to latest (`https://zyskarch.github.io/pytestarch/` resolves to `https://zyskarch.github.io/pytestarch/latest/`).
+
+### Fixed
+- Canonical URLs point to the correct versioned page instead of `/latest/<version>/`.
+
+
+## 5.0.0 -- 2026-10-11
 ### Changed
 - Drop support for python 3.9
 - Drop support for python 3.10
@@ -22,7 +30,7 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 - Parser no longer errors out on windows due to unspecified encoding.
 - Docstring formatting in the API reference: dependency structure examples in the rule assessment docs and the PlantUML arrow operators are now rendered as code.
 - Docstring argument mismatches: actual arguments and docstring diverged, so the generated configuration was incomplete.
-- `site_url` is configured, so the generated sitemap lists all pages and pages define proper canonical URLs (`https://zyskarch.github.io/pytestarch/latest/`).
+- `site_url` is configured, so the generated sitemap lists all pages and pages define canonical URLs.
 
 ## 4.0.1 -- 2025-08-08
 ### Fixed
