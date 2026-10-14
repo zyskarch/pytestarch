@@ -15,6 +15,7 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 - `from . import <name>` no longer turns imported attributes or `*` into imports of non-existent `<package>.<name>` modules.
 - Internal modules are no longer added to the graph as spurious external dependency nodes when `exclude_external_libraries` is set to `False` (partially fixes [#144](https://github.com/zyskarch/pytestarch/issues/144)).
 - Imports of the scanned module itself are no longer classified as external when `exclude_external_libraries` is set to `True`; previously only submodules counted as internal.
+- Imports inside `else`, `elif`, `except`, `finally` and `match`/`case` blocks are now recognized. Rules that only passed because these imports were missed can now be violated.
 
 
 ## 5.0.0 -- 2026-10-11

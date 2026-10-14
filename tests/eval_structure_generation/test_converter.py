@@ -187,3 +187,107 @@ def test_relative_import_emits_expected_imports(
 
     assert len(imports) == len(expected_imports)
     assert {(i.importer(), i.importee()) for i in imports} == expected_imports
+
+
+@pytest.mark.parametrize(
+    "source, expected_imports",
+    [
+        # The descent is attribute-based, so one node type per statement-list
+        # attribute suffices: `orelse` via If (with a compound node inside) and
+        # Try, `handlers`/`finalbody` via Try and TryStar, `cases` via Match.
+        pytest.param(
+            "if x:\n    import alpha\nelse:\n    for i in y:\n        import beta\n",
+            {("src.main", "src.alpha"), ("src.main", "src.beta")},
+            id="if else",
+        ),
+        pytest.param(
+            "try:\n    import alpha\nexcept ValueError:\n"
+            "    import beta\nexcept Exception:\n"
+            "    import gamma\nelse:\n    import epsilon\n"
+            "finally:\n    import delta\n",
+            {
+                ("src.main", "src.alpha"),
+                ("src.main", "src.beta"),
+                ("src.main", "src.gamma"),
+                ("src.main", "src.epsilon"),
+                ("src.main", "src.delta"),
+            },
+            id="try except else finally",
+        ),
+        pytest.param(
+            "try:\n    import alpha\nexcept* ValueError:\n"
+            "    import beta\nelse:\n    import gamma\n"
+            "finally:\n    import delta\n",
+            {
+                ("src.main", "src.alpha"),
+                ("src.main", "src.beta"),
+                ("src.main", "src.gamma"),
+                ("src.main", "src.delta"),
+            },
+            id="try star",
+        ),
+        pytest.param(
+            "match x:\n    case 1:\n        import alpha\n"
+            "    case _:\n        import beta\n",
+            {("src.main", "src.alpha"), ("src.main", "src.beta")},
+            id="match cases",
+        ),
+        pytest.param(
+            "if x:\n    try:\n        pass\n"
+            "    except Exception:\n"
+            "        match y:\n"
+            "            case _:\n"
+            "                with z:\n"
+            "                    import alpha\n",
+            {("src.main", "src.alpha")},
+            id="nested compound statements",
+        ),
+        pytest.param(
+            "if x:\n    from . import gamma\nelse:\n    from .delta import epsilon\n",
+            {
+                ("src.main", "src.gamma"),
+                ("src.main", "src.delta"),
+                ("src.main", "src.delta.epsilon"),
+            },
+            id="relative imports in branches",
+        ),
+    ],
+)
+def test_imports_in_conditional_blocks_are_converted(
+    source: str,
+    expected_imports: set[tuple[str, str]],
+) -> None:
+    internal_modules = {
+        "src",
+        "src.main",
+        "src.alpha",
+        "src.beta",
+        "src.gamma",
+        "src.delta",
+        "src.delta.epsilon",
+        "src.epsilon",
+    }
+    converter = ImportConverter()
+    imports = converter.convert(
+        [NamedModule(ast.parse(source), "src.main")], "src", internal_modules
+    )
+
+    assert len(imports) == len(expected_imports)
+    assert {(i.importer(), i.importee()) for i in imports} == expected_imports
+
+
+def test_duplicate_import_in_exclusive_branches_is_emitted_twice() -> None:
+    """An import repeated in exclusive branches must not be deduplicated here;
+    the dependency graph takes care of filtering duplicate edges."""
+    source = "if x:\n    import alpha\nelse:\n    import alpha\n"
+    converter = ImportConverter()
+    imports = converter.convert(
+        [NamedModule(ast.parse(source), "src.main")],
+        "src",
+        {"src", "src.main", "src.alpha"},
+    )
+
+    assert [(i.importer(), i.importee()) for i in imports] == [
+        ("src.main", "src.alpha"),
+        ("src.main", "src.alpha"),
+    ]

@@ -38,9 +38,17 @@ class ImportConverter:
 
             ast_module, module_name = module.module, module.name
 
-            if hasattr(ast_module, "body"):
+            child_nodes: list[ast.AST] = (
+                getattr(ast_module, "body", [])
+                + getattr(ast_module, "orelse", [])
+                + getattr(ast_module, "finalbody", [])
+                + getattr(ast_module, "handlers", [])
+                + getattr(ast_module, "cases", [])
+            )
+
+            if child_nodes:
                 module_to_search.extend(
-                    [NamedModule(m, module_name) for m in ast_module.body]  # type: ignore
+                    [NamedModule(m, module_name) for m in child_nodes]  # type: ignore
                 )
             else:
                 new_imports = self._convert(
