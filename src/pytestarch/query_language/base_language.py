@@ -178,7 +178,10 @@ class LayerDefinition(ABC):
 
     @abstractmethod
     def containing_modules(self, modules: str | list[str]) -> BaseLayeredArchitecture:
-        """If a module is defined as belonging to layer X, then its submodules are also assumed to be part of layer X."""
+        """If a module is defined as belonging to layer X, then its submodules are also assumed to be part of layer X.
+        A module that is already assigned to another layer, or that is a submodule or parent module of a module
+        assigned to another layer, is rejected with an ImproperlyConfigured error when the modules are specified.
+        """
         pass
 
     @abstractmethod
@@ -190,6 +193,8 @@ class LayerDefinition(ABC):
         Note that no attempt will be made to ensure that the regex patterns for different layers are mutually exclusive.
         Also note that regex expressions can have unexpected results if predicates apply to modules, but not their submodules.
         This is often the case for regex expressions with negations. Refer to the documentation of the module import feature for more details.
+        Note that regex-defined layers cannot be checked for modules nested within other layers' modules when the
+        layers are defined; contradictory matches may lead to a LayerMismatch once rules are applied.
         """
         pass
 

@@ -7,3 +7,7 @@
 ## ::: src.pytestarch.query_language.layered_architecture_rule
 
 ## ::: src.pytestarch.query_language.multiple_rule_applier
+
+## ::: src.pytestarch.experimental.onion_architecture
+
+## ::: src.pytestarch.experimental.layered_architecture

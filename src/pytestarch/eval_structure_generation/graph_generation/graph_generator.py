@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Literal
 
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
+from pytestarch.eval_structure.module_name_boundaries import is_internal_module
 from pytestarch.eval_structure.networkxgraph import NetworkxGraph, Node
 from pytestarch.eval_structure.types import Import
 from pytestarch.eval_structure_generation.file_import.config import Config
@@ -17,9 +18,6 @@ from pytestarch.eval_structure_generation.file_import.import_filter import (
 from pytestarch.eval_structure_generation.file_import.import_types import NamedModule
 from pytestarch.eval_structure_generation.file_import.importee_module_calculator import (
     ImporteeModuleCalculator,
-)
-from pytestarch.eval_structure_generation.file_import.internal_module import (
-    is_internal_module,
 )
 from pytestarch.eval_structure_generation.file_import.parser import Parser
 

@@ -2325,6 +2325,8 @@ SIMULATION_IMPORTEE = f"{SIMULATION}.simulation_importee"
 IMPORTER_IMPORTER = f"{IMPORTER}.importer_importer"
 IMPORTER_IMPORTEE = f"{IMPORTER}.importer_importee"
 MODEL_IMPORTEE = f"{MODEL}.model_importee"
+SIMULATION_IMPORTER = f"{SIMULATION}.simulation_importer"
+UTIL_IMPORTER = f"{UTIL}.util_importer"
 
 runtime_imports_services_no_layer = f'"{RUNTIME_IMPORTER}" (layer "{LAYER_1}") imports "{SERVICES_IMPORTEE}" (no layer).'
 runtime_imports_services_layer_2 = f'"{RUNTIME_IMPORTER}" (layer "{LAYER_1}") imports "{SERVICES_IMPORTEE}" (layer "{LAYER_2}").'
@@ -2703,7 +2705,13 @@ layer_rule_error_messages_test_cases_be_accessed = [
                 LAYER_3: [ORCHESTRATION, EXPORTER],
             },
             layer_1_should_only_be_accessed_by_layer_2_and_3,
-            "",
+            f'"{MODEL_IMPORTEE}" (layer "{LAYER_1}") is imported by "{IMPORTER_IMPORTER}" (no layer).\n'
+            f'"{MODEL_IMPORTEE}" (layer "{LAYER_1}") is imported by "{PERSISTENCE_IMPORTER}" (no layer).\n'
+            f'"{MODEL_IMPORTEE}" (layer "{LAYER_1}") is imported by "{SIMULATION_IMPORTER}" (no layer).\n'
+            f'"{UTIL_IMPORTEE}" (layer "{LAYER_1}") is imported by "{IMPORTER_IMPORTER}" (no layer).\n'
+            f'"{UTIL_IMPORTEE}" (layer "{LAYER_1}") is imported by "{PERSISTENCE_IMPORTER}" (no layer).\n'
+            f'"{UTIL_IMPORTEE}" (layer "{LAYER_1}") is imported by "{RUNTIME_IMPORTER}" (no layer).\n'
+            f'"{UTIL_IMPORTER}" (layer "{LAYER_1}") is imported by "{SIMULATION_IMPORTER}" (no layer).',
         ),
         id="should_only_violated_only_one_rule_object_imported",
     ),

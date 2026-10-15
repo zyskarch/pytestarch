@@ -2,10 +2,8 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
+from pytestarch.eval_structure.module_name_boundaries import is_internal_module
 from pytestarch.eval_structure.types import Import
-from pytestarch.eval_structure_generation.file_import.internal_module import (
-    is_internal_module,
-)
 
 
 class ImporteeModuleCalculator:

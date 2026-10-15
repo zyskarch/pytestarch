@@ -5,6 +5,7 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 ## 5.1.0 -- TBD
 ### Added
 - Support for container root directories (a `root_path` without `__init__.py`, e.g. a plain `src` folder holding several top level packages): the packages below it are scanned with their proper module names, and imports written root-relative (e.g. `from package2 import module2`) are correctly classified and resolved to their prefixed names instead of appearing as spurious external nodes. By default module names keep the root directory's name as prefix (`src.package1.module1`); with the new `module_naming="relative"` parameter they are derived without it (`package1.module1`). In partial scans, imports of packages outside the scanned `module_path` are listed as external dependencies under their bare names, as with the default naming (fixes [#144](https://github.com/zyskarch/pytestarch/issues/144)).
+- Experimental predefined architecture rules inspired by ArchUnit ([#134](https://github.com/zyskarch/pytestarch/issues/134)): `pytestarch.experimental.layered_architecture()` enforces a per-layer dependency whitelist, `pytestarch.experimental.onion_architecture()` implements the Onion Architecture style.
 
 ### Changed
 - Switched dependency and packaging management from Poetry to [uv](https://docs.astral.sh/uv/): `pyproject.toml` now uses a `hatchling` build backend and PEP 735 dependency groups.
@@ -14,6 +15,7 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 - In partial scans (a `module_path` below `root_path`) with `exclude_external_libraries=False`, internal modules outside the scanned `module_path` are no longer added as nodes.
 - Rules for container roots that previously passed vacuously may now fail: root-relative imports between top level packages were misclassified as external, so forbidding rules over them were never enforced.
 - With `exclude_external_libraries=False`, root-relative imports no longer create duplicate nodes without the root prefix (`package2` next to the real `src.package2`). Rules referencing such bare names must be updated to the prefixed names (or use `module_naming="relative"`).
+- Overlapping layer definitions — a module of one layer being a parent or submodule of another layer's module — are now rejected with an `ImproperlyConfigured` error at definition time, instead of a `LayerMismatch` only when rules are applied.
 
 ### Fixed
 - Canonical URLs point to the correct versioned page instead of `/latest/<version>/`.
@@ -24,6 +26,8 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 - With `module_naming="relative"`, `level_limit` now flattens container-root graphs correctly: module names were previously kept one level deeper than the limit. The default naming behaves as in previous versions (the root directory's name fills the first level).
 - An importee that starts with the root module name but is not a submodule of it (e.g. `appdirs` for a root module `app`) is no longer misclassified as internal.
 - With `module_naming="relative"`, a relative import in a module located directly at a container root (no `__init__.py`) now raises an explanatory `ImportException` instead of an `IndexError`. With the default naming, it resolves against the root directory's name.
+- The layer rule now matches modules on exact dot-separated boundaries: `project.model_utils` is no longer treated as part of layer `project.model`, so accesses to it are detected.
+- Plot label aliases now apply only to the aliased module and its dot-separated submodules; previously they also relabeled name-prefix matches like `appdirs` for an alias on `app`.
 
 
 ## 5.0.0 -- 2026-10-11

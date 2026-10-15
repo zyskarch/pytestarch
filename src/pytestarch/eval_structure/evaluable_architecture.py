@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from typing import Any, Protocol
 
 from pytestarch.eval_structure.exceptions import LayerMismatch
+from pytestarch.eval_structure.module_name_boundaries import is_submodule_of
 
 Layer = str
 ModuleName = str
@@ -59,8 +60,14 @@ class LayerMapping:
     def get_layer_for_module_name(self, module_name: str) -> Layer | None:
         """Attempts to find the layer the given module belongs to. If the module does not appear in the
         layer definition itself, it is checked whether the module is a submodule of one of the modules in the layer
-        definition. If so, the layer of the parent module is returned. Otherwise, None is returned.
-        This assumes that if a module is in layer X, all of its submodules are as well.
+        definition. In the scan, a module counts as a submodule of a listed module only if its name starts with
+        that module's name followed by a dot - a merely same-prefixed name such as project.model_utils for
+        project.model is not part of the layer.
+        If the module is a submodule of a module in the layer definition, the layer of the parent module is returned.
+        Otherwise, None is returned.
+        This assumes that if a module is in layer X, all of its submodules are as well. If a module is nested within
+        modules of different layers (e.g. layer X contains module A and layer Y contains A's submodule B), the
+        parent layer is ambiguous and a LayerMismatch is raised.
         """
         layer_candidate = self._get_layer_or_none(module_name)
 
@@ -74,7 +81,7 @@ class LayerMapping:
         candidate_parent_modules = []
         while idx_of_module >= 0:
             parent_module_candidate = self._sorted_module_filter_names[idx_of_module]
-            if module_name.startswith(parent_module_candidate):
+            if is_submodule_of(module_name, parent_module_candidate):
                 candidate_parent_modules.append(
                     ModuleNameFilter(name=parent_module_candidate)
                 )

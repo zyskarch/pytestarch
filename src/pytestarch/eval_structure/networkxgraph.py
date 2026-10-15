@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 from collections.abc import Sequence
 from typing import Any
 
@@ -11,6 +10,7 @@ from networkx import draw_networkx, has_path, spring_layout
 
 from pytestarch.eval_structure.evaluable_structures import AbstractGraph, AbstractNode
 from pytestarch.eval_structure.exceptions import ModuleUnknown
+from pytestarch.eval_structure.module_name_boundaries import is_internal_module
 from pytestarch.eval_structure.types import Import, get_parent_modules
 
 EXPECTED_EDGE_AND_NODE_TYPES = "Only str and tuple of two str supported."
@@ -225,9 +225,9 @@ class NetworkxGraph(AbstractGraph):
             spacing (float): optimal distance between nodes
             aliases (Dict[str, str]): module name aliases for plot labels. Keys are
                 module names and values the aliases. If no alias is specified the module
-                name is used a node label. If a module name has an alias, the module
+                name is used as a node label. If a module name has an alias, the module
                 name is replaced by the alias for the module and all its submodules,
-                e.g. for modules a, a.b, a.c, a.c.d and aliases == {'a', 'A'}, the plot
+                e.g. for modules a, a.b, a.c, a.c.d and aliases == {'a': 'A'}, the plot
                 labels for these modules will be A, A.b, A.c, A.c.d.
                 If a submodule also has an alias, the alias for the submodule takes
                 priority, e.g. with the same modules as above and
@@ -295,9 +295,9 @@ class NetworkxGraph(AbstractGraph):
             most_specific_aliased_module = next(
                 module
                 for module in sorted_aliased_modules
-                if module_name.startswith(module)
+                if is_internal_module(module_name, module)
             )
-            alias = re.sub(rf"^{most_specific_aliased_module}", "", module_name)
+            alias = module_name[len(most_specific_aliased_module) :]
             alias = aliases[most_specific_aliased_module] + alias
             return alias
 

@@ -10,6 +10,7 @@ from pytestarch.eval_structure.evaluable_architecture import (
     ModuleNameFilter,
     ModuleNameRegexFilter,
 )
+from pytestarch.eval_structure.module_name_boundaries import is_submodule_of
 from pytestarch.query_language.base_language import (
     AccessSpecification,
     BaseLayeredArchitecture,
@@ -81,7 +82,7 @@ class LayeredArchitecture(BaseLayeredArchitecture, LayerName, LayerDefinition):
 
         modules_list = modules if isinstance(modules, list) else [modules]
 
-        module_set = set(modules)
+        module_set = set(modules_list)
         existing_modules = set(
             [
                 value.identifier
@@ -94,7 +95,22 @@ class LayeredArchitecture(BaseLayeredArchitecture, LayerName, LayerDefinition):
 
         if duplicates:
             raise ImproperlyConfigured(
-                f"Module(s) {', '.join(duplicates)} already assigned to a layer."
+                f"Module(s) {', '.join(sorted(duplicates))} already assigned to a layer."
+            )
+
+        nesting_conflicts: set[str] = set()
+        for existing_module in existing_modules:
+            for module in modules_list:
+                is_nested = is_submodule_of(module, existing_module) or is_submodule_of(
+                    existing_module, module
+                )
+                if is_nested:
+                    nesting_conflicts.add(module)
+
+        if nesting_conflicts:
+            raise ImproperlyConfigured(
+                f"Module(s) {', '.join(sorted(nesting_conflicts))} are a submodule or parent module of a module"
+                " assigned to another layer."
             )
 
         self._modules_by_layer_name[layers_without_modules[0]] = (
