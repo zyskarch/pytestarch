@@ -15,7 +15,7 @@ RESOURCES_DIR = SOURCE_ROOT / "resources/importer/level0"
 
 
 def test_converter_retains_all_non_empty_modules() -> None:
-    parser = Parser(MockFileFilter(), SOURCE_ROOT)
+    parser = Parser(MockFileFilter(), SOURCE_ROOT, "tests")
     all_modules, asts = parser.parse(RESOURCES_DIR)
 
     converter = ImportConverter()
@@ -107,6 +107,84 @@ def test_import_from_package_emits_expected_imports(
     )
 
     assert len(imports) == len(expected_imports)
+    assert {(i.importer(), i.importee()) for i in imports} == expected_imports
+
+
+@pytest.mark.parametrize(
+    "source, importer, root_module_name, internal_modules, expected_imports",
+    [
+        pytest.param(
+            "from package2 import module2",
+            "src.package1.module1",
+            "src",
+            {
+                "src",
+                "src.package1",
+                "src.package1.module1",
+                "src.package2",
+                "src.package2.module2",
+            },
+            {
+                ("src.package1.module1", "src.package2"),
+                ("src.package1.module1", "src.package2.module2"),
+            },
+            id="root-relative import resolved to prefixed names",
+        ),
+        pytest.param(
+            "from package2 import module2",
+            "package1.module1",
+            "",
+            {"package1", "package1.module1", "package2", "package2.module2"},
+            {
+                ("package1.module1", "package2"),
+                ("package1.module1", "package2.module2"),
+            },
+            id="relative naming: prefix-less import matched without probing",
+        ),
+        pytest.param(
+            "import sys",
+            "src.package1.module1",
+            "src",
+            {"src", "src.package1", "src.package1.module1"},
+            {("src.package1.module1", "sys")},
+            id="external import not prefixed with root module name",
+        ),
+        pytest.param(
+            "from package2 import module2",
+            "src.package1.module1",
+            "src",
+            {"src", "src.package1", "src.package1.module1"},
+            {("src.package1.module1", "package2")},
+            id="root-relative import of unknown module kept as written",
+        ),
+        pytest.param(
+            "import src",
+            "src.package1.module1",
+            "src",
+            {"src", "src.package1", "src.package1.module1"},
+            {("src.package1.module1", "src")},
+            id="root module import not double-prefixed",
+        ),
+    ],
+)
+def test_absolute_import_probed_with_root_module_name(
+    source: str,
+    importer: str,
+    root_module_name: str,
+    internal_modules: set[str],
+    expected_imports: set[tuple[str, str]],
+) -> None:
+    """Absolute imports written root-relative are resolved by additionally probing
+    against internal modules prefixed with the root module name (default naming of
+    container roots)."""
+    converter = ImportConverter()
+    imports = converter.convert(
+        [NamedModule(ast.parse(source), importer)],
+        "",
+        internal_modules,
+        root_module_name,
+    )
+
     assert {(i.importer(), i.importee()) for i in imports} == expected_imports
 
 

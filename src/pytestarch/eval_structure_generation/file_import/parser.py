@@ -13,9 +13,20 @@ PYTHON_FILE_SUFFIX = ".py"
 class Parser:
     """Parses all files that match given criteria starting at a source path."""
 
-    def __init__(self, filter: FileFilter, source_root: Path) -> None:
+    def __init__(
+        self, filter: FileFilter, source_root: Path, root_module_name: str
+    ) -> None:
+        """
+        Args:
+            filter: filter for files and directories that shall not be parsed
+            source_root: directory the searched files are located in
+            root_module_name: prefix of all parsed module names, e.g. the top level
+                package's name. Empty only for module_naming="relative" on a container
+                root (see get_evaluable_architecture).
+        """
         self._filter = filter
         self._source_root = source_root
+        self._root_module_name = root_module_name
 
     def parse(self, path: Path) -> tuple[list[str], list[NamedModule]]:
         """Reads all python files in the given path and returns list of ast
@@ -68,12 +79,14 @@ class Parser:
         module_path = path.relative_to(self._source_root)
 
         if str(module_path) == ".":
-            return self._source_root.name
+            return self._root_module_name
 
-        module_without_file_suffix = module_path.with_suffix("")
-        module_in_dot_notation = str(module_without_file_suffix).replace(os.sep, ".")
+        module_in_dot_notation = str(module_path.with_suffix("")).replace(os.sep, ".")
 
-        return f"{self._source_root.name}.{module_in_dot_notation}"
+        if self._root_module_name:
+            return f"{self._root_module_name}.{module_in_dot_notation}"
+
+        return module_in_dot_notation
 
     def _file_should_be_parsed(self, path: Path) -> bool:
         """Returns True if path represents a python file that does not match any exclusion filters."""

@@ -65,6 +65,14 @@ class RelativeImport(Import):
         return self._importee_module_hierarchy
 
     def _calculate_importee(self) -> str:
+        if len(self._importer_module_hierarchy) < self._level:
+            raise ImportException(
+                f"Attempted relative import with no known parent package: cannot "
+                f"resolve the level {self._level} relative import of "
+                f"'{self._import_name or self._module_name}' in module "
+                f"'{self._importer}'. This happens if the module is located directly "
+                "at the root of a scanned directory that is not a Python package."
+            )
         return (
             self._importer_module_hierarchy[-self._level]
             + "."

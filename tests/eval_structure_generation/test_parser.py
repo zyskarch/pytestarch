@@ -22,6 +22,7 @@ def test_parser_parses_all_files_in_directory() -> None:
     parser = Parser(
         FileFilter(Config((convert_partial_match_to_regex("*__pycache__"),))),
         SOURCE_ROOT,
+        "tests",
     )
 
     all_modules, parsed_modules = parser.parse(RESOURCES_DIR)
@@ -49,6 +50,43 @@ def test_parser_parses_all_files_in_directory() -> None:
     assert set(map(lambda module: module.name, parsed_modules)) == expected_modules
 
 
+@pytest.mark.parametrize("root_module_name_is_root_dir_name", [False, True])
+def test_parser_prefixes_module_names_with_root_module_name(
+    tmp_path, root_module_name_is_root_dir_name: bool
+) -> None:
+    """Module names are prefixed with the given root module name. With the default
+    module naming, that is the root directory's name - no matter whether the root
+    directory contains an __init__.py. Only relative module naming for a container
+    root (root_module_name="") yields prefix-less module names, and then the root
+    itself is not added as a module."""
+    (tmp_path / "pkg_a").mkdir()
+    (tmp_path / "pkg_a" / "__init__.py").write_text("")
+    (tmp_path / "pkg_a" / "mod.py").write_text("x = 1")
+
+    if root_module_name_is_root_dir_name:
+        root_module_name = tmp_path.name
+        prefix = f"{root_module_name}."
+        expected_root_module = {root_module_name}
+    else:
+        root_module_name = ""
+        prefix = ""
+        expected_root_module = set()
+
+    parser = Parser(FileFilter(Config(())), tmp_path, root_module_name)
+
+    all_modules, parsed_modules = parser.parse(tmp_path)
+
+    assert set(map(lambda module: module.name, parsed_modules)) == {
+        f"{prefix}pkg_a.__init__",
+        f"{prefix}pkg_a.mod",
+    }
+    assert set(all_modules) == expected_root_module | {
+        f"{prefix}pkg_a",
+        f"{prefix}pkg_a.__init__",
+        f"{prefix}pkg_a.mod",
+    }
+
+
 @pytest.mark.parametrize(
     "contents",
     [
@@ -74,7 +112,8 @@ from pytestarch.utils.partial_match_to_regex_converter import (
 from pathlib import Path
 fi.parser.Parser(
     fi.file_filter.FileFilter(fi.config.Config((convert_partial_match_to_regex("*__pycache__"),))),
-    Path("{tmp_path!s}")
+    Path("{tmp_path!s}"),
+    Path("{tmp_path!s}").name,
 ).parse(Path("{tmp_path!s}"))
             """,
         ],

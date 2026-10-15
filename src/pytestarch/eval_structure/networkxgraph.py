@@ -47,7 +47,7 @@ class NetworkxGraph(AbstractGraph):
         """
         self._all_modules = all_modules
         self._imports = imports
-        self._graph = nx.DiGraph()
+        self._graph: nx.DiGraph[Node] = nx.DiGraph()
 
         self._level_limit = level_limit
 

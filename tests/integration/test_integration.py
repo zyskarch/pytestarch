@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 import pytest
 from rule_assessment.test_rule_matcher import (
@@ -19,7 +20,10 @@ from integration.interesting_rules_for_tests import (
 from pytestarch import EvaluableArchitecture, Rule, get_evaluable_architecture
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.networkxgraph import NetworkxGraph
+from pytestarch.eval_structure_generation.file_import.exceptions import ImportException
 from pytestarch.eval_structure_generation.file_import.import_types import AbsoluteImport
+from pytestarch.pytestarch import get_evaluable_architecture_for_module_objects
+from pytestarch.query_language.exceptions import ImproperlyConfigured
 from resources import nested_root_module_mismatch_project, root_module_mismatch_project
 from resources.from_import_project import app as from_import_app
 from resources.nested_root_module_mismatch_project.dir1.dir2 import nested_app
@@ -549,3 +553,118 @@ def test_importee_module_calculator_does_not_add_internal_modules_as_external() 
     # added as external dependency nodes to the graph.
     assert "src.moduleB" not in nodes
     assert "src.moduleC" not in nodes
+
+
+def test_import_of_root_package_not_treated_as_internal_by_default(
+    tmp_path: Path,
+) -> None:
+    """Regression test for the #144 review: an importee equal to the scanned module
+    name is internal even with exclude_external_libraries=True (default) - previously
+    only its submodules counted as internal (with False the edge exists as well: the
+    root node is in the graph via the parser's root-dir naming)."""
+    app = tmp_path / "app"
+    app.mkdir()
+    (app / "__init__.py").write_text("")
+    (app / "mod.py").write_text("import app")
+
+    arch = get_evaluable_architecture(str(app), str(app))
+
+    assert set(arch.modules) == {"app", "app.__init__", "app.mod"}
+
+    actual_edges = set(arch._graph._graph.edges)  # type: ignore
+    assert ("app", "app.__init__") in actual_edges
+    assert ("app", "app.mod") in actual_edges
+    assert ("app.mod", "app") in actual_edges
+
+    arch_with_external = get_evaluable_architecture(
+        str(app),
+        str(app),
+        exclude_external_libraries=False,
+    )
+
+    actual_edges_with_external = set(arch_with_external._graph._graph.edges)  # type: ignore
+    assert ("app.mod", "app") in actual_edges_with_external
+
+
+def test_container_root_level_relative_import_raises_explanatory_error(
+    tmp_path: Path,
+) -> None:
+    """A top level file of a container root (a scanned directory without __init__.py)
+    has no parent package, so a relative import within it cannot be resolved.
+    This must raise an explanatory ImportException instead of an IndexError."""
+    (tmp_path / "helper.py").write_text("x = 1")
+    (tmp_path / "top.py").write_text("from . import helper")
+
+    with pytest.raises(ImportException, match="relative import"):
+        get_evaluable_architecture(
+            str(tmp_path), str(tmp_path), module_naming="relative"
+        )
+
+
+def test_container_root_top_level_relative_import_resolved_in_default_naming(
+    tmp_path: Path,
+) -> None:
+    """With the default naming, module names carry the root directory's name as prefix,
+    so a top level file of a container root has that name as its parent module and its
+    relative import resolves against the root (i.e. it is an internal dependency)."""
+    (tmp_path / "helper.py").write_text("x = 1")
+    (tmp_path / "top.py").write_text("from . import helper")
+
+    arch = get_evaluable_architecture(str(tmp_path), str(tmp_path))
+
+    assert set(arch.modules) == {
+        tmp_path.name,
+        f"{tmp_path.name}.helper",
+        f"{tmp_path.name}.top",
+    }
+
+    actual_edges = set(arch._graph._graph.edges)  # type: ignore
+    assert (f"{tmp_path.name}.top", f"{tmp_path.name}.helper") in actual_edges
+
+
+def test_invalid_module_naming_raises(tmp_path: Path) -> None:
+    """An unknown module_naming value must be rejected with ImproperlyConfigured."""
+    (tmp_path / "pkg.py").write_text("")
+
+    with pytest.raises(ImproperlyConfigured, match="module_naming"):
+        get_evaluable_architecture(
+            str(tmp_path),
+            str(tmp_path),
+            module_naming="bogus",  # type: ignore[arg-type]
+        )
+
+    with pytest.raises(ImproperlyConfigured, match="module_naming"):
+        get_evaluable_architecture_for_module_objects(
+            src,
+            src,
+            module_naming="bogus",  # type: ignore[arg-type]
+        )
+
+
+def test_package_root_ignores_relative_module_naming(tmp_path: Path) -> None:
+    """module_naming is only relevant for container roots (no __init__.py): if the root
+    path is a Python package itself, its name always prefixes the module names and the
+    option is ignored."""
+    app = tmp_path / "app"
+    app.mkdir()
+    (app / "__init__.py").write_text("")
+    (app / "mod.py").write_text("import app")
+
+    arch = get_evaluable_architecture(str(app), str(app), module_naming="relative")
+
+    assert set(arch.modules) == {"app", "app.__init__", "app.mod"}
+
+    actual_edges = set(arch._graph._graph.edges)  # type: ignore
+    assert ("app", "app.__init__") in actual_edges
+    assert ("app", "app.mod") in actual_edges
+
+
+def test_module_objects_pass_module_naming_through(tmp_path: Path) -> None:
+    """get_evaluable_architecture_for_module_objects forwards module_naming: for a
+    package root the option is ignored (same prefixed names), ensuring the parameter is
+    accepted and wired through."""
+    evaluable = get_evaluable_architecture_for_module_objects(
+        src, src, module_naming="relative"
+    )
+
+    assert "src.moduleA" in set(evaluable.modules)
