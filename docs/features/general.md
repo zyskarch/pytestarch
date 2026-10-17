@@ -52,10 +52,15 @@ module, in this case "src.util".
 In the example above, the `util_test.py` file is included in the graph and will be considered when evaluating the architecture.
 If certain files should be excluded from the analysis, this can be done by specifying an exclusion pattern. In our example,
 if we want to exclude `util_test.py`, we could use:
-```
+```python
 from pytestarch import get_evaluable_architecture
 
-evaluable = get_evaluable_architecture("/home/my_project", "/home/my_project/src", regex_exclusions=(".*_test\.py"))
+evaluable = get_evaluable_architecture(
+    "/home/my_project",
+    "/home/my_project/src",
+    exclusions=(),
+    regex_exclusions=(r".*_test\.py",),
+)
 ```
 This will exclude all files with names ending in "_test.py". It is also possible to exclude directories.
 

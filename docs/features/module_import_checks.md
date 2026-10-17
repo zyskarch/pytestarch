@@ -50,13 +50,13 @@ A rule with a negation in a regex could look like this:
 `Rule().modules_that().have_name_matching(r"^((?!test$).)*$").should_not().import_modules_that().have_name_matching(r".*test$")`
 PyTestArch calculates which modules match the first regex - which in this case, is only "foo". The second expression matches the two
 test files. The rule then gets converted to 
-```Rule().modules_that().are_named("foo").should_not().import_modules_that().have_name_matching(["foo.bar_test", "util_test"])```
+`Rule().modules_that().are_named("foo").should_not().import_modules_that().have_name_matching(["foo.bar_test", "util_test"])`
 "Foo" itself does not import any of the other files. However, the string "foo" matches not only "foo" itself, but also its
 submodules, as these are considered to be part of their parent module. In this case, "foo.bar_test" is then checked for imports
 of any test files - and bar_test does import util_test: The rule is marked as violated.
 
 Rules like this can usually be expressed without negations, often even by using the general API: An equivalent rule would be
-```Rule().modules_that().have_name_matching(".*test$").should_not().be_imported_by_modules_except_modules_that().have_name_matching(".*test$")```
+`Rule().modules_that().have_name_matching(".*test$").should_not().be_imported_by_modules_except_modules_that().have_name_matching(".*test$")`
 
 Note: If a regex resolves to multiple rule subjects, this is equivalent to specifying the rule independently for both.
 

@@ -12,7 +12,7 @@ Three steps are required to test an architectural rule:
 
 1) Create an evaluable representation of the source code you want to test
 
-```
+```python
 from pytestarch import get_evaluable_architecture
 
 evaluable = get_evaluable_architecture("/home/dummy/project", "/home/dummy/project/src")
@@ -26,16 +26,16 @@ using [pytest](https://docs.pytest.org/en/7.1.x/),
 you could use a fixture for this evaluable object.
 
 2) Define an architectural rule
-```
+```python
 from pytestarch import Rule
 
 rule = (
-    Rule() 
-    .modules_that() 
-    .are_named("project.src.moduleB") 
-    .should_not() 
-    .be_imported_by_modules_that() 
-    .are_sub_modules_of("project.src.moduleA") 
+    Rule()
+    .modules_that()
+    .are_named("project.src.moduleB")
+    .should_not()
+    .be_imported_by_modules_that()
+    .are_sub_modules_of("project.src.moduleA")
 )
 ```
 
@@ -44,7 +44,7 @@ that is a submodule of "project.src.moduleA", excluding "project.src.moduleA" it
 
 3) Evaluate your code against this rule
 
-```
+```python
 rule.assert_applies(evaluable)
 ```
 That's it!

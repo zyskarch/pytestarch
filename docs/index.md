@@ -12,7 +12,7 @@ Three steps are required to test an architectural rule:
 
 1. Create an evaluable representation of the source code you want to test
 
-    ```
+    ```python
     from pytestarch import get_evaluable_architecture
 
     evaluable = get_evaluable_architecture("/home/dummy/project", "/home/dummy/project/src")
@@ -27,7 +27,7 @@ Three steps are required to test an architectural rule:
 
 2. Define an architectural rule
 
-    ```
+    ```python
     from pytestarch import Rule
 
     rule = (
@@ -45,7 +45,7 @@ Three steps are required to test an architectural rule:
 
 3. Evaluate your code against this rule
 
-    ```
+    ```python
     rule.assert_applies(evaluable)
     ```
     That's it!

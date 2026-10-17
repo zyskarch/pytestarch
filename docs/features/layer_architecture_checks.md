@@ -11,13 +11,10 @@ layer, but not vice versa.
 Using the module dependency query language as described in [Module Dependency Rules](module_import_checks.md), this 
 expected import behavior would be difficult to specify, as a rule like 
 
-```
-Rule() \
-    .modules_that()\ 
-    .are_named(["M", "N"]) \
-    .should() \
-    .import_modules_that() \
-    .are_named("O")
+```python
+Rule().modules_that().are_named(["M", "N"]).should().import_modules_that().are_named(
+    "O"
+)
 ```
 
 would require *both* M and N to import O.
@@ -30,12 +27,12 @@ architecture, and then defining a rule based on it.
 ### Layered architecture
 The LayeredArchitecture object should be used to group modules into layers. Not all modules have to belong to a layer
 (for more details on how this influences layer rules, see below). A layered architecture can be defined like this:
-```
+```python
 arch = (
-    LayeredArchitecture() 
-    .layer("import") 
-    .containing_modules(["M", "N"]) 
-    .layer("model") 
+    LayeredArchitecture()
+    .layer("import")
+    .containing_modules(["M", "N"])
+    .layer("model")
     .containing_modules("O")
 )
 ```
@@ -50,14 +47,14 @@ Modules can also be specified via a regex, using the method "have_modules_with_n
 ### Layer rules
 After defining a layered architecture, layer rules can now be defined based on it. Using the `arch` object defined
 above, the dependency rule that could not properly be defined in the regular syntax can then be defined as:
-```
+```python
 rule = (
     LayerRule()
-    .based_on(arch)   # needs to be passed in first
-    .layers_that() 
-    .are_named("import") 
-    .should_only() 
-    .access_layers_that() 
+    .based_on(arch)  # needs to be passed in first
+    .layers_that()
+    .are_named("import")
+    .should_only()
+    .access_layers_that()
     .are_named("model")
 )
 ```
