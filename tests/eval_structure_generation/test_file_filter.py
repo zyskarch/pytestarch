@@ -11,7 +11,6 @@ from pytestarch.utils.partial_match_to_regex_converter import (
 )
 
 test_cases = [
-    # ['A', 'B', 'a.main.b'],
     ["A", "B", "development.C"],
     ["A", "B", "C.master"],
     ["A", "B", "dev"],
@@ -19,7 +18,9 @@ test_cases = [
 
 
 @pytest.mark.parametrize("input_modules", test_cases)
-def test_import_filter(input_modules: list[str]) -> None:
+def test_modules_matching_exclusion_patterns_are_removed(
+    input_modules: list[str],
+) -> None:
     config = Config(
         tuple(
             map(

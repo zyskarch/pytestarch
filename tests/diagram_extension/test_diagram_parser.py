@@ -5,6 +5,21 @@ from conftest import ROOT_DIR
 
 from pytestarch.diagram_extension.diagram_parser import PumlParser
 from pytestarch.diagram_extension.exceptions import PumlParsingError
+from pytestarch.diagram_extension.parsed_dependencies import ParsedDependencies
+
+
+@pytest.fixture(scope="module")
+def very_simple_example_dependencies() -> ParsedDependencies:
+    return PumlParser().parse(
+        ROOT_DIR / "tests/resources/pumls/very_simple_example.puml"
+    )
+
+
+@pytest.fixture(scope="module")
+def all_component_declaration_types_dependencies() -> ParsedDependencies:
+    return PumlParser().parse(
+        ROOT_DIR / "tests/resources/pumls/all_component_declaration_types.puml"
+    )
 
 
 def test_error_raised_when_no_puml_start_tag_found() -> None:
@@ -18,31 +33,28 @@ def test_error_raised_when_no_puml_start_tag_found() -> None:
         parser.parse(path)
 
 
-def test_modules_parsed_correctly_from_puml() -> None:
-    path = ROOT_DIR / "tests/resources/pumls/very_simple_example.puml"
-    parser = PumlParser()
-
-    parsed_dependencies = parser.parse(path)
-
-    assert parsed_dependencies.all_modules == {"M_A", "M_B", "M_C"}
+def test_modules_parsed_correctly_from_puml(
+    very_simple_example_dependencies: ParsedDependencies,
+) -> None:
+    assert very_simple_example_dependencies.all_modules == {"M_A", "M_B", "M_C"}
 
 
-def test_all_module_types_parsed_correctly_from_puml() -> None:
-    path = ROOT_DIR / "tests/resources/pumls/all_component_declaration_types.puml"
-    parser = PumlParser()
+def test_all_module_types_parsed_correctly_from_puml(
+    all_component_declaration_types_dependencies: ParsedDependencies,
+) -> None:
+    assert all_component_declaration_types_dependencies.all_modules == {
+        "M_A",
+        "M_B",
+        "M_C",
+        "M_D",
+        "M_E",
+    }
 
-    parsed_dependencies = parser.parse(path)
 
-    assert parsed_dependencies.all_modules == {"M_A", "M_B", "M_C", "M_D", "M_E"}
-
-
-def test_module_aliases_resolved_correctly() -> None:
-    path = ROOT_DIR / "tests/resources/pumls/all_component_declaration_types.puml"
-    parser = PumlParser()
-
-    parsed_dependencies = parser.parse(path)
-
-    assert parsed_dependencies.dependencies["M_A"] == {"M_C"}
+def test_module_aliases_resolved_correctly(
+    all_component_declaration_types_dependencies: ParsedDependencies,
+) -> None:
+    assert all_component_declaration_types_dependencies.dependencies["M_A"] == {"M_C"}
 
 
 def test_all_module_and_dependency_types_parsed_correctly_from_puml() -> None:
@@ -62,13 +74,13 @@ def test_all_module_and_dependency_types_parsed_correctly_from_puml() -> None:
     }
 
 
-def test_dependencies_parsed_correctly_from_puml() -> None:
-    path = ROOT_DIR / "tests/resources/pumls/very_simple_example.puml"
-    parser = PumlParser()
-
-    parsed_dependencies = parser.parse(path)
-
-    assert parsed_dependencies.dependencies == {"M_C": {"M_B"}, "M_B": {"M_C"}}
+def test_dependencies_parsed_correctly_from_puml(
+    very_simple_example_dependencies: ParsedDependencies,
+) -> None:
+    assert very_simple_example_dependencies.dependencies == {
+        "M_C": {"M_B"},
+        "M_B": {"M_C"},
+    }
 
 
 def test_diagram_with_multiple_components_file() -> None:

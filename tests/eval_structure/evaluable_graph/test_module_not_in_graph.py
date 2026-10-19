@@ -36,19 +36,14 @@ def test_direct_predecessor_nodes_raises_not_in_graph(
         graph._graph.direct_predecessor_nodes(EXTERNAL)
 
 
-def test_message_names_missing_module(graph: EvaluableArchitectureGraph) -> None:
-    with pytest.raises(ModuleUnknown, match="'django.db' was not found"):
+def test_message_content(graph: EvaluableArchitectureGraph) -> None:
+    with pytest.raises(ModuleUnknown) as exception_info:
         graph._graph.direct_successor_nodes(EXTERNAL)
 
-
-def test_message_mentions_exclude_flag(graph: EvaluableArchitectureGraph) -> None:
-    with pytest.raises(ModuleUnknown, match="exclude_external_libraries=False"):
-        graph._graph.direct_successor_nodes(EXTERNAL)
-
-
-def test_message_mentions_import_statement(graph: EvaluableArchitectureGraph) -> None:
-    with pytest.raises(ModuleUnknown, match="Python import statement"):
-        graph._graph.direct_successor_nodes(EXTERNAL)
+    message = str(exception_info.value)
+    assert "'django.db' was not found" in message
+    assert "exclude_external_libraries=False" in message
+    assert "Python import statement" in message
 
 
 def test_get_dependencies_raises_not_in_graph(

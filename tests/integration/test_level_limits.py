@@ -38,13 +38,13 @@ def test_architecture_based_on_module_objects(
     rule: Rule,
     expected_result: bool,
     skip_with_level_limit: bool,
-    graph_based_on_string_module_names: EvaluableArchitecture,
+    graph_based_on_module_objects: EvaluableArchitecture,
 ) -> None:
     if expected_result:
-        rule.assert_applies(graph_based_on_string_module_names)
+        rule.assert_applies(graph_based_on_module_objects)
     else:
         with pytest.raises(AssertionError):
-            rule.assert_applies(graph_based_on_string_module_names)
+            rule.assert_applies(graph_based_on_module_objects)
 
 
 def test_depending_on_module_does_not_imply_depending_on_submodule(

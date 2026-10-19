@@ -32,36 +32,25 @@ ORIGINAL_OBJECT_MODULE_2 = Module(identifier=ORIGINAL_OBJECT_2)
 OTHER_OBJECT_MODULE_1 = Module(identifier=OTHER_OBJECT_1)
 OTHER_OBJECT_MODULE_2 = Module(identifier=OTHER_OBJECT_2)
 
-single_object_import_generator = RuleViolationMessageGenerator(
-    True,
-)
-single_object_be_imported_generator = RuleViolationMessageGenerator(
-    False,
-)
-
-multiple_object_import_generator = RuleViolationMessageGenerator(
-    True,
-)
-multiple_object_be_imported_generator = RuleViolationMessageGenerator(
-    False,
-)
+import_generator = RuleViolationMessageGenerator(True)
+be_imported_generator = RuleViolationMessageGenerator(False)
 
 
 message_content_test_cases = [
     pytest.param(
-        single_object_import_generator,
+        import_generator,
         {"should_violations": [(ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1)]},
         f'"{ORIGINAL_SUBJECT}" does not import "{ORIGINAL_OBJECT_1}".',
         id="should import",
     ),
     pytest.param(
-        single_object_be_imported_generator,
+        be_imported_generator,
         {"should_violations": [(ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1)]},
         f'"{ORIGINAL_SUBJECT}" is not imported by "{ORIGINAL_OBJECT_1}".',
         id="should be imported",
     ),
     pytest.param(
-        single_object_import_generator,
+        import_generator,
         {
             "should_only_violations_by_forbidden_import": [
                 (ORIGINAL_SUBJECT_MODULE, OTHER_OBJECT_MODULE_1)
@@ -71,7 +60,7 @@ message_content_test_cases = [
         id="should only import -- forbidden",
     ),
     pytest.param(
-        single_object_import_generator,
+        import_generator,
         {
             "should_only_violations_by_no_import": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1)
@@ -81,7 +70,7 @@ message_content_test_cases = [
         id="should only import -- no import",
     ),
     pytest.param(
-        single_object_be_imported_generator,
+        be_imported_generator,
         {
             "should_only_violations_by_forbidden_import": [
                 (ORIGINAL_SUBJECT_MODULE, OTHER_OBJECT_MODULE_1)
@@ -91,7 +80,7 @@ message_content_test_cases = [
         id="should only be imported -- forbidden",
     ),
     pytest.param(
-        single_object_be_imported_generator,
+        be_imported_generator,
         {
             "should_only_violations_by_no_import": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1)
@@ -101,19 +90,19 @@ message_content_test_cases = [
         id="should only be imported -- no import",
     ),
     pytest.param(
-        single_object_import_generator,
+        import_generator,
         {"should_not_violations": [(ORIGINAL_SUBJECT_MODULE, OTHER_OBJECT_MODULE_1)]},
         f'"{ORIGINAL_SUBJECT}" imports "{OTHER_OBJECT_1}".',
         id="should not import",
     ),
     pytest.param(
-        single_object_be_imported_generator,
+        be_imported_generator,
         {"should_not_violations": [(ORIGINAL_SUBJECT_MODULE, OTHER_OBJECT_MODULE_1)]},
         f'"{ORIGINAL_SUBJECT}" is imported by "{OTHER_OBJECT_1}".',
         id="should not be imported",
     ),
     pytest.param(
-        single_object_import_generator,
+        import_generator,
         {
             "should_except_violations": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1)
@@ -123,7 +112,7 @@ message_content_test_cases = [
         id="should except import",
     ),
     pytest.param(
-        single_object_be_imported_generator,
+        be_imported_generator,
         {
             "should_except_violations": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1)
@@ -133,7 +122,7 @@ message_content_test_cases = [
         id="should except be imported",
     ),
     pytest.param(
-        single_object_import_generator,
+        import_generator,
         {
             "should_not_except_violations": [
                 (ORIGINAL_SUBJECT_MODULE, OTHER_OBJECT_MODULE_1)
@@ -143,7 +132,7 @@ message_content_test_cases = [
         id="should not except import",
     ),
     pytest.param(
-        single_object_be_imported_generator,
+        be_imported_generator,
         {
             "should_not_except_violations": [
                 (ORIGINAL_SUBJECT_MODULE, OTHER_OBJECT_MODULE_1)
@@ -153,7 +142,7 @@ message_content_test_cases = [
         id="should not except be imported",
     ),
     pytest.param(
-        single_object_import_generator,
+        import_generator,
         {
             "should_only_except_violations_by_forbidden_import": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1)
@@ -163,7 +152,7 @@ message_content_test_cases = [
         id="should only import except -- forbidden",
     ),
     pytest.param(
-        single_object_import_generator,
+        import_generator,
         {
             "should_only_except_violations_by_no_import": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1)
@@ -173,7 +162,7 @@ message_content_test_cases = [
         id="should only import except -- no import",
     ),
     pytest.param(
-        single_object_be_imported_generator,
+        be_imported_generator,
         {
             "should_only_except_violations_by_forbidden_import": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1)
@@ -183,7 +172,7 @@ message_content_test_cases = [
         id="should only be imported except -- forbidden",
     ),
     pytest.param(
-        single_object_be_imported_generator,
+        be_imported_generator,
         {
             "should_only_except_violations_by_no_import": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1)
@@ -231,17 +220,12 @@ def _get_rule_violations_initialisation_dict(
 
 message_only_present_if_rule_violated_test_cases = [
     pytest.param(
-        single_object_import_generator,
+        import_generator,
         {"should_violations": [(ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1)]},
         id="should import present",
     ),
     pytest.param(
-        single_object_be_imported_generator,
-        {"should_violations": []},
-        id="should import not present",
-    ),
-    pytest.param(
-        single_object_import_generator,
+        import_generator,
         {
             "should_only_violations_by_forbidden_import": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1)
@@ -250,12 +234,7 @@ message_only_present_if_rule_violated_test_cases = [
         id="should only import -- forbidden present",
     ),
     pytest.param(
-        single_object_be_imported_generator,
-        {"should_only_violations_by_forbidden_import": []},
-        id="should only import -- forbidden not present",
-    ),
-    pytest.param(
-        single_object_import_generator,
+        import_generator,
         {
             "should_only_violations_by_no_import": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1)
@@ -264,12 +243,7 @@ message_only_present_if_rule_violated_test_cases = [
         id="should only import -- no import present",
     ),
     pytest.param(
-        single_object_be_imported_generator,
-        {"should_only_violations_by_no_import": []},
-        id="should only import -- no import not present",
-    ),
-    pytest.param(
-        single_object_import_generator,
+        import_generator,
         {
             "should_not_violations": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1)
@@ -278,12 +252,7 @@ message_only_present_if_rule_violated_test_cases = [
         id="should not import present",
     ),
     pytest.param(
-        single_object_be_imported_generator,
-        {"should_not_violations": []},
-        id="should not import not present",
-    ),
-    pytest.param(
-        single_object_import_generator,
+        import_generator,
         {
             "should_except_violations": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1)
@@ -292,12 +261,7 @@ message_only_present_if_rule_violated_test_cases = [
         id="should except import present",
     ),
     pytest.param(
-        single_object_be_imported_generator,
-        {"should_except_violations": []},
-        id="should except import not present",
-    ),
-    pytest.param(
-        single_object_import_generator,
+        import_generator,
         {
             "should_not_except_violations": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1)
@@ -306,26 +270,16 @@ message_only_present_if_rule_violated_test_cases = [
         id="should not except import present",
     ),
     pytest.param(
-        single_object_be_imported_generator,
-        {"should_not_except_violations": []},
-        id="should not except import not present",
-    ),
-    pytest.param(
-        single_object_import_generator,
+        import_generator,
         {
             "should_only_except_violations_by_forbidden_import": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1)
             ]
         },
-        id="should only import -- forbidden present",
+        id="should only import except -- forbidden present",
     ),
     pytest.param(
-        single_object_be_imported_generator,
-        {"should_only_except_violations_by_forbidden_import": []},
-        id="should only import -- forbidden not present",
-    ),
-    pytest.param(
-        single_object_import_generator,
+        import_generator,
         {
             "should_only_except_violations_by_no_import": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1)
@@ -334,9 +288,14 @@ message_only_present_if_rule_violated_test_cases = [
         id="should only import except -- no import present",
     ),
     pytest.param(
-        single_object_be_imported_generator,
-        {"should_only_except_violations_by_no_import": []},
-        id="should only import except -- no import not present",
+        be_imported_generator,
+        {},
+        id="no violations, be imported expected",
+    ),
+    pytest.param(
+        import_generator,
+        {},
+        id="no violations, import expected",
     ),
 ]
 
@@ -362,7 +321,7 @@ def test_violated_message_only_present_if_rule_actually_violated(
 
 multiple_objects_in_one_message_test_cases = [
     pytest.param(
-        multiple_object_import_generator,
+        import_generator,
         {
             "should_violations": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1),
@@ -373,7 +332,7 @@ multiple_objects_in_one_message_test_cases = [
         id="should import",
     ),
     pytest.param(
-        multiple_object_be_imported_generator,
+        be_imported_generator,
         {
             "should_violations": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1),
@@ -384,7 +343,7 @@ multiple_objects_in_one_message_test_cases = [
         id="should be imported",
     ),
     pytest.param(
-        multiple_object_import_generator,
+        import_generator,
         {
             "should_only_violations_by_no_import": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1),
@@ -395,7 +354,7 @@ multiple_objects_in_one_message_test_cases = [
         id="should only import -- no import",
     ),
     pytest.param(
-        multiple_object_be_imported_generator,
+        be_imported_generator,
         {
             "should_only_violations_by_no_import": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1),
@@ -406,7 +365,7 @@ multiple_objects_in_one_message_test_cases = [
         id="should only be imported -- no import",
     ),
     pytest.param(
-        multiple_object_import_generator,
+        import_generator,
         {
             "should_except_violations": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1),
@@ -417,7 +376,7 @@ multiple_objects_in_one_message_test_cases = [
         id="should except import",
     ),
     pytest.param(
-        multiple_object_be_imported_generator,
+        be_imported_generator,
         {
             "should_except_violations": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1),
@@ -428,7 +387,7 @@ multiple_objects_in_one_message_test_cases = [
         id="should except be imported",
     ),
     pytest.param(
-        multiple_object_import_generator,
+        import_generator,
         {
             "should_only_except_violations_by_no_import": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1),
@@ -439,7 +398,7 @@ multiple_objects_in_one_message_test_cases = [
         id="should only import except -- no import",
     ),
     pytest.param(
-        multiple_object_be_imported_generator,
+        be_imported_generator,
         {
             "should_only_except_violations_by_no_import": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1),
@@ -471,7 +430,7 @@ def test_multiple_rule_objects_combined_in_one_message(
 
 multiple_objects_in_multiple_messages_test_cases = [
     pytest.param(
-        multiple_object_import_generator,
+        import_generator,
         {
             "should_only_violations_by_forbidden_import": [
                 (ORIGINAL_SUBJECT_MODULE, OTHER_OBJECT_MODULE_1),
@@ -486,7 +445,7 @@ multiple_objects_in_multiple_messages_test_cases = [
         id="should only import -- forbidden",
     ),
     pytest.param(
-        multiple_object_be_imported_generator,
+        be_imported_generator,
         {
             "should_only_violations_by_forbidden_import": [
                 (ORIGINAL_SUBJECT_MODULE, OTHER_OBJECT_MODULE_1),
@@ -501,7 +460,7 @@ multiple_objects_in_multiple_messages_test_cases = [
         id="should only be imported -- forbidden",
     ),
     pytest.param(
-        multiple_object_import_generator,
+        import_generator,
         {
             "should_not_violations": [
                 (ORIGINAL_SUBJECT_MODULE, OTHER_OBJECT_MODULE_1),
@@ -516,7 +475,7 @@ multiple_objects_in_multiple_messages_test_cases = [
         id="should not import",
     ),
     pytest.param(
-        multiple_object_be_imported_generator,
+        be_imported_generator,
         {
             "should_not_violations": [
                 (ORIGINAL_SUBJECT_MODULE, OTHER_OBJECT_MODULE_1),
@@ -531,7 +490,7 @@ multiple_objects_in_multiple_messages_test_cases = [
         id="should not be imported",
     ),
     pytest.param(
-        multiple_object_import_generator,
+        import_generator,
         {
             "should_not_except_violations": [
                 (ORIGINAL_SUBJECT_MODULE, OTHER_OBJECT_MODULE_1),
@@ -546,7 +505,7 @@ multiple_objects_in_multiple_messages_test_cases = [
         id="should not import except",
     ),
     pytest.param(
-        multiple_object_be_imported_generator,
+        be_imported_generator,
         {
             "should_not_except_violations": [
                 (ORIGINAL_SUBJECT_MODULE, OTHER_OBJECT_MODULE_1),
@@ -561,7 +520,7 @@ multiple_objects_in_multiple_messages_test_cases = [
         id="should not be imported except",
     ),
     pytest.param(
-        multiple_object_import_generator,
+        import_generator,
         {
             "should_only_except_violations_by_forbidden_import": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1),
@@ -573,10 +532,10 @@ multiple_objects_in_multiple_messages_test_cases = [
             f'"{ORIGINAL_SUBJECT}" imports "{ORIGINAL_OBJECT_1}".',
             f'"{ORIGINAL_SUBJECT}" imports "{ORIGINAL_OBJECT_2}".',
         ],
-        id="should only import -- forbidden",
+        id="should only import except -- forbidden",
     ),
     pytest.param(
-        multiple_object_be_imported_generator,
+        be_imported_generator,
         {
             "should_only_except_violations_by_forbidden_import": [
                 (ORIGINAL_SUBJECT_MODULE, ORIGINAL_OBJECT_MODULE_1),
@@ -588,7 +547,7 @@ multiple_objects_in_multiple_messages_test_cases = [
             f'"{ORIGINAL_SUBJECT}" is imported by "{ORIGINAL_OBJECT_1}".',
             f'"{ORIGINAL_SUBJECT}" is imported by "{ORIGINAL_OBJECT_2}".',
         ],
-        id="should only be imported -- forbidden",
+        id="should only be imported except -- forbidden",
     ),
 ]
 
@@ -655,7 +614,7 @@ def test_multiple_messages_if_forbidden_and_no_import_both_present(
 ) -> None:
     kwargs = _get_rule_violations_initialisation_dict(violation)
     violations = RuleViolations(**kwargs)  # type: ignore
-    messages = single_object_import_generator.create_rule_violation_messages(violations)
+    messages = import_generator.create_rule_violation_messages(violations)
 
     assert len(messages) == 2
     assert messages == expected_messages

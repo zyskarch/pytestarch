@@ -10,8 +10,6 @@ from query_language.rule.conftest import (
     MODULE_7,
     SUB_MODULE_OF_1,
     SUB_MODULE_OF_7,
-)
-from query_language.rule.test_rule import (
     assert_rule_applies,
     assert_rule_does_not_apply,
 )

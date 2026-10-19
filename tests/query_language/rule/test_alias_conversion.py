@@ -63,26 +63,6 @@ config_alias_test_cases = [
     ],
     [
         rule := RuleConfiguration(
-            should_not=True,
-            import_=True,
-            except_present=False,
-            modules_to_check=[MODULE_A],
-            rule_object_anything=False,
-        ),
-        rule,
-    ],
-    [
-        rule := RuleConfiguration(
-            should_not=True,
-            import_=False,
-            except_present=False,
-            modules_to_check=[MODULE_A],
-            rule_object_anything=False,
-        ),
-        rule,
-    ],
-    [
-        rule := RuleConfiguration(
             should_only=True,
             import_=True,
             except_present=False,

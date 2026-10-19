@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 from matplotlib.pyplot import subplots
 
-from eval_structure.evaluable_graph.conftest import (
+from eval_structure.conftest import (
     MODULE_1,
     MODULE_2,
     MODULE_A,
@@ -29,22 +29,6 @@ def test_all_modules_labeled_when_aliases_used(
 
 
 def test_alias_replaces_module_name_in_plot(evaluable: EvaluableArchitecture) -> None:
-    module_2_alias = "2"
-    aliases = {MODULE_2: module_2_alias}
-    fig, ax = subplots()
-
-    evaluable.visualize(aliases=aliases, ax=ax)
-
-    labels_in_plot = [t.get_text() for t in ax.texts]
-    assert module_2_alias in labels_in_plot
-    assert MODULE_2 not in labels_in_plot
-    assert SUB_MODULE_OF_2 not in labels_in_plot
-    assert f"{module_2_alias}.SubModule1" in labels_in_plot
-
-
-def test_alias_replaces_module_name_in_submodules_plot(
-    evaluable: EvaluableArchitecture,
-) -> None:
     module_2_alias = "2"
     aliases = {MODULE_2: module_2_alias}
     submodule_label_with_alias = f"{module_2_alias}.SubModule1"
@@ -73,7 +57,6 @@ def test_when_module_and_a_submodule_have_aliases_the_submodule_alias_takes_prio
     labels_in_plot = [t.get_text() for t in ax.texts]
     assert module_e_alias in labels_in_plot
     assert submodule_of_e_alias in labels_in_plot
-    assert SUB_MODULE_OF_2 not in labels_in_plot
     assert submodule_label_with_parent_alias not in labels_in_plot
     assert f"{module_e_alias}.F" in labels_in_plot
 

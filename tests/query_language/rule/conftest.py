@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from pytestarch import EvaluableArchitecture
+from pytestarch import EvaluableArchitecture, Rule
 from pytestarch.eval_structure.evaluable_architecture import ModuleNameFilter
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.networkxgraph import NetworkxGraph
@@ -47,3 +47,12 @@ def evaluable1() -> EvaluableArchitecture:
     ]
 
     return EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports))
+
+
+def assert_rule_applies(rule: Rule, evaluable: EvaluableArchitecture) -> None:
+    rule.assert_applies(evaluable)
+
+
+def assert_rule_does_not_apply(rule: Rule, evaluable: EvaluableArchitecture) -> None:
+    with pytest.raises(AssertionError):
+        rule.assert_applies(evaluable)

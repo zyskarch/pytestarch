@@ -98,7 +98,7 @@ LAYER_MAPPING = LayerMapping(
 @dataclass
 class RuleViolationDetectorTestCase:
     behavior: dict[str, Any]
-    expected_violation: str | None
+    expected_violation: str | tuple[str, ...]
     expected_violating_dependencies: list[Dependency]
     explicitly_requested_dependencies: (
         ExplicitlyRequestedDependenciesByBaseModules | None
@@ -109,73 +109,45 @@ class RuleViolationDetectorTestCase:
     multiple_rule_objects: bool = False
 
 
-def _get_no_explicitly_requested_dependencies(
-    multiple_rule_objects: bool = False,
+def _get_layer_dependencies(
+    object_layers: tuple[str, ...] = (LAYER_2,),
+) -> list[Dependency]:
+    """All module pairs between LAYER_1 and the given object layers."""
+    return [
+        (Module(identifier=single_subject.name), Module(identifier=single_object.name))  # type: ignore
+        for object_layer in object_layers
+        for single_subject in LAYER_MAPPING.get_module_filters(LAYER_1)
+        for single_object in LAYER_MAPPING.get_module_filters(object_layer)
+    ]
+
+
+def _get_explicitly_requested_dependencies(
+    dependencies: list[Dependency] | None = None,
+    object_layers: tuple[str, ...] = (LAYER_2,),
 ) -> ExplicitlyRequestedDependenciesByBaseModules:
     result: dict[tuple[Module, Module], list] = {
-        (MODULE_1, MODULE_4): [],
-        (MODULE_1, MODULE_5): [],
-        (MODULE_1, MODULE_6): [],
-        (MODULE_2, MODULE_4): [],
-        (MODULE_2, MODULE_5): [],
-        (MODULE_2, MODULE_6): [],
-        (MODULE_3, MODULE_4): [],
-        (MODULE_3, MODULE_5): [],
-        (MODULE_3, MODULE_6): [],
+        pair: [] for pair in _get_layer_dependencies(object_layers)
     }
 
-    if multiple_rule_objects:
-        result.update(
-            {
-                (MODULE_1, MODULE_8): [],
-                (MODULE_1, MODULE_9): [],
-                (MODULE_2, MODULE_8): [],
-                (MODULE_2, MODULE_9): [],
-                (MODULE_3, MODULE_8): [],
-                (MODULE_3, MODULE_9): [],
-            }
-        )
+    for dependency in dependencies or []:
+        result[dependency] = [dependency]
 
     return result
 
 
-def _get_explicitly_requested_dependencies(
-    dependencies: list[Dependency], multiple_rule_objects: bool = False
-) -> ExplicitlyRequestedDependenciesByBaseModules:
-    no_dependencies = _get_no_explicitly_requested_dependencies(multiple_rule_objects)
-
-    for dependency in dependencies:
-        no_dependencies[dependency] = [dependency]
-
-    return no_dependencies
-
-
-def _get_all_violating_dependencies(
-    objects: tuple[str, ...] = (LAYER_2,),
-) -> list[Dependency]:
-    return [
-        (Module(identifier=single_subject.name), Module(identifier=single_object.name))  # type: ignore
-        for o in objects
-        for single_subject in LAYER_MAPPING.get_module_filters(LAYER_1)
-        for single_object in LAYER_MAPPING.get_module_filters(o)
-    ]
-
-
-def _get_no_not_explicitly_requested_dependencies() -> (
-    NotExplicitlyRequestedDependenciesByBaseModule
-):
-    return {MODULE_1: [], MODULE_2: [], MODULE_3: []}
-
-
 def _get_not_explicitly_requested_dependencies(
-    dependencies: list[Dependency],
+    dependencies: list[Dependency] | None = None,
 ) -> NotExplicitlyRequestedDependenciesByBaseModule:
-    no_dependencies = _get_no_not_explicitly_requested_dependencies()
+    result: NotExplicitlyRequestedDependenciesByBaseModule = {
+        MODULE_1: [],
+        MODULE_2: [],
+        MODULE_3: [],
+    }
 
-    for dependency in dependencies:
-        no_dependencies[dependency[0]] = [dependency]
+    for dependency in dependencies or []:
+        result[dependency[0]] = [dependency]
 
-    return no_dependencies
+    return result
 
 
 test_cases = [
@@ -186,7 +158,7 @@ test_cases = [
             SHOULD_VIOLATIONS,
             [],
             _get_explicitly_requested_dependencies([(MODULE_1, MODULE_5)]),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
         ),
         id="should_fulfilled_one_import_ssso",
     ),
@@ -198,7 +170,7 @@ test_cases = [
             _get_explicitly_requested_dependencies(
                 [(MODULE_1, MODULE_5), (MODULE_2, MODULE_6)]
             ),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
         ),
         id="should_fulfilled_multiple_imports_ssso",
     ),
@@ -206,9 +178,9 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD: True},
             SHOULD_VIOLATIONS,
-            _get_all_violating_dependencies(),
-            _get_no_explicitly_requested_dependencies(),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_layer_dependencies(),
+            _get_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
         ),
         id="should_violated_no_imports_ssso",
     ),
@@ -216,8 +188,8 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD: True},
             SHOULD_VIOLATIONS,
-            _get_all_violating_dependencies(),
-            _get_no_explicitly_requested_dependencies(),
+            _get_layer_dependencies(),
+            _get_explicitly_requested_dependencies(),
             _get_not_explicitly_requested_dependencies([(MODULE_1, MODULE_7)]),
         ),
         id="should_violated_import_of_other_layer_ssso",
@@ -244,7 +216,7 @@ test_cases = [
             SHOULD_NOT_VIOLATIONS,
             [(MODULE_1, MODULE_6)],
             _get_explicitly_requested_dependencies([(MODULE_1, MODULE_6)]),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
         ),
         id="should_not_violated_one_import_ssso",
     ),
@@ -256,51 +228,29 @@ test_cases = [
             _get_explicitly_requested_dependencies(
                 [(MODULE_1, MODULE_6), (MODULE_2, MODULE_5), (MODULE_3, MODULE_6)]
             ),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
         ),
         id="should_not_violated_multiple_imports_ssso",
     ),
     pytest.param(
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: True},
-            SHOULD_ONLY_VIOLATIONS_NO_IMPORT,
+            (SHOULD_ONLY_VIOLATIONS_NO_IMPORT, SHOULD_ONLY_VIOLATIONS_FORBIDDEN_IMPORT),
             [],
             _get_explicitly_requested_dependencies([(MODULE_1, MODULE_4)]),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
         ),
         id="should_only_fulfilled_ssso",
     ),
     pytest.param(
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: True},
-            SHOULD_ONLY_VIOLATIONS_NO_IMPORT,
+            (SHOULD_ONLY_VIOLATIONS_NO_IMPORT, SHOULD_ONLY_VIOLATIONS_FORBIDDEN_IMPORT),
             [],
             _get_explicitly_requested_dependencies(
                 [(MODULE_1, MODULE_4), (MODULE_1, MODULE_5)]
             ),
-            _get_no_not_explicitly_requested_dependencies(),
-        ),
-        id="should_only_fulfilled_multiple_imports_ssso",
-    ),
-    pytest.param(
-        RuleViolationDetectorTestCase(
-            {SHOULD_ONLY: True},
-            SHOULD_ONLY_VIOLATIONS_FORBIDDEN_IMPORT,
-            [],
-            _get_explicitly_requested_dependencies([(MODULE_1, MODULE_4)]),
-            _get_no_not_explicitly_requested_dependencies(),
-        ),
-        id="should_only_fulfilled_ssso",
-    ),
-    pytest.param(
-        RuleViolationDetectorTestCase(
-            {SHOULD_ONLY: True},
-            SHOULD_ONLY_VIOLATIONS_FORBIDDEN_IMPORT,
-            [],
-            _get_explicitly_requested_dependencies(
-                [(MODULE_1, MODULE_4), (MODULE_1, MODULE_5)]
-            ),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
         ),
         id="should_only_fulfilled_multiple_imports_ssso",
     ),
@@ -308,9 +258,9 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: True},
             SHOULD_ONLY_VIOLATIONS_NO_IMPORT,
-            _get_all_violating_dependencies(),
-            _get_no_explicitly_requested_dependencies(),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_layer_dependencies(),
+            _get_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
         ),
         id="should_only_violated_no_imports_ssso",
     ),
@@ -341,7 +291,7 @@ test_cases = [
             {SHOULD: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_EXCEPT_VIOLATIONS,
             [],
-            _get_no_explicitly_requested_dependencies(),
+            _get_explicitly_requested_dependencies(),
             _get_not_explicitly_requested_dependencies([(MODULE_2, MODULE_5)]),
         ),
         id="should_except_fulfilled_ssso",
@@ -351,7 +301,7 @@ test_cases = [
             {SHOULD: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_EXCEPT_VIOLATIONS,
             [],
-            _get_no_explicitly_requested_dependencies(),
+            _get_explicitly_requested_dependencies(),
             _get_not_explicitly_requested_dependencies(
                 [(MODULE_2, MODULE_5), (MODULE_3, MODULE_4)]
             ),
@@ -372,9 +322,9 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_EXCEPT_VIOLATIONS,
-            _get_all_violating_dependencies(),
-            _get_no_explicitly_requested_dependencies(),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_layer_dependencies(),
+            _get_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
         ),
         id="should_except_violated_no_imports_ssso",
     ),
@@ -382,9 +332,9 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_EXCEPT_VIOLATIONS,
-            _get_all_violating_dependencies(),
+            _get_layer_dependencies(),
             _get_explicitly_requested_dependencies([(MODULE_1, MODULE_6)]),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
         ),
         id="should_except_violated_no_other_import_ssso",
     ),
@@ -393,8 +343,8 @@ test_cases = [
             {SHOULD_NOT: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_NOT_EXCEPT_VIOLATIONS,
             [],
-            _get_no_explicitly_requested_dependencies(),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
         ),
         id="should_not_except_fulfilled_no_imports_ssso",
     ),
@@ -404,7 +354,7 @@ test_cases = [
             SHOULD_NOT_EXCEPT_VIOLATIONS,
             [],
             _get_explicitly_requested_dependencies([(MODULE_1, MODULE_6)]),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
         ),
         id="should_not_except_fulfilled_ssso",
     ),
@@ -413,7 +363,7 @@ test_cases = [
             {SHOULD_NOT: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_NOT_EXCEPT_VIOLATIONS,
             [(MODULE_2, MODULE_7)],
-            _get_no_explicitly_requested_dependencies(),
+            _get_explicitly_requested_dependencies(),
             _get_not_explicitly_requested_dependencies([(MODULE_2, MODULE_7)]),
         ),
         id="should_not_except_violated_no_allowed_imports_ssso",
@@ -431,31 +381,12 @@ test_cases = [
     pytest.param(
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: True, BEHAVIOR_EXCEPTION: True},
-            SHOULD_ONLY_EXCEPT_VIOLATIONS_NO_IMPORT,
-            [],
-            _get_no_explicitly_requested_dependencies(),
-            _get_not_explicitly_requested_dependencies([(MODULE_2, MODULE_7)]),
-        ),
-        id="should_only_except_fulfilled_ssso",
-    ),
-    pytest.param(
-        RuleViolationDetectorTestCase(
-            {SHOULD_ONLY: True, BEHAVIOR_EXCEPTION: True},
-            SHOULD_ONLY_EXCEPT_VIOLATIONS_NO_IMPORT,
-            [],
-            _get_no_explicitly_requested_dependencies(),
-            _get_not_explicitly_requested_dependencies(
-                [(MODULE_2, MODULE_7), (MODULE_3, MODULE_7)]
+            (
+                SHOULD_ONLY_EXCEPT_VIOLATIONS_NO_IMPORT,
+                SHOULD_ONLY_EXCEPT_VIOLATIONS_FORBIDDEN_IMPORT,
             ),
-        ),
-        id="should_only_except_fulfilled_multiple_imports_ssso",
-    ),
-    pytest.param(
-        RuleViolationDetectorTestCase(
-            {SHOULD_ONLY: True, BEHAVIOR_EXCEPTION: True},
-            SHOULD_ONLY_EXCEPT_VIOLATIONS_FORBIDDEN_IMPORT,
             [],
-            _get_no_explicitly_requested_dependencies(),
+            _get_explicitly_requested_dependencies(),
             _get_not_explicitly_requested_dependencies([(MODULE_2, MODULE_7)]),
         ),
         id="should_only_except_fulfilled_ssso",
@@ -463,9 +394,12 @@ test_cases = [
     pytest.param(
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: True, BEHAVIOR_EXCEPTION: True},
-            SHOULD_ONLY_EXCEPT_VIOLATIONS_FORBIDDEN_IMPORT,
+            (
+                SHOULD_ONLY_EXCEPT_VIOLATIONS_NO_IMPORT,
+                SHOULD_ONLY_EXCEPT_VIOLATIONS_FORBIDDEN_IMPORT,
+            ),
             [],
-            _get_no_explicitly_requested_dependencies(),
+            _get_explicitly_requested_dependencies(),
             _get_not_explicitly_requested_dependencies(
                 [(MODULE_2, MODULE_7), (MODULE_3, MODULE_7)]
             ),
@@ -476,9 +410,9 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_ONLY_EXCEPT_VIOLATIONS_NO_IMPORT,
-            _get_all_violating_dependencies(),
-            _get_no_explicitly_requested_dependencies(),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_layer_dependencies(),
+            _get_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
         ),
         id="should_only_except_violated_no_imports_ssso",
     ),
@@ -511,9 +445,9 @@ test_cases = [
             SHOULD_VIOLATIONS,
             [],
             _get_explicitly_requested_dependencies(
-                [(MODULE_1, MODULE_5), (MODULE_1, MODULE_8)], True
+                [(MODULE_1, MODULE_5), (MODULE_1, MODULE_8)], (LAYER_2, LAYER_4)
             ),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
             True,
         ),
         id="should_fulfilled_one_import_each_ssmo",
@@ -524,9 +458,10 @@ test_cases = [
             SHOULD_VIOLATIONS,
             [],
             _get_explicitly_requested_dependencies(
-                [(MODULE_1, MODULE_5), (MODULE_2, MODULE_6), (MODULE_1, MODULE_8)], True
+                [(MODULE_1, MODULE_5), (MODULE_2, MODULE_6), (MODULE_1, MODULE_8)],
+                (LAYER_2, LAYER_4),
             ),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
             True,
         ),
         id="should_fulfilled_multiple_imports_ssmo",
@@ -535,9 +470,9 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD: True},
             SHOULD_VIOLATIONS,
-            _get_all_violating_dependencies(objects=(LAYER_2, LAYER_4)),
-            _get_no_explicitly_requested_dependencies(True),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_layer_dependencies((LAYER_2, LAYER_4)),
+            _get_explicitly_requested_dependencies(object_layers=(LAYER_2, LAYER_4)),
+            _get_not_explicitly_requested_dependencies(),
             True,
         ),
         id="should_violated_no_imports_ssmo",
@@ -546,9 +481,11 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD: True},
             SHOULD_VIOLATIONS,
-            _get_all_violating_dependencies(objects=(LAYER_4,)),
-            _get_explicitly_requested_dependencies([(MODULE_1, MODULE_5)], True),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_layer_dependencies((LAYER_4,)),
+            _get_explicitly_requested_dependencies(
+                [(MODULE_1, MODULE_5)], (LAYER_2, LAYER_4)
+            ),
+            _get_not_explicitly_requested_dependencies(),
             True,
         ),
         id="should_violated_only_one_rule_object_import_ssmo",
@@ -557,8 +494,8 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD: True},
             SHOULD_VIOLATIONS,
-            _get_all_violating_dependencies(objects=(LAYER_2, LAYER_4)),
-            _get_no_explicitly_requested_dependencies(True),
+            _get_layer_dependencies((LAYER_2, LAYER_4)),
+            _get_explicitly_requested_dependencies(object_layers=(LAYER_2, LAYER_4)),
             _get_not_explicitly_requested_dependencies([(MODULE_1, MODULE_7)]),
             True,
         ),
@@ -586,8 +523,10 @@ test_cases = [
             {SHOULD_NOT: True},
             SHOULD_NOT_VIOLATIONS,
             [(MODULE_1, MODULE_6)],
-            _get_explicitly_requested_dependencies([(MODULE_1, MODULE_6)], True),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_explicitly_requested_dependencies(
+                [(MODULE_1, MODULE_6)], (LAYER_2, LAYER_4)
+            ),
+            _get_not_explicitly_requested_dependencies(),
             True,
         ),
         id="should_not_violated_one_import_ssmo",
@@ -598,9 +537,9 @@ test_cases = [
             SHOULD_NOT_VIOLATIONS,
             [(MODULE_1, MODULE_6), (MODULE_3, MODULE_9)],
             _get_explicitly_requested_dependencies(
-                [(MODULE_1, MODULE_6), (MODULE_3, MODULE_9)], True
+                [(MODULE_1, MODULE_6), (MODULE_3, MODULE_9)], (LAYER_2, LAYER_4)
             ),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
             True,
         ),
         id="should_not_violated_one_import_each_ssmo",
@@ -611,9 +550,10 @@ test_cases = [
             SHOULD_NOT_VIOLATIONS,
             [(MODULE_1, MODULE_6), (MODULE_2, MODULE_5), (MODULE_3, MODULE_6)],
             _get_explicitly_requested_dependencies(
-                [(MODULE_1, MODULE_6), (MODULE_2, MODULE_5), (MODULE_3, MODULE_6)], True
+                [(MODULE_1, MODULE_6), (MODULE_2, MODULE_5), (MODULE_3, MODULE_6)],
+                (LAYER_2, LAYER_4),
             ),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
             True,
         ),
         id="should_not_violated_multiple_imports_ssmo",
@@ -635,9 +575,9 @@ test_cases = [
                     (MODULE_3, MODULE_6),
                     (MODULE_2, MODULE_8),
                 ],
-                True,
+                (LAYER_2, LAYER_4),
             ),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
             True,
         ),
         id="should_not_violated_multiple_imports_each_ssmo",
@@ -648,9 +588,9 @@ test_cases = [
             SHOULD_ONLY_VIOLATIONS_NO_IMPORT,
             [],
             _get_explicitly_requested_dependencies(
-                [(MODULE_1, MODULE_4), (MODULE_2, MODULE_9)], True
+                [(MODULE_1, MODULE_4), (MODULE_2, MODULE_9)], (LAYER_2, LAYER_4)
             ),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
             True,
         ),
         id="should_only_fulfilled_ssmo",
@@ -661,9 +601,10 @@ test_cases = [
             SHOULD_ONLY_VIOLATIONS_NO_IMPORT,
             [],
             _get_explicitly_requested_dependencies(
-                [(MODULE_1, MODULE_4), (MODULE_1, MODULE_5), (MODULE_1, MODULE_8)], True
+                [(MODULE_1, MODULE_4), (MODULE_1, MODULE_5), (MODULE_1, MODULE_8)],
+                (LAYER_2, LAYER_4),
             ),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
             True,
         ),
         id="should_only_fulfilled_multiple_imports_ssmo",
@@ -672,9 +613,9 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: True},
             SHOULD_ONLY_VIOLATIONS_NO_IMPORT,
-            _get_all_violating_dependencies(objects=(LAYER_2, LAYER_4)),
-            _get_no_explicitly_requested_dependencies(True),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_layer_dependencies((LAYER_2, LAYER_4)),
+            _get_explicitly_requested_dependencies(object_layers=(LAYER_2, LAYER_4)),
+            _get_not_explicitly_requested_dependencies(),
             True,
         ),
         id="should_only_violated_no_imports_ssmo",
@@ -683,9 +624,11 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: True},
             SHOULD_ONLY_VIOLATIONS_NO_IMPORT,
-            _get_all_violating_dependencies(objects=(LAYER_4,)),
-            _get_explicitly_requested_dependencies([(MODULE_1, MODULE_4)], True),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_layer_dependencies((LAYER_4,)),
+            _get_explicitly_requested_dependencies(
+                [(MODULE_1, MODULE_4)], (LAYER_2, LAYER_4)
+            ),
+            _get_not_explicitly_requested_dependencies(),
             True,
         ),
         id="should_only_violated_no_imports_of_one_ssmo",
@@ -696,7 +639,7 @@ test_cases = [
             SHOULD_ONLY_VIOLATIONS_FORBIDDEN_IMPORT,
             [(MODULE_3, MODULE_7)],
             _get_explicitly_requested_dependencies(
-                [(MODULE_3, MODULE_4), (MODULE_3, MODULE_9)], True
+                [(MODULE_3, MODULE_4), (MODULE_3, MODULE_9)], (LAYER_2, LAYER_4)
             ),
             _get_not_explicitly_requested_dependencies([(MODULE_3, MODULE_7)]),
             True,
@@ -709,7 +652,7 @@ test_cases = [
             SHOULD_ONLY_VIOLATIONS_FORBIDDEN_IMPORT,
             [(MODULE_1, MODULE_7), (MODULE_3, MODULE_7)],
             _get_explicitly_requested_dependencies(
-                [(MODULE_3, MODULE_4), (MODULE_3, MODULE_8)], True
+                [(MODULE_3, MODULE_4), (MODULE_3, MODULE_8)], (LAYER_2, LAYER_4)
             ),
             _get_not_explicitly_requested_dependencies(
                 [(MODULE_3, MODULE_7), (MODULE_1, MODULE_7)]
@@ -723,7 +666,7 @@ test_cases = [
             {SHOULD: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_EXCEPT_VIOLATIONS,
             [],
-            _get_no_explicitly_requested_dependencies(True),
+            _get_explicitly_requested_dependencies(object_layers=(LAYER_2, LAYER_4)),
             _get_not_explicitly_requested_dependencies([(MODULE_2, MODULE_5)]),
             True,
         ),
@@ -734,7 +677,7 @@ test_cases = [
             {SHOULD: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_EXCEPT_VIOLATIONS,
             [],
-            _get_no_explicitly_requested_dependencies(True),
+            _get_explicitly_requested_dependencies(object_layers=(LAYER_2, LAYER_4)),
             _get_not_explicitly_requested_dependencies(
                 [(MODULE_2, MODULE_5), (MODULE_3, MODULE_4), (MODULE_3, MODULE_9)]
             ),
@@ -747,7 +690,9 @@ test_cases = [
             {SHOULD: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_EXCEPT_VIOLATIONS,
             [],
-            _get_explicitly_requested_dependencies([(MODULE_1, MODULE_4)], True),
+            _get_explicitly_requested_dependencies(
+                [(MODULE_1, MODULE_4)], (LAYER_2, LAYER_4)
+            ),
             _get_not_explicitly_requested_dependencies([(MODULE_2, MODULE_5)]),
             True,
         ),
@@ -759,7 +704,7 @@ test_cases = [
             SHOULD_EXCEPT_VIOLATIONS,
             [],
             _get_explicitly_requested_dependencies(
-                [(MODULE_1, MODULE_4), (MODULE_1, MODULE_8)], True
+                [(MODULE_1, MODULE_4), (MODULE_1, MODULE_8)], (LAYER_2, LAYER_4)
             ),
             _get_not_explicitly_requested_dependencies([(MODULE_2, MODULE_5)]),
             True,
@@ -770,9 +715,9 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_EXCEPT_VIOLATIONS,
-            _get_all_violating_dependencies(objects=(LAYER_2, LAYER_4)),
-            _get_no_explicitly_requested_dependencies(True),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_layer_dependencies((LAYER_2, LAYER_4)),
+            _get_explicitly_requested_dependencies(object_layers=(LAYER_2, LAYER_4)),
+            _get_not_explicitly_requested_dependencies(),
             True,
         ),
         id="should_except_violated_no_imports_ssmo",
@@ -781,9 +726,11 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_EXCEPT_VIOLATIONS,
-            _get_all_violating_dependencies(objects=(LAYER_2, LAYER_4)),
-            _get_explicitly_requested_dependencies([(MODULE_1, MODULE_9)], True),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_layer_dependencies((LAYER_2, LAYER_4)),
+            _get_explicitly_requested_dependencies(
+                [(MODULE_1, MODULE_9)], (LAYER_2, LAYER_4)
+            ),
+            _get_not_explicitly_requested_dependencies(),
             True,
         ),
         id="should_except_violated_import_of_only_one_ssmo",
@@ -792,9 +739,11 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_EXCEPT_VIOLATIONS,
-            _get_all_violating_dependencies(objects=(LAYER_2, LAYER_4)),
-            _get_explicitly_requested_dependencies([(MODULE_1, MODULE_6)], True),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_layer_dependencies((LAYER_2, LAYER_4)),
+            _get_explicitly_requested_dependencies(
+                [(MODULE_1, MODULE_6)], (LAYER_2, LAYER_4)
+            ),
+            _get_not_explicitly_requested_dependencies(),
             True,
         ),
         id="should_except_violated_no_other_import_one_ssmo",
@@ -803,11 +752,11 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_EXCEPT_VIOLATIONS,
-            _get_all_violating_dependencies(objects=(LAYER_2, LAYER_4)),
+            _get_layer_dependencies((LAYER_2, LAYER_4)),
             _get_explicitly_requested_dependencies(
-                [(MODULE_1, MODULE_6), (MODULE_1, MODULE_9)], True
+                [(MODULE_1, MODULE_6), (MODULE_1, MODULE_9)], (LAYER_2, LAYER_4)
             ),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
             True,
         ),
         id="should_except_violated_no_other_import_both_ssmo",
@@ -817,8 +766,8 @@ test_cases = [
             {SHOULD_NOT: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_NOT_EXCEPT_VIOLATIONS,
             [],
-            _get_no_explicitly_requested_dependencies(True),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_explicitly_requested_dependencies(object_layers=(LAYER_2, LAYER_4)),
+            _get_not_explicitly_requested_dependencies(),
             True,
         ),
         id="should_not_except_fulfilled_no_imports_ssmo",
@@ -828,8 +777,10 @@ test_cases = [
             {SHOULD_NOT: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_NOT_EXCEPT_VIOLATIONS,
             [],
-            _get_explicitly_requested_dependencies([(MODULE_1, MODULE_6)], True),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_explicitly_requested_dependencies(
+                [(MODULE_1, MODULE_6)], (LAYER_2, LAYER_4)
+            ),
+            _get_not_explicitly_requested_dependencies(),
             True,
         ),
         id="should_not_except_fulfilled_one_ssmo",
@@ -840,9 +791,9 @@ test_cases = [
             SHOULD_NOT_EXCEPT_VIOLATIONS,
             [],
             _get_explicitly_requested_dependencies(
-                [(MODULE_1, MODULE_6), (MODULE_2, MODULE_8)], True
+                [(MODULE_1, MODULE_6), (MODULE_2, MODULE_8)], (LAYER_2, LAYER_4)
             ),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_not_explicitly_requested_dependencies(),
             True,
         ),
         id="should_not_except_fulfilled_both_ssmo",
@@ -852,7 +803,7 @@ test_cases = [
             {SHOULD_NOT: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_NOT_EXCEPT_VIOLATIONS,
             [(MODULE_2, MODULE_7)],
-            _get_no_explicitly_requested_dependencies(True),
+            _get_explicitly_requested_dependencies(object_layers=(LAYER_2, LAYER_4)),
             _get_not_explicitly_requested_dependencies([(MODULE_2, MODULE_7)]),
             True,
         ),
@@ -863,7 +814,9 @@ test_cases = [
             {SHOULD_NOT: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_NOT_EXCEPT_VIOLATIONS,
             [(MODULE_2, MODULE_7)],
-            _get_explicitly_requested_dependencies([(MODULE_1, MODULE_5)], True),
+            _get_explicitly_requested_dependencies(
+                [(MODULE_1, MODULE_5)], (LAYER_2, LAYER_4)
+            ),
             _get_not_explicitly_requested_dependencies([(MODULE_2, MODULE_7)]),
             True,
         ),
@@ -875,7 +828,7 @@ test_cases = [
             SHOULD_NOT_EXCEPT_VIOLATIONS,
             [(MODULE_2, MODULE_7)],
             _get_explicitly_requested_dependencies(
-                [(MODULE_1, MODULE_5), (MODULE_2, MODULE_8)], True
+                [(MODULE_1, MODULE_5), (MODULE_2, MODULE_8)], (LAYER_2, LAYER_4)
             ),
             _get_not_explicitly_requested_dependencies([(MODULE_2, MODULE_7)]),
             True,
@@ -887,7 +840,7 @@ test_cases = [
             {SHOULD_ONLY: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_ONLY_EXCEPT_VIOLATIONS_NO_IMPORT,
             [],
-            _get_no_explicitly_requested_dependencies(True),
+            _get_explicitly_requested_dependencies(object_layers=(LAYER_2, LAYER_4)),
             _get_not_explicitly_requested_dependencies([(MODULE_2, MODULE_7)]),
             True,
         ),
@@ -898,7 +851,7 @@ test_cases = [
             {SHOULD_ONLY: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_ONLY_EXCEPT_VIOLATIONS_NO_IMPORT,
             [],
-            _get_no_explicitly_requested_dependencies(True),
+            _get_explicitly_requested_dependencies(object_layers=(LAYER_2, LAYER_4)),
             _get_not_explicitly_requested_dependencies(
                 [(MODULE_2, MODULE_7), (MODULE_3, MODULE_7)]
             ),
@@ -910,9 +863,9 @@ test_cases = [
         RuleViolationDetectorTestCase(
             {SHOULD_ONLY: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_ONLY_EXCEPT_VIOLATIONS_NO_IMPORT,
-            _get_all_violating_dependencies(objects=(LAYER_2, LAYER_4)),
-            _get_no_explicitly_requested_dependencies(True),
-            _get_no_not_explicitly_requested_dependencies(),
+            _get_layer_dependencies((LAYER_2, LAYER_4)),
+            _get_explicitly_requested_dependencies(object_layers=(LAYER_2, LAYER_4)),
+            _get_not_explicitly_requested_dependencies(),
             True,
         ),
         id="should_only_except_violated_no_imports_ssmo",
@@ -922,7 +875,9 @@ test_cases = [
             {SHOULD_ONLY: True, BEHAVIOR_EXCEPTION: True},
             SHOULD_ONLY_EXCEPT_VIOLATIONS_FORBIDDEN_IMPORT,
             [(MODULE_1, MODULE_4)],
-            _get_explicitly_requested_dependencies([(MODULE_1, MODULE_4)], True),
+            _get_explicitly_requested_dependencies(
+                [(MODULE_1, MODULE_4)], (LAYER_2, LAYER_4)
+            ),
             _get_not_explicitly_requested_dependencies([(MODULE_1, MODULE_7)]),
             True,
         ),
@@ -934,7 +889,7 @@ test_cases = [
             SHOULD_ONLY_EXCEPT_VIOLATIONS_FORBIDDEN_IMPORT,
             [(MODULE_1, MODULE_4), (MODULE_1, MODULE_6)],
             _get_explicitly_requested_dependencies(
-                [(MODULE_1, MODULE_4), (MODULE_1, MODULE_6)], True
+                [(MODULE_1, MODULE_4), (MODULE_1, MODULE_6)], (LAYER_2, LAYER_4)
             ),
             _get_not_explicitly_requested_dependencies([(MODULE_1, MODULE_7)]),
             True,
@@ -947,7 +902,7 @@ test_cases = [
             SHOULD_ONLY_EXCEPT_VIOLATIONS_FORBIDDEN_IMPORT,
             [(MODULE_1, MODULE_4), (MODULE_1, MODULE_8)],
             _get_explicitly_requested_dependencies(
-                [(MODULE_1, MODULE_4), (MODULE_1, MODULE_8)], True
+                [(MODULE_1, MODULE_4), (MODULE_1, MODULE_8)], (LAYER_2, LAYER_4)
             ),
             _get_not_explicitly_requested_dependencies([(MODULE_1, MODULE_7)]),
             True,
@@ -983,6 +938,12 @@ def test_rule_violation_detection_as_expected(
         test_case.not_explicitly_requested_dependencies,
     )
 
-    assert set(getattr(violations, test_case.expected_violation)) == set(  # type: ignore
-        test_case.expected_violating_dependencies
-    )
+    if isinstance(test_case.expected_violation, str):
+        violation_keys: tuple[str, ...] = (test_case.expected_violation,)
+    else:
+        violation_keys = test_case.expected_violation
+
+    for violation_key in violation_keys:
+        assert set(getattr(violations, violation_key)) == set(  # type: ignore
+            test_case.expected_violating_dependencies
+        )

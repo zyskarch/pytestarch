@@ -62,7 +62,7 @@ def graph_including_tests() -> EvaluableArchitecture:
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def flat_project_1() -> EvaluableArchitecture:
     """
     Dependencies:

@@ -132,17 +132,6 @@ rules_for_level_limit_1 = [
         True,
         True,
     ),
-    # currently fails --> needs to be fixed
-    # (
-    #     Rule()
-    #     .modules_that()
-    #     .are_named(C)
-    #     .should_only()
-    #     .be_imported_by_modules_that()
-    #     .are_named(A),
-    #     False,
-    #     False,
-    # ),
     (
         Rule()
         .modules_that()
@@ -779,7 +768,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .import_modules_that()
         .are_named([A, B]),
         f'"{C}" does not import "{A}", "{B}".',
-        id="named should import named",
+        id="multi: named should import named",
     ),
     pytest.param(
         Rule()
@@ -789,27 +778,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .import_modules_that()
         .are_sub_modules_of([A, B]),
         f'"{C}" does not import a sub module of "{A}", a sub module of "{B}".',
-        id="named should import submodule",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(C)
-        .should()
-        .import_modules_that()
-        .are_named([A]),
-        f'Sub modules of "{C}" do not import "{A}".',
-        id="submodule should import named",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(C)
-        .should()
-        .import_modules_that()
-        .are_sub_modules_of([A]),
-        f'Sub modules of "{C}" do not import a sub module of "{A}".',
-        id="submodule should import submodule",
+        id="multi: named should import submodule",
     ),
     pytest.param(
         Rule()
@@ -819,7 +788,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .import_modules_that()
         .are_named([B, FILE_B2]),
         f'"{FILE_A}" imports "{FILE_C}".',
-        id="named should only import named",
+        id="multi: named should only import named",
     ),
     pytest.param(
         Rule()
@@ -829,27 +798,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .import_modules_that()
         .are_sub_modules_of([B, FILE_B2]),
         f'"{FILE_A}" imports "{FILE_C}".' + "\n" + f'"{FILE_A2}" imports "{FILE_C}".',
-        id="named should only import submodule",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(A)
-        .should_only()
-        .import_modules_that()
-        .are_named([B]),
-        f'"{FILE_A}" imports "{FILE_C}".',
-        id="submodule should only import named",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(A)
-        .should_only()
-        .import_modules_that()
-        .are_sub_modules_of([B]),
-        f'"{FILE_A}" imports "{FILE_C}".' + "\n" + f'"{FILE_A2}" imports "{FILE_C}".',
-        id="submodule should only import submodule",
+        id="multi: named should only import submodule",
     ),
     pytest.param(
         Rule()
@@ -859,7 +808,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .import_modules_that()
         .are_named([A, C]),
         f'"{FILE_B11}" imports "{FILE_A11}".',
-        id="named should not import named",
+        id="multi: named should not import named",
     ),
     pytest.param(
         Rule()
@@ -869,27 +818,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .import_modules_that()
         .are_sub_modules_of([A, C]),
         f'"{FILE_B11}" imports "{FILE_A11}".',
-        id="named should not import submodule",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(B)
-        .should_not()
-        .import_modules_that()
-        .are_named([A]),
-        f'"{FILE_B11}" imports "{FILE_A11}".',
-        id="submodule should not import named",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(B)
-        .should_not()
-        .import_modules_that()
-        .are_sub_modules_of([A]),
-        f'"{FILE_B11}" imports "{FILE_A11}".',
-        id="submodule should not import submodule",
+        id="multi: named should not import submodule",
     ),
     pytest.param(
         Rule()
@@ -899,7 +828,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .import_modules_except_modules_that()
         .are_named([C, FILE_C]),
         f'"{FILE_A2}" does not import any module that is not "{C}".',
-        id="named should import except named",
+        id="multi: named should import except named",
     ),
     pytest.param(
         Rule()
@@ -909,27 +838,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .import_modules_except_modules_that()
         .are_sub_modules_of([C, B]),
         f'"{FILE_A2}" does not import any module that is not a sub module of "{B}", a sub module of "{C}".',
-        id="named should import except submodule",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(FILE_A2)
-        .should()
-        .import_modules_except_modules_that()
-        .are_named([C]),
-        f'Sub modules of "{FILE_A2}" do not import any module that is not "{C}".',
-        id="submodule should import except named",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(FILE_A2)
-        .should()
-        .import_modules_except_modules_that()
-        .are_sub_modules_of([C]),
-        f'Sub modules of "{FILE_A2}" do not import any module that is not a sub module of "{C}".',
-        id="submodule should import except submodule",
+        id="multi: named should import except submodule",
     ),
     pytest.param(
         Rule()
@@ -939,7 +848,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .import_modules_except_modules_that()
         .are_named([C, B]),
         f'"{FILE_A2}" imports "{FILE_C}".',
-        id="named should only import except named - forbidden import",
+        id="multi: named should only import except named - forbidden import",
     ),
     pytest.param(
         Rule()
@@ -949,27 +858,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .import_modules_except_modules_that()
         .are_sub_modules_of([C, B]),
         f'"{FILE_A2}" imports "{FILE_C}".',
-        id="named should only import except submodule - forbidden import",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(A)
-        .should_only()
-        .import_modules_except_modules_that()
-        .are_named([C]),
-        f'"{FILE_A2}" imports "{FILE_C}".',
-        id="submodule should only import except named - forbidden import",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(A)
-        .should_only()
-        .import_modules_except_modules_that()
-        .are_sub_modules_of([C]),
-        f'"{FILE_A2}" imports "{FILE_C}".',
-        id="submodule should only import except submodule - forbidden import",
+        id="multi: named should only import except submodule - forbidden import",
     ),
     pytest.param(
         Rule()
@@ -979,7 +868,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .import_modules_except_modules_that()
         .are_named([B, FILE_B2]),
         f'"{C}" does not import any module that is not "{B}".',
-        id="named should only import except named - no import",
+        id="multi: named should only import except named - no import",
     ),
     pytest.param(
         Rule()
@@ -989,27 +878,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .import_modules_except_modules_that()
         .are_sub_modules_of([B, FILE_B2]),
         f'"{C}" does not import any module that is not a sub module of "{B}".',
-        id="named should only import except submodule - no import",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(C)
-        .should_only()
-        .import_modules_except_modules_that()
-        .are_named([B]),
-        f'Sub modules of "{C}" do not import any module that is not "{B}".',
-        id="submodule should only import except named - no import",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(C)
-        .should_only()
-        .import_modules_except_modules_that()
-        .are_sub_modules_of([B]),
-        f'Sub modules of "{C}" do not import any module that is not a sub module of "{B}".',
-        id="submodule should only import except submodule - no import",
+        id="multi: named should only import except submodule - no import",
     ),
     pytest.param(
         Rule()
@@ -1019,7 +888,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .import_modules_except_modules_that()
         .are_named([B, FILE_B2]),
         f'"{FILE_A}" imports "{FILE_C}".',
-        id="named should not import except named",
+        id="multi: named should not import except named",
     ),
     pytest.param(
         Rule()
@@ -1029,27 +898,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .import_modules_except_modules_that()
         .are_sub_modules_of([B, FILE_B2]),
         f'"{FILE_A}" imports "{FILE_C}".' + "\n" + f'"{FILE_A2}" imports "{FILE_C}"',
-        id="named should not import except submodule",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(A)
-        .should_not()
-        .import_modules_except_modules_that()
-        .are_named([B]),
-        f'"{FILE_A}" imports "{FILE_C}".',
-        id="submodule should not import except named",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(A)
-        .should_not()
-        .import_modules_except_modules_that()
-        .are_sub_modules_of([B]),
-        f'"{FILE_A}" imports "{FILE_C}".' + "\n" + f'"{FILE_A2}" imports "{FILE_C}".',
-        id="submodule should not import except submodule",
+        id="multi: named should not import except submodule",
     ),
     pytest.param(
         Rule()
@@ -1059,7 +908,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .be_imported_by_modules_that()
         .are_named([C, FILE_C]),
         f'"{A}" is not imported by "{C}", "{FILE_C}".',
-        id="named should be imported by named",
+        id="multi: named should be imported by named",
     ),
     pytest.param(
         Rule()
@@ -1069,27 +918,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .be_imported_by_modules_that()
         .are_sub_modules_of([C, FILE_C]),
         f'"{A}" is not imported by a sub module of "{C}", a sub module of "{FILE_C}".',
-        id="named should be imported by submodule",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(A)
-        .should()
-        .be_imported_by_modules_that()
-        .are_named([C]),
-        f'Sub modules of "{A}" are not imported by "{C}".',
-        id="submodule should be imported by named",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(A)
-        .should()
-        .be_imported_by_modules_that()
-        .are_sub_modules_of([C]),
-        f'Sub modules of "{A}" are not imported by a sub module of "{C}".',
-        id="submodule should be imported by submodule",
+        id="multi: named should be imported by submodule",
     ),
     pytest.param(
         Rule()
@@ -1099,7 +928,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .be_imported_by_modules_that()
         .are_named([B, FILE_B2]),
         f'"{C}" is not imported by "{B}", "{FILE_B2}".',
-        id="named should only be imported by named",
+        id="multi: named should only be imported by named",
     ),
     pytest.param(
         Rule()
@@ -1109,27 +938,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .be_imported_by_modules_that()
         .are_sub_modules_of([B]),
         f'"{C}" is not imported by a sub module of "src.moduleB',
-        id="named should only be imported by submodule",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(C)
-        .should_only()
-        .be_imported_by_modules_that()
-        .are_named([B]),
-        f'Sub modules of "{C}" are not imported by "{B}".',
-        id="submodule should only be imported by named",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(C)
-        .should_only()
-        .be_imported_by_modules_that()
-        .are_sub_modules_of([B]),
-        f'Sub modules of "{C}" are not imported by a sub module of "{B}".',
-        id="submodule should only be imported by submodule",
+        id="multi: named should only be imported by submodule",
     ),
     pytest.param(
         Rule()
@@ -1141,37 +950,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         f'"{FILE_C}" is imported by "{FILE_A}".'
         + "\n"
         + f'"{FILE_C}" is imported by "{FILE_A2}".',
-        id="named should not be imported by named",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_named(C)
-        .should_not()
-        .be_imported_by_modules_that()
-        .are_sub_modules_of([A]),
-        f'"{FILE_C}" is imported by "{FILE_A2}".',
-        id="named should not be imported by submodule",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(C)
-        .should_not()
-        .be_imported_by_modules_that()
-        .are_named([A]),
-        f'"{FILE_C}" is imported by "{FILE_A2}".',
-        id="submodule should not be imported by named",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(C)
-        .should_not()
-        .be_imported_by_modules_that()
-        .are_sub_modules_of([A]),
-        f'"{FILE_C}" is imported by "{FILE_A2}".',
-        id="submodule should not be imported by submodule",
+        id="multi: named should not be imported by named",
     ),
     pytest.param(
         Rule()
@@ -1181,37 +960,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .be_imported_by_modules_except_modules_that()
         .are_named([A, A2]),
         f'"{B}" is not imported by any module that is not "{A}", "{A2}".',
-        id="named should be imported by except named",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_named(B)
-        .should()
-        .be_imported_by_modules_except_modules_that()
-        .are_sub_modules_of([A]),
-        f'"{B}" is not imported by any module that is not a sub module of "{A}".',
-        id="named should be imported by except submodule",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(B)
-        .should()
-        .be_imported_by_modules_except_modules_that()
-        .are_named([A]),
-        f'Sub modules of "{B}" are not imported by any module that is not "{A}".',
-        id="submodule should be imported by except named",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(B)
-        .should()
-        .be_imported_by_modules_except_modules_that()
-        .are_sub_modules_of([A]),
-        f'Sub modules of "{B}" are not imported by any module that is not a sub module of "{A}".',
-        id="submodule should be imported by except submodule",
+        id="multi: named should be imported by except named",
     ),
     pytest.param(
         Rule()
@@ -1221,7 +970,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .be_imported_by_modules_except_modules_that()
         .are_named([FILE_B2, B]),
         f'"{FILE_A11}" is imported by "{FILE_B2}".',
-        id="named should only be imported by except named - forbidden import",
+        id="multi: named should only be imported by except named - forbidden import",
     ),
     pytest.param(
         Rule()
@@ -1231,27 +980,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .be_imported_by_modules_except_modules_that()
         .are_sub_modules_of([B1, B]),
         f'"{FILE_A11}" is imported by "{FILE_B11}".',
-        id="named should only be imported by except submodule - forbidden import",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(A11)
-        .should_only()
-        .be_imported_by_modules_except_modules_that()
-        .are_named([FILE_B2]),
-        f'"{FILE_A11}" is imported by "{FILE_B2}".',
-        id="submodule should only be imported by except named - forbidden import",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(A1)
-        .should_only()
-        .be_imported_by_modules_except_modules_that()
-        .are_sub_modules_of([B1]),
-        f'"{FILE_A11}" is imported by "{FILE_B11}".',
-        id="submodule should only be imported by except submodule - forbidden import",
+        id="multi: named should only be imported by except submodule - forbidden import",
     ),
     pytest.param(
         Rule()
@@ -1261,37 +990,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .be_imported_by_modules_except_modules_that()
         .are_named([B, FILE_B2]),
         f'"{A}" is not imported by any module that is not "{B}", "{FILE_B2}".',
-        id="named should only be imported by except named - no import",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_named(A)
-        .should_only()
-        .be_imported_by_modules_except_modules_that()
-        .are_sub_modules_of([B]),
-        f'"{A}" is not imported by any module that is not a sub module of "{B}"',
-        id="named should only be imported by except submodule - no import",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(A)
-        .should_only()
-        .be_imported_by_modules_except_modules_that()
-        .are_named([B]),
-        f'Sub modules of "{A}" are not imported by any module that is not "{B}"',
-        id="submodule should only be imported by except named - no import",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(A)
-        .should_only()
-        .be_imported_by_modules_except_modules_that()
-        .are_sub_modules_of([B]),
-        f'Sub modules of "{A}" are not imported by any module that is not a sub module of "{B}"',
-        id="submodule should only be imported by except submodule - no import",
+        id="multi: named should only be imported by except named - no import",
     ),
     pytest.param(
         Rule()
@@ -1301,39 +1000,7 @@ single_rule_subject_multiple_rule_objects_error_message_test_cases = [
         .be_imported_by_modules_except_modules_that()
         .are_named([FILE_A2, B]),
         f'"{FILE_C}" is imported by "{FILE_A}".',
-        id="named should not be imported by except named",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_named(C)
-        .should_not()
-        .be_imported_by_modules_except_modules_that()
-        .are_sub_modules_of([A2]),
-        f'"{FILE_C}" is imported by "{FILE_A}".',
-        id="named should not be imported by except submodule",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(C)
-        .should_not()
-        .be_imported_by_modules_except_modules_that()
-        .are_named([A2]),
-        f'"{FILE_C}" is imported by "{FILE_A}".',
-        id="submodule should not be imported by except named",
-    ),
-    pytest.param(
-        Rule()
-        .modules_that()
-        .are_sub_modules_of(C)
-        .should_not()
-        .be_imported_by_modules_except_modules_that()
-        .are_sub_modules_of([FILE_A2]),
-        f'"{FILE_C}" is imported by "{FILE_A}".'
-        + "\n"
-        + f'"{FILE_C}" is imported by "{FILE_A2}".',
-        id="submodule should not be imported by except submodule",
+        id="multi: named should not be imported by except named",
     ),
 ]
 
@@ -2312,7 +1979,6 @@ layer_1_is_not_imported_by_layer_2_3 = (
 layer_1_is_not_imported_by_any_layer_that_is_not_layer_2_3 = f'Layer "{LAYER_1}" is not imported by any layer that is not layer "{LAYER_2}", layer "{LAYER_3}".'
 
 EXPORTER_IMPORTER = f"{EXPORTER}.exporter_importer"
-EXPORTER_IMPORTEE = f"{EXPORTER}.exporter_importee"
 RUNTIME_IMPORTER = f"{RUNTIME}.runtime_importer"
 SERVICES_IMPORTEE = f"{SERVICES}.services_importee"
 UTIL_IMPORTEE = f"{UTIL}.util_importee"
@@ -2329,15 +1995,10 @@ SIMULATION_IMPORTER = f"{SIMULATION}.simulation_importer"
 UTIL_IMPORTER = f"{UTIL}.util_importer"
 
 runtime_imports_services_no_layer = f'"{RUNTIME_IMPORTER}" (layer "{LAYER_1}") imports "{SERVICES_IMPORTEE}" (no layer).'
-runtime_imports_services_layer_2 = f'"{RUNTIME_IMPORTER}" (layer "{LAYER_1}") imports "{SERVICES_IMPORTEE}" (layer "{LAYER_2}").'
 
 
 layer_rule_error_messages_test_cases_access = [
     # single rule subject single rule object
-    # pytest.param(LayerRuleTestCase({LAYER_1: [UTIL], LAYER_2: [MODEL]}, layer_1_should_access_layer_2, layer_1_does_not_import_layer_2), id='should_violated_no_imports_ssso',),
-    # pytest.param(LayerRuleTestCase({LAYER_1: [IMPORTER], LAYER_2: [LOGGING]}, layer_1_should_access_layer_2, layer_1_does_not_import_layer_2), id='should_violated_only_other_imports_ssso',),
-    #
-    # pytest.param(LayerRuleTestCase({LAYER_1: [RUNTIME], LAYER_2: [SERVICES]}, layer_1_should_not_access_layer_2, f'"{RUNTIME_IMPORTER}" (layer "{LAYER_1}") imports "{SERVICES_IMPORTEE}" (layer "{LAYER_2}").'), id='should_not_violated_one_import_ssso',),
     pytest.param(
         LayerRuleTestCase(
             {

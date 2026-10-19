@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Callable
+
 import pytest
 
 from pytestarch.eval_structure.evaluable_architecture import ModuleNameFilter
@@ -31,194 +33,111 @@ arch: LayeredArchitecture = (
 )
 
 
-def test_layer_rule_subject_converted_to_layer_modules() -> None:
-    rule = LayerRule().based_on(arch).layers_that().are_named(LAYER_1)  # type: ignore
+def _layer_rule_subject() -> LayerRule:
+    return LayerRule().based_on(arch).layers_that().are_named(LAYER_1)  # type: ignore
+
+
+layer_rule_conversion_test_cases = [
+    pytest.param(
+        lambda: _layer_rule_subject(),
+        {
+            "modules_to_check": [
+                ModuleNameFilter(name=MODULE_1),
+                ModuleNameFilter(name=MODULE_2),
+            ],
+        },
+        id="subject",
+    ),
+    pytest.param(
+        lambda: _layer_rule_subject().should().access_layers_that().are_named(LAYER_2),
+        {
+            "modules_to_check_against": [
+                ModuleNameFilter(name=MODULE_3),
+                ModuleNameFilter(name=MODULE_4),
+            ],
+        },
+        id="object",
+    ),
+    pytest.param(
+        lambda: _layer_rule_subject().should().access_layers_that().are_named(LAYER_2),
+        {"should": True, "should_only": False, "should_not": False},
+        id="should",
+    ),
+    pytest.param(
+        lambda: (
+            _layer_rule_subject().should_only().access_layers_that().are_named(LAYER_2)
+        ),
+        {"should": False, "should_only": True, "should_not": False},
+        id="should_only",
+    ),
+    pytest.param(
+        lambda: (
+            _layer_rule_subject().should_not().access_layers_that().are_named(LAYER_2)
+        ),
+        {"should": False, "should_only": False, "should_not": True},
+        id="should_not",
+    ),
+    pytest.param(
+        lambda: _layer_rule_subject().should().access_layers_that().are_named(LAYER_2),
+        {"except_present": False, "import_": True},
+        id="access",
+    ),
+    pytest.param(
+        lambda: (
+            _layer_rule_subject()
+            .should()
+            .be_accessed_by_layers_that()
+            .are_named(LAYER_2)
+        ),
+        {"except_present": False, "import_": False},
+        id="be_accessed",
+    ),
+    pytest.param(
+        lambda: (
+            _layer_rule_subject()
+            .should()
+            .access_layers_except_layers_that()
+            .are_named(LAYER_2)
+        ),
+        {"except_present": True, "import_": True},
+        id="access_except",
+    ),
+    pytest.param(
+        lambda: (
+            _layer_rule_subject()
+            .should()
+            .be_accessed_by_layers_except_layers_that()
+            .are_named(LAYER_2)
+        ),
+        {"except_present": True, "import_": False},
+        id="be_accessed_except",
+    ),
+    pytest.param(
+        lambda: _layer_rule_subject().should().access_any_layer(),
+        {"except_present": False, "import_": True, "rule_object_anything": True},
+        id="access_any",
+    ),
+    pytest.param(
+        lambda: _layer_rule_subject().should().be_accessed_by_any_layer(),
+        {"except_present": False, "import_": False, "rule_object_anything": True},
+        id="be_accessed_by_any",
+    ),
+]
+
+
+@pytest.mark.parametrize(
+    "rule_builder, expected_config_fields", layer_rule_conversion_test_cases
+)
+def test_layer_rule_converted_to_rule_configuration(
+    rule_builder: Callable[[], LayerRule],
+    expected_config_fields: dict[str, bool | list[ModuleNameFilter]],
+) -> None:
+    rule = rule_builder()
 
     rule_config = rule._rule._configuration  # type: ignore
 
-    expected_modules_to_check = [
-        ModuleNameFilter(name=MODULE_1),
-        ModuleNameFilter(name=MODULE_2),
-    ]
-
-    assert rule_config.modules_to_check == expected_modules_to_check
-
-
-def test_layer_rule_object_converted_to_layer_modules() -> None:
-    rule = (
-        LayerRule()
-        .based_on(arch)
-        .layers_that()
-        .are_named(LAYER_1)
-        .should()
-        .access_layers_that()
-        .are_named(LAYER_2)
-    )
-
-    rule_config = rule._rule._configuration  # type: ignore
-
-    expected_modules_to_check = [
-        ModuleNameFilter(name=MODULE_3),
-        ModuleNameFilter(name=MODULE_4),
-    ]
-
-    assert rule_config.modules_to_check_against == expected_modules_to_check
-
-
-def test_should_converted_correctly() -> None:
-    rule = (
-        LayerRule()
-        .based_on(arch)
-        .layers_that()
-        .are_named(LAYER_1)
-        .should()
-        .access_layers_that()
-        .are_named(LAYER_2)
-    )
-
-    rule_config = rule._rule._configuration  # type: ignore
-
-    assert rule_config.should
-    assert not rule_config.should_only
-    assert not rule_config.should_not
-
-
-def test_should_not_converted_correctly() -> None:
-    rule = (
-        LayerRule()
-        .based_on(arch)
-        .layers_that()
-        .are_named(LAYER_1)
-        .should_not()
-        .access_layers_that()
-        .are_named(LAYER_2)
-    )
-
-    rule_config = rule._rule._configuration  # type: ignore
-
-    assert not rule_config.should
-    assert not rule_config.should_only
-    assert rule_config.should_not
-
-
-def test_should_only_converted_correctly() -> None:
-    rule = (
-        LayerRule()
-        .based_on(arch)
-        .layers_that()
-        .are_named(LAYER_1)
-        .should_only()
-        .access_layers_that()
-        .are_named(LAYER_2)
-    )
-
-    rule_config = rule._rule._configuration  # type: ignore
-
-    assert not rule_config.should
-    assert rule_config.should_only
-    assert not rule_config.should_not
-
-
-def test_access_converted_correctly() -> None:
-    rule = (
-        LayerRule()
-        .based_on(arch)
-        .layers_that()
-        .are_named(LAYER_1)
-        .should()
-        .access_layers_that()
-        .are_named(LAYER_2)
-    )
-
-    rule_config = rule._rule._configuration  # type: ignore
-
-    assert not rule_config.except_present
-    assert rule_config.import_
-
-
-def test_be_accessed_converted_correctly() -> None:
-    rule = (
-        LayerRule()
-        .based_on(arch)
-        .layers_that()
-        .are_named(LAYER_1)
-        .should()
-        .be_accessed_by_layers_that()
-        .are_named(LAYER_2)
-    )
-
-    rule_config = rule._rule._configuration  # type: ignore
-
-    assert not rule_config.except_present
-    assert not rule_config.import_
-
-
-def test_access_except_converted_correctly() -> None:
-    rule = (
-        LayerRule()
-        .based_on(arch)
-        .layers_that()
-        .are_named(LAYER_1)
-        .should()
-        .access_layers_except_layers_that()
-        .are_named(LAYER_2)
-    )
-
-    rule_config = rule._rule._configuration  # type: ignore
-
-    assert rule_config.except_present
-    assert rule_config.import_
-
-
-def test_be_accessed_except_converted_correctly() -> None:
-    rule = (
-        LayerRule()
-        .based_on(arch)
-        .layers_that()
-        .are_named(LAYER_1)
-        .should()
-        .be_accessed_by_layers_except_layers_that()
-        .are_named(LAYER_2)
-    )
-
-    rule_config = rule._rule._configuration  # type: ignore
-
-    assert rule_config.except_present
-    assert not rule_config.import_
-
-
-def test_access_any_converted_correctly() -> None:
-    rule = (
-        LayerRule()
-        .based_on(arch)
-        .layers_that()
-        .are_named(LAYER_1)
-        .should()
-        .access_any_layer()
-    )
-
-    rule_config = rule._rule._configuration  # type: ignore
-
-    assert not rule_config.except_present
-    assert rule_config.import_
-    assert rule_config.rule_object_anything
-
-
-def test_be_accessed_by_any_converted_correctly() -> None:
-    rule = (
-        LayerRule()
-        .based_on(arch)
-        .layers_that()
-        .are_named(LAYER_1)
-        .should()
-        .be_accessed_by_any_layer()
-    )
-
-    rule_config = rule._rule._configuration  # type: ignore
-
-    assert not rule_config.except_present
-    assert not rule_config.import_
-    assert rule_config.rule_object_anything
+    for field, expected_value in expected_config_fields.items():
+        assert getattr(rule_config, field) == expected_value
 
 
 def test_not_need_to_use_every_regex_layer_to_apply() -> None:

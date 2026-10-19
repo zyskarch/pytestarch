@@ -4,7 +4,7 @@ from collections.abc import Sequence
 
 import pytest
 
-from eval_structure.evaluable_graph.conftest import MODULE_A, MODULE_B, MODULE_D
+from eval_structure.conftest import MODULE_A, MODULE_B, MODULE_D
 from integration.interesting_rules_for_tests import A, B, C
 from pytestarch import Rule
 from pytestarch.eval_structure.evaluable_architecture import (
@@ -107,17 +107,6 @@ test_cases = [
         .have_name_matching(".*moduleA$"),
         f'"{C}" does not import "{A}".',
         id="regex_single_match",
-    ),
-    pytest.param(
-        # src.moduleC and src.moduleA
-        Rule()
-        .modules_that()
-        .have_name_matching(".*moduleC$")
-        .should()
-        .import_modules_that()
-        .have_name_matching(".*moduleA$"),
-        f'"{C}" does not import "{A}".',
-        id="partial_match_single_match",
     ),
     pytest.param(
         Rule()

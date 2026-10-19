@@ -102,15 +102,6 @@ def test_partially_configured_rule_raises_error(
     assert True
 
 
-def assert_rule_applies(rule: Rule, evaluable: EvaluableArchitecture) -> None:
-    rule.assert_applies(evaluable)
-
-
-def assert_rule_does_not_apply(rule: Rule, evaluable: EvaluableArchitecture) -> None:
-    with pytest.raises(AssertionError):
-        rule.assert_applies(evaluable)
-
-
 def test_only_submodules_are_filtered_out() -> None:
     module_names = ["X.a", "X.b", "X.a.a", "X.a.b", "Y"]
     modules = [ModuleNameFilter(name=name) for name in module_names]

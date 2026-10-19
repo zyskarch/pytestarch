@@ -4,13 +4,9 @@ from pytestarch.eval_structure.networkxgraph import NetworkxGraph
 from pytestarch.eval_structure_generation.file_import.import_types import AbsoluteImport
 
 
-def test_empty_graph_allowed() -> None:
-    NetworkxGraph([], [])
-
-    assert True
-
-
 def test_graph_as_expected() -> None:
+    NetworkxGraph([], [])  # empty graph is allowed
+
     imports = [
         AbsoluteImport("A", "B"),
         AbsoluteImport("B", "C"),

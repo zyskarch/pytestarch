@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from pytestarch.eval_structure_generation.file_import.import_filter import (
     ExternalImportFilter,
 )
@@ -17,21 +19,20 @@ imports = [
 ]
 
 
-def test_import_filter_excludes_external_dependencies() -> None:
-    filter = ExternalImportFilter(True, INTERNAL_MODULES, ())
+@pytest.mark.parametrize(
+    "exclude_external_libraries, expected_importees",
+    [
+        pytest.param(True, ["A.B.C"], id="exclude_external_dependencies"),
+        pytest.param(False, ["A.B.C", "A.D"], id="include_external_dependencies"),
+    ],
+)
+def test_import_filter(
+    exclude_external_libraries: bool, expected_importees: list[str]
+) -> None:
+    filter = ExternalImportFilter(exclude_external_libraries, INTERNAL_MODULES, ())
     filtered_imports = filter.filter(imports)
 
-    assert len(filtered_imports) == 1
-    assert filtered_imports[0].importee() == "A.B.C"
-
-
-def test_import_filter_includes_internal_dependencies() -> None:
-    filter = ExternalImportFilter(False, INTERNAL_MODULES, ())
-    filtered_imports = filter.filter(imports)
-
-    assert len(filtered_imports) == 2
-    assert filtered_imports[0].importee() == "A.B.C"
-    assert filtered_imports[1].importee() == "A.D"
+    assert [i.importee() for i in filtered_imports] == expected_importees
 
 
 def test_importee_equal_to_internal_module_name_is_internal() -> None:
