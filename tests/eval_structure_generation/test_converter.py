@@ -30,6 +30,7 @@ def test_converter_retains_all_non_empty_modules() -> None:
         "ast",
         "itertools",
         "pathlib",
+        "tests.resources.importer.level0",
         "tests.resources.importer.level0.test_dummy_2",
         "tests.resources.importer.level0.test_dummy_3",
         "pytest",
@@ -218,19 +219,19 @@ def test_absolute_import_probed_with_root_module_name(
         pytest.param(
             "from . import web",
             {"src.app", "src.app.web"},
-            {("src.app.blue", "src.app.web")},
+            {("src.app.blue", "src.app"), ("src.app.blue", "src.app.web")},
             id="submodule of current package",
         ),
         pytest.param(
             "from . import helper",
             {"src.app"},
-            set(),
+            {("src.app.blue", "src.app")},
             id="attribute",
         ),
         pytest.param(
             "from . import *",
             {"src.app"},
-            set(),
+            {("src.app.blue", "src.app")},
             id="star import",
         ),
         pytest.param(
@@ -242,7 +243,7 @@ def test_absolute_import_probed_with_root_module_name(
         pytest.param(
             "from .. import web",
             {"src", "src.web"},
-            {("src.app.blue", "src.web")},
+            {("src.app.blue", "src"), ("src.app.blue", "src.web")},
             id="submodule of parent package",
         ),
         pytest.param(
@@ -323,6 +324,7 @@ def test_relative_import_emits_expected_imports(
         pytest.param(
             "if x:\n    from . import gamma\nelse:\n    from .delta import epsilon\n",
             {
+                ("src.main", "src"),
                 ("src.main", "src.gamma"),
                 ("src.main", "src.delta"),
                 ("src.main", "src.delta.epsilon"),

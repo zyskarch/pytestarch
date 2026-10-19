@@ -36,7 +36,14 @@ class AbsoluteImport(Import):
 
 
 class RelativeImport(Import):
-    """Represents a relative import."""
+    """Represents a relative import.
+
+    For 'from <module> import <name>', the importee resolves to
+    '<importer's level-th parent>.<module>.<name>'. A RelativeImport with
+    both module and name None represents the base package at that level
+    alone, which Python imports in addition to the imported name; bare
+    relative statements emit one such import plus one per alias.
+    """
 
     def __init__(
         self,
@@ -46,10 +53,6 @@ class RelativeImport(Import):
         level: int,
     ) -> None:
         super().__init__(importer)
-        if module_name is None and import_name is None:
-            raise ImportException(
-                "Either name of module of of import needs to be specified."
-            )
         self._module_name = module_name
         self._import_name = import_name
         self._level = level
@@ -65,16 +68,20 @@ class RelativeImport(Import):
         return self._importee_module_hierarchy
 
     def _calculate_importee(self) -> str:
+        if self._level < 1:
+            raise ImportException(
+                "Relative import needs at least one leading dot: the level must "
+                "be at least 1."
+            )
         if len(self._importer_module_hierarchy) < self._level:
+            requested = self._import_name or self._module_name or "." * self._level
             raise ImportException(
                 f"Attempted relative import with no known parent package: cannot "
                 f"resolve the level {self._level} relative import of "
-                f"'{self._import_name or self._module_name}' in module "
+                f"'{requested}' in module "
                 f"'{self._importer}'. This happens if the module is located directly "
                 "at the root of a scanned directory that is not a Python package."
             )
-        return (
-            self._importer_module_hierarchy[-self._level]
-            + "."
-            + ".".join(part for part in (self._module_name, self._import_name) if part)
-        )
+        base = self._importer_module_hierarchy[-self._level]
+        name = ".".join(part for part in (self._module_name, self._import_name) if part)
+        return f"{base}.{name}" if name else base

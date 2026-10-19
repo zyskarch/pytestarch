@@ -143,6 +143,90 @@ def test_import_from_package_of_submodule_detected_by_rule() -> None:
         rule.assert_applies(evaluable)
 
 
+def test_bare_relative_import_records_containing_package() -> None:
+    """'from . import <name>' imports the containing package just like
+    'from app import web' does, so a rule naming the package must report the
+    package import itself for the relative form as well. violet imports an
+    attribute of the package ('from . import helper'): previously the
+    absolute form recorded the base package, but the bare relative attribute
+    form recorded no import of 'app' at all, so the rule below passed."""
+    evaluable = get_evaluable_architecture(
+        os.path.dirname(from_import_app.__file__),
+        os.path.dirname(from_import_app.__file__),
+        ("*__pycache__", "*__init__.py", "*Test.py"),
+    )
+
+    # the absolute form records the package (pre-existing behavior)
+    absolute_form_rule = (
+        Rule()
+        .modules_that()
+        .are_named("app")
+        .should_not()
+        .be_imported_by_modules_that()
+        .are_named("app.green.green")  # green does 'from app import web'
+    )
+
+    with pytest.raises(
+        AssertionError,
+        match='"app" is imported by "app.green.green".',
+    ):
+        absolute_form_rule.assert_applies(evaluable)
+
+    bare_relative_form_rule = (
+        Rule()
+        .modules_that()
+        .are_named("app")
+        .should_not()
+        .be_imported_by_modules_that()
+        .are_named("app.violet")  # violet does 'from . import helper'
+    )
+
+    with pytest.raises(
+        AssertionError,
+        match='"app" is imported by "app.violet".',
+    ):
+        bare_relative_form_rule.assert_applies(evaluable)
+
+
+def test_bare_relative_import_in_partial_scan_records_containing_package(
+    tmp_path: Path,
+) -> None:
+    """A partial scan (module_path below root_path) still names modules from the
+    root, so relative imports resolve against their real hierarchy. The level-1
+    base package is the scanned module itself and is internal; a level-2 base
+    package lies above the scan and is only kept if external modules are not
+    excluded."""
+    package = tmp_path / "pkg"
+    submodule = package / "sub"
+    submodule.mkdir(parents=True)
+    (package / "__init__.py").write_text("")
+    (package / "sibling.py").write_text("value = 1")
+    (submodule / "__init__.py").write_text("")
+    (submodule / "helper.py").write_text("value = 1")
+    (submodule / "mod.py").write_text("from . import helper\nfrom .. import sibling\n")
+
+    without_external = get_evaluable_architecture(
+        str(package), str(submodule), ("*__pycache__",)
+    )
+
+    edges = set(without_external._graph._graph.edges)  # type: ignore
+    # the level-1 base package is the scanned module, so the import is internal
+    assert ("pkg.sub.mod", "pkg.sub") in edges
+    # the level-2 base package is outside the partial scan
+    assert ("pkg.sub.mod", "pkg") not in edges
+
+    with_external = get_evaluable_architecture(
+        str(package),
+        str(submodule),
+        ("*__pycache__",),
+        exclude_external_libraries=False,
+    )
+
+    edges_with_external = set(with_external._graph._graph.edges)  # type: ignore
+    assert ("pkg.sub.mod", "pkg.sub") in edges_with_external
+    assert ("pkg.sub.mod", "pkg") in edges_with_external
+
+
 def test_import_from_package_of_attribute_does_not_create_module() -> None:
     evaluable = get_evaluable_architecture(
         os.path.dirname(from_import_app.__file__),
@@ -594,6 +678,20 @@ def test_container_root_level_relative_import_raises_explanatory_error(
     This must raise an explanatory ImportException instead of an IndexError."""
     (tmp_path / "helper.py").write_text("x = 1")
     (tmp_path / "top.py").write_text("from . import helper")
+
+    with pytest.raises(ImportException, match="relative import"):
+        get_evaluable_architecture(
+            str(tmp_path), str(tmp_path), module_naming="relative"
+        )
+
+
+def test_bare_relative_star_import_above_hierarchy_raises_explanatory_error(
+    tmp_path: Path,
+) -> None:
+    """The base package import is recorded for every bare relative form, so a
+    level above the module's hierarchy fails in the base import construction as
+    well. Star imports of this shape were silently ignored before."""
+    (tmp_path / "top.py").write_text("from .. import *")
 
     with pytest.raises(ImportException, match="relative import"):
         get_evaluable_architecture(

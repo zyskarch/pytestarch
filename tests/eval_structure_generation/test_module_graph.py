@@ -68,7 +68,7 @@ def module_graph(all_modules: list[str], imports: list[Import]) -> NetworkxGraph
 
 def test_node_edge_count_as_expected(module_graph: NetworkxGraph) -> None:
     assert module_graph.nodes_number == 35
-    assert module_graph.edges_number == 41
+    assert module_graph.edges_number == 42
 
 
 def test_expected_nodes_present(module_graph: NetworkxGraph) -> None:
@@ -166,6 +166,12 @@ def test_edges_between_importers_and_importees_as_expected(
     assert (
         "pytestarch.tests.resources.importer.level0.test_dummy",
         "pytestarch.tests.resources.importer.level0.test_dummy_3",
+    ) in module_graph
+    # 'from . import test_dummy_2, test_dummy_3' also imports the containing
+    # package itself (the current package import through the bare relative form).
+    assert (
+        "pytestarch.tests.resources.importer.level0.test_dummy",
+        "pytestarch.tests.resources.importer.level0",
     ) in module_graph
     assert (
         "pytestarch.tests.resources.importer.level0.test_dummy",
