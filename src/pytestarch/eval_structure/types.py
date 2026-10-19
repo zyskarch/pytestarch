@@ -46,9 +46,6 @@ class Import(ABC):
     def __str__(self) -> str:
         return f"{self.importer()} imports {self.importee()}"
 
-    def _append_prefix(self, value: str, prefix: str) -> str:
-        return f"{prefix}.{value}"
-
 
 def get_parent_modules(module: str) -> list[str]:
     """Calculates all parent modules of a given module.

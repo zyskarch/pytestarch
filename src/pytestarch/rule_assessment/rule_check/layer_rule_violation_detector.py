@@ -36,135 +36,7 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
         super().__init__(module_requirement, behavior_requirement)
         self._layer_to_module_mapping = layer_mapping
 
-    def _should_not_requirement_violations(
-        self,
-        explicitly_requested_dependencies_should_not_be_present: bool,
-        explicitly_requested_dependencies: (
-            ExplicitlyRequestedDependenciesByBaseModules | None
-        ),
-    ) -> set[Dependency]:
-        if (
-            explicitly_requested_dependencies is None
-            or not explicitly_requested_dependencies_should_not_be_present
-        ):
-            return set()
-
-        return self._get_realised_dependencies(explicitly_requested_dependencies)
-
-    def _should_requirement_violations(
-        self,
-        explicitly_requested_dependencies_should_be_present: bool,
-        explicitly_requested_dependencies: (
-            ExplicitlyRequestedDependenciesByBaseModules | None
-        ),
-    ) -> set[Dependency]:
-        if (
-            explicitly_requested_dependencies is None
-            or not explicitly_requested_dependencies_should_be_present
-        ):
-            return set()
-
-        return self._get_abstract_dependencies_without_any_realisations(
-            explicitly_requested_dependencies
-        )
-
-    def _should_only_requirement_violations_by_no_import(
-        self,
-        explicitly_requested_dependencies_and_no_other_should_be_present: bool,
-        explicitly_requested_dependencies: (
-            ExplicitlyRequestedDependenciesByBaseModules | None
-        ),
-    ) -> set[Dependency]:
-        if (
-            explicitly_requested_dependencies is None
-            or not explicitly_requested_dependencies_and_no_other_should_be_present
-        ):
-            return set()
-
-        return self._get_abstract_dependencies_without_any_realisations(
-            explicitly_requested_dependencies
-        )
-
-    def _should_only_requirement_violations_by_not_explicitly_requested_dependency(
-        self,
-        explicitly_requested_dependencies_and_no_other_should_be_present: bool,
-        not_explicitly_requested_dependencies: (
-            NotExplicitlyRequestedDependenciesByBaseModule | None
-        ),
-    ) -> set[Dependency]:
-        if (
-            not_explicitly_requested_dependencies is None
-            or not explicitly_requested_dependencies_and_no_other_should_be_present
-        ):
-            return set()
-
-        return self._get_realised_dependencies(not_explicitly_requested_dependencies)
-
-    def _should_except_requirement_violations(
-        self,
-        at_least_one_not_explicitly_requested_dependency_should_be_present: bool,
-        not_explicitly_requested_dependencies: (
-            NotExplicitlyRequestedDependenciesByBaseModule | None
-        ),
-    ) -> set[Dependency]:
-        if (
-            not_explicitly_requested_dependencies is None
-            or not at_least_one_not_explicitly_requested_dependency_should_be_present
-        ):
-            return set()
-
-        return self._get_any_missing_dependencies_in_user_specified_order(
-            not_explicitly_requested_dependencies
-        )
-
-    def _should_only_except_requirement_violations_due_to_no_other_imports(
-        self,
-        explicitly_requested_dependency_should_not_but_others_should_be_present: bool,
-        not_explicitly_requested_dependencies: (
-            NotExplicitlyRequestedDependenciesByBaseModule | None
-        ),
-    ) -> set[Dependency]:
-        if (
-            not_explicitly_requested_dependencies is None
-            or not explicitly_requested_dependency_should_not_but_others_should_be_present
-        ):
-            return set()
-
-        return self._get_any_missing_dependencies_in_user_specified_order(
-            not_explicitly_requested_dependencies
-        )
-
-    def _should_only_except_requirement_violations_due_to_explicit_dependency_present(
-        self,
-        explicitly_requested_dependency_should_not_but_others_should_be_present: bool,
-        explicitly_requested_dependencies: (
-            ExplicitlyRequestedDependenciesByBaseModules | None
-        ),
-    ) -> set[Dependency]:
-        if (
-            explicitly_requested_dependencies is None
-            or not explicitly_requested_dependency_should_not_but_others_should_be_present
-        ):
-            return set()
-
-        return self._get_realised_dependencies(explicitly_requested_dependencies)
-
-    def _should_not_except_requirement_violations(
-        self,
-        not_explicitly_requested_dependencies_should_not_be_present: bool,
-        not_explicitly_requested_dependencies: (
-            NotExplicitlyRequestedDependenciesByBaseModule | None
-        ),
-    ) -> set[Dependency]:
-        if (
-            not_explicitly_requested_dependencies is None
-            or not not_explicitly_requested_dependencies_should_not_be_present
-        ):
-            return set()
-
-        return self._get_realised_dependencies(not_explicitly_requested_dependencies)
-
-    def _get_abstract_dependencies_without_any_realisations(
+    def _get_abstract_dependencies_without_realisations(
         self,
         explicitly_requested_dependencies: dict[Dependency, list[Dependency]],
     ) -> set[Dependency]:
@@ -176,7 +48,7 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
             )
         )
 
-        result: set[tuple[Module, Module]] = set()  # type: ignore
+        result: set[tuple[Module, Module]] = set()
 
         for layer in self._layer_to_module_mapping.all_layers:
             explicitly_requested_dependencies_for_layer = (
@@ -202,7 +74,7 @@ class LayerRuleViolationDetector(RuleViolationBaseDetector):
             )
         return result
 
-    def _get_any_missing_dependencies_in_user_specified_order(
+    def _get_missing_dependencies_in_user_specified_order(
         self,
         not_explicitly_requested_dependencies: NotExplicitlyRequestedDependenciesByBaseModule,
     ) -> set[Dependency]:

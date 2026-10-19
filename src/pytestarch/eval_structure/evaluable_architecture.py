@@ -37,20 +37,19 @@ class LayerMapping:
         # assumption: only ModuleFilters present in the layer mapping
         return self._layer_mapping_for_module_filters[layer]  # type: ignore
 
-    def _get_layer(self, module: ModuleNameFilter) -> Layer:
-        # assumption: there is exactly one match
+    def _get_layers(self, module_name: str) -> list[Layer]:
         return [
-            self._module_filter_mapping[key]
-            for key in self._module_filter_mapping
-            if key.identifier == module.identifier
-        ][0]
-
-    def _get_layer_or_none(self, module_name: str) -> Layer | None:
-        layers = [
             self._module_filter_mapping[key]
             for key in self._module_filter_mapping
             if key.identifier == module_name
         ]
+
+    def _get_layer(self, module: ModuleNameFilter) -> Layer:
+        # assumption: there is exactly one match
+        return self._get_layers(module.identifier)[0]
+
+    def _get_layer_or_none(self, module_name: str) -> Layer | None:
+        layers = self._get_layers(module_name)
 
         if layers:
             return layers[0]

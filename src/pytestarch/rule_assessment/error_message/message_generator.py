@@ -169,6 +169,13 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
     def _create_no_import_between_original_subject_and_objects_message(
         self, rule_violations: Iterable[Dependency]
     ) -> list[RuleViolatedMessage]:
+        return self._create_no_import_messages(rule_violations)
+
+    def _create_no_import_messages(
+        self,
+        rule_violations: Iterable[Dependency],
+        rule_object_type: str = "",
+    ) -> list[RuleViolatedMessage]:
         messages: list[RuleViolatedMessage] = []
 
         (
@@ -190,7 +197,11 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
 
             rule_subject_formatted = self._get_rule_subject_formatted(rule_subject)
             self._add_combined_rule_objects(
-                messages, rule_objects, rule_subject_formatted, rule_verb
+                messages,
+                rule_objects,
+                rule_subject_formatted,
+                rule_verb,
+                rule_object_type,
             )
 
         return messages
@@ -201,9 +212,11 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
         rule_objects: list[str],
         rule_subject: str,
         rule_verb: str,
+        rule_object_type: str = "",
     ) -> None:
-        combined_rule_object = ", ".join(rule_objects)
-        if combined_rule_object:
+        if rule_objects:
+            combined_rule_object = rule_object_type + ", ".join(rule_objects)
+
             messages.append(
                 RuleViolatedMessage(rule_subject, rule_verb, combined_rule_object)
             )
@@ -294,48 +307,9 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
     def _create_no_import_other_than_between_original_subject_and_objects_message(
         self, rule_violations: Iterable[Dependency]
     ) -> list[RuleViolatedMessage]:
-        messages: list[RuleViolatedMessage] = []
-
-        (
-            rule_objects_for_rule_subject,
-            violating_rule_subjects,
-        ) = self._get_violating_rule_subjects_and_objects(rule_violations)
-
-        for rule_subject in violating_rule_subjects:
-            verb_prefix = self._get_verb_prefix(
-                negated=True, subject_singular=self._is_singular_module(rule_subject)
-            )
-            rule_verb = self._concatenate_verb(prefix=verb_prefix, verb=self._base_verb)
-
-            rule_objects = []
-            for rule_object in rule_objects_for_rule_subject[rule_subject]:
-                rule_objects.append(
-                    self._get_rule_object(rule_object),
-                )
-
-            rule_objects.sort()
-
-            rule_subject_formatted = self._get_rule_subject_formatted(rule_subject)
-            self._add_combined_any_rule_objects(
-                messages, rule_objects, rule_subject_formatted, rule_verb
-            )
-
-        return messages
-
-    def _add_combined_any_rule_objects(
-        self,
-        messages: list[RuleViolatedMessage],
-        rule_objects: list[str],
-        rule_subject: str,
-        rule_verb: str,
-        rule_object_type: str = ANY_MODULE_THAT_IS_NOT,
-    ) -> None:
-        if rule_objects:
-            combined_rule_object = rule_object_type + ", ".join(rule_objects)
-
-            messages.append(
-                RuleViolatedMessage(rule_subject, rule_verb, combined_rule_object)
-            )
+        return self._create_no_import_messages(
+            rule_violations, rule_object_type=ANY_MODULE_THAT_IS_NOT
+        )
 
     def _create_should_only_import_except_violated_messages(
         self, rule_violations: RuleViolations
@@ -385,7 +359,7 @@ class RuleViolationMessageGenerator(RuleViolationMessageBaseGenerator):
         return module.is_single_module
 
     def _get_verb_prefix(self, negated: bool, subject_singular: bool) -> str:
-        return PREFIX_MAPPING[(self._import_rule, negated, subject_singular)]  # type: ignore
+        return PREFIX_MAPPING[(self._import_rule, negated, subject_singular)]
 
     def _concatenate_verb(self, verb: str, prefix: str = "", suffix="") -> str:
         return f"{prefix}{verb}{suffix}"
@@ -466,6 +440,13 @@ class LayerRuleViolationMessageGenerator(RuleViolationMessageGenerator):
     def _create_no_import_between_original_subject_and_objects_message(
         self, rule_violations: Iterable[Dependency]
     ) -> list[RuleViolatedMessage]:
+        return self._create_no_import_layer_messages(rule_violations)
+
+    def _create_no_import_layer_messages(
+        self,
+        rule_violations: Iterable[Dependency],
+        rule_object_type: str = "",
+    ) -> list[RuleViolatedMessage]:
         messages: list[RuleViolatedMessage] = []
 
         (
@@ -493,7 +474,11 @@ class LayerRuleViolationMessageGenerator(RuleViolationMessageGenerator):
                 self._get_quoted_name(rule_subject_layer)
             )
             self._add_combined_rule_objects(
-                messages, rule_object_layers, rule_subject_layer_formatted, rule_verb
+                messages,
+                rule_object_layers,
+                rule_subject_layer_formatted,
+                rule_verb,
+                rule_object_type,
             )
 
         return messages
@@ -524,41 +509,9 @@ class LayerRuleViolationMessageGenerator(RuleViolationMessageGenerator):
     def _create_no_import_other_than_between_original_subject_and_objects_message(
         self, rule_violations: Iterable[Dependency]
     ) -> list[RuleViolatedMessage]:
-        messages: list[RuleViolatedMessage] = []
-
-        (
-            rule_object_layers_for_rule_subject,
-            violating_rule_subject_layers,
-        ) = self._get_violating_rule_subject_and_objects_layers(rule_violations)
-
-        for rule_subject_layer in violating_rule_subject_layers:
-            verb_prefix = self._get_verb_prefix(
-                negated=True,
-                subject_singular=True,  # only singular rule subjects allowed for layer rules
-            )
-            rule_verb = self._concatenate_verb(prefix=verb_prefix, verb=self._base_verb)
-
-            rule_objects = []
-            for rule_object_layer in sorted(
-                rule_object_layers_for_rule_subject[rule_subject_layer]
-            ):
-                rule_object_layer_formatted = self._prepend_prefix(
-                    self._get_quoted_name(rule_object_layer), False
-                )
-                rule_objects.append(rule_object_layer_formatted)
-
-            rule_subject_layer_formatted = self._prepend_prefix(
-                self._get_quoted_name(rule_subject_layer)
-            )
-            self._add_combined_any_rule_objects(
-                messages,
-                rule_objects,
-                rule_subject_layer_formatted,
-                rule_verb,
-                rule_object_type=ANY_LAYER_THAT_IS_NOT,
-            )
-
-        return messages
+        return self._create_no_import_layer_messages(
+            rule_violations, rule_object_type=ANY_LAYER_THAT_IS_NOT
+        )
 
     def _prepend_prefix(self, xbject: str, capital: bool = True) -> str:
         first_letter = LAYER_FIRST_LETTER_CAPITAL

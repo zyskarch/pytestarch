@@ -126,14 +126,8 @@ class Rule(
         if self._modules_to_check_to_be_specified_next is None:
             raise ImproperlyConfigured("Specify a RuleSubject or RuleObject first.")
 
-        if isinstance(module_names, str):
-            module_names = [module_names]
-
-        modules = [create_module_fn(n) for n in module_names]
-        if self._modules_to_check_to_be_specified_next:
-            self._configuration.modules_to_check = modules
-        else:
-            self._configuration.modules_to_check_against = modules
+        names = [module_names] if isinstance(module_names, str) else module_names
+        self._store_modules([create_module_fn(name) for name in names], append=False)
 
     def _add_modules(
         self, modules: Sequence[tuple[str, bool]]
@@ -155,17 +149,30 @@ class Rule(
         module_names: Sequence[str],
         create_module_fns: Sequence[Callable[[str], ModuleFilter]],
     ) -> None:
-        modules = [fn(n) for n, fn in zip(module_names, create_module_fns)]
+        self._store_modules(
+            [fn(name) for name, fn in zip(module_names, create_module_fns)],
+            append=True,
+        )
+
+    def _store_modules(self, modules: list[ModuleFilter], append: bool) -> None:
+        """Stores the given module filters in the configuration slot that is to
+        be specified next, either overwriting or extending its current value."""
         if self._modules_to_check_to_be_specified_next:
-            if self._configuration.modules_to_check is None:
-                self._configuration.modules_to_check = []
-
-            self._configuration.modules_to_check.extend(modules)  # type: ignore
+            if append and self._configuration.modules_to_check is not None:
+                self._configuration.modules_to_check = [
+                    *self._configuration.modules_to_check,
+                    *modules,
+                ]
+            else:
+                self._configuration.modules_to_check = modules
         else:
-            if self._configuration.modules_to_check_against is None:
-                self._configuration.modules_to_check_against = []
-
-            self._configuration.modules_to_check_against.extend(modules)  # type: ignore
+            if append and self._configuration.modules_to_check_against is not None:
+                self._configuration.modules_to_check_against = [
+                    *self._configuration.modules_to_check_against,
+                    *modules,
+                ]
+            else:
+                self._configuration.modules_to_check_against = modules
 
     def should(self) -> DependencySpecification:
         self._configuration.should = True

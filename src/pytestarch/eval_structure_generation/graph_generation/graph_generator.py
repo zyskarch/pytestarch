@@ -15,7 +15,6 @@ from pytestarch.eval_structure_generation.file_import.file_filter import FileFil
 from pytestarch.eval_structure_generation.file_import.import_filter import (
     ExternalImportFilter,
 )
-from pytestarch.eval_structure_generation.file_import.import_types import NamedModule
 from pytestarch.eval_structure_generation.file_import.importee_module_calculator import (
     ImporteeModuleCalculator,
 )
@@ -90,9 +89,10 @@ def generate_graph(
                 "itself is not a module, so a limit of 0 would leave no module."
             )
 
-    all_modules, ast = _get_all_ast_modules(
-        module_path, root_path, exclusions, root_module_name
-    )
+    file_filter = FileFilter(Config(exclusions))
+
+    parser = Parser(file_filter, root_path, root_module_name)
+    all_modules, ast = parser.parse(module_path)
 
     internal_module_name = _get_internal_module_name(
         path_diff_between_root_and_module, root_module_name
@@ -103,7 +103,7 @@ def generate_graph(
     # directly, without a parent closure.
     internal_modules = _get_all_internal_modules(all_modules, internal_module_name)
 
-    imports = _get_imports_from_ast(
+    imports = ImportConverter().convert(
         ast,
         _get_absolute_import_prefix(
             path_diff_between_root_and_module, root_path, module_path, root_module_name
@@ -115,12 +115,10 @@ def generate_graph(
     if external_exclusions is None:
         external_exclusions = ()
 
-    imports = _remove_excluded_imports(
-        exclude_external_libraries,
-        imports,
-        internal_modules,
-        external_exclusions,
+    import_filter = ExternalImportFilter(
+        exclude_external_libraries, internal_modules, external_exclusions
     )
+    imports = import_filter.filter(imports)
 
     all_modules = _append_external_modules_to_module_list(
         all_modules,
@@ -156,18 +154,6 @@ def _append_external_modules_to_module_list(
         return all_modules
 
     return [module for module in all_modules if not file_filter.is_excluded(module)]
-
-
-def _remove_excluded_imports(
-    exclude_external_libraries: bool,
-    imports: Sequence[Import],
-    internal_modules: set[str],
-    external_exclusions: tuple[str, ...],
-) -> Sequence[Import]:
-    import_filter = ExternalImportFilter(
-        exclude_external_libraries, internal_modules, external_exclusions
-    )
-    return import_filter.filter(imports)
 
 
 def _get_internal_module_name(
@@ -212,32 +198,6 @@ def _add_extra_levels_to_limit_if_root_and_module_path_differ(
         level_limit += levels
 
     return level_limit
-
-
-def _get_imports_from_ast(
-    ast: list[NamedModule],
-    absolute_import_prefix: str,
-    all_internal_modules: set[str],
-    root_module_name: str,
-) -> Sequence[Import]:
-    converter = ImportConverter()
-    return converter.convert(
-        ast, absolute_import_prefix, all_internal_modules, root_module_name
-    )
-
-
-def _get_all_ast_modules(
-    module_path: Path,
-    root_path: Path,
-    exclusions: tuple[str, ...],
-    root_module_name: str,
-) -> tuple[list[str], list[NamedModule]]:
-    config = Config(exclusions)
-    file_filter = FileFilter(config)
-
-    parser = Parser(file_filter, root_path, root_module_name)
-    all_modules, ast = parser.parse(module_path)
-    return all_modules, ast
 
 
 def _get_all_internal_modules(

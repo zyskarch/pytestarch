@@ -5,7 +5,6 @@ from collections import defaultdict
 from collections.abc import Sequence
 from typing import cast
 
-from pytestarch.eval_structure.breadth_first_searches import get_all_submodules_of
 from pytestarch.eval_structure.evaluable_architecture import (
     EvaluableArchitecture,
     Module,
@@ -43,7 +42,6 @@ class ModuleNameConverter:
 
         converted_module_filters = set()
         conversion_mapping = defaultdict(list)
-        matching_submodules = set()
 
         module_names_that_need_to_be_matched = list(
             map(lambda module: module.identifier, modules_that_need_converting)
@@ -61,15 +59,6 @@ class ModuleNameConverter:
                     conversion_mapping[module_to_match].append(converted_module)
 
                     never_matched.discard(module_to_match)
-
-                    submodules_of_match = get_all_submodules_of(
-                        arch._graph,  # type: ignore
-                        converted_module_filter,
-                    )
-                    submodules_of_match.remove(
-                        actually_present_module
-                    )  # should not count as its own submodule here
-                    matching_submodules.update(submodules_of_match)
 
         if never_matched:
             raise ImpossibleMatch(

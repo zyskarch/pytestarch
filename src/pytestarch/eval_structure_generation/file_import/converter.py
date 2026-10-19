@@ -105,7 +105,7 @@ class ImportConverter:
                             root_module_name,
                         ),
                     )
-                )  # type: ignore
+                )
         elif isinstance(module, ast.ImportFrom):
             if module.level == 0:
                 new_imports = [

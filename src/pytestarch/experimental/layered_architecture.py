@@ -11,12 +11,14 @@ from collections.abc import Sequence
 from typing import cast
 
 from pytestarch import EvaluableArchitecture, LayeredArchitecture, LayerRule
+from pytestarch.experimental._utils import assert_applies_with_violation_summary
 from pytestarch.query_language.base_language import (
     BaseLayeredArchitecture,
     RuleApplier,
 )
 from pytestarch.query_language.exceptions import ImproperlyConfigured
 from pytestarch.query_language.multiple_rule_applier import MultipleRuleApplier
+from pytestarch.utils.list_helpers import listify
 
 
 def layered_architecture(
@@ -93,11 +95,12 @@ class PredefinedLayeredArchitecture(MultipleRuleApplier):
         self._assert_at_least_one_layer(layers)
 
         self._modules_by_layer: dict[str, list[str]] = {
-            layer_name: self._listify(modules) for layer_name, modules in layers.items()
+            layer_name: listify(modules, dedup=True)
+            for layer_name, modules in layers.items()
         }
 
         normalized_allowed_dependencies: dict[str, list[str]] = {
-            layer_name: self._listify(allowed_layers)
+            layer_name: listify(allowed_layers, dedup=True)
             for layer_name, allowed_layers in allowed_dependencies.items()
         }
 
@@ -144,13 +147,7 @@ class PredefinedLayeredArchitecture(MultipleRuleApplier):
                 architecture is violated by the evaluable. The message is
                 prefixed with a description of the violated architecture.
         """
-        try:
-            super().assert_applies(evaluable)
-        except AssertionError as error:
-            # the aggregated violations already contain all information needed
-            # to fix the architecture, so suppress the internal traceback to
-            # avoid printing the violations twice
-            raise AssertionError(f"{self} was violated:\n{error}") from None
+        assert_applies_with_violation_summary(super().assert_applies, evaluable, self)
 
     def __str__(self) -> str:
         layers = [
@@ -261,7 +258,3 @@ class PredefinedLayeredArchitecture(MultipleRuleApplier):
             return rule.access_layers_except_layers_that().are_named(allowed_layers)
 
         return rule.access_any_layer()
-
-    @staticmethod
-    def _listify(modules: str | Sequence[str]) -> list[str]:
-        return list(dict.fromkeys([modules] if isinstance(modules, str) else modules))

@@ -947,3 +947,50 @@ def test_rule_violation_detection_as_expected(
         assert set(getattr(violations, violation_key)) == set(  # type: ignore
             test_case.expected_violating_dependencies
         )
+
+
+def _create_detector() -> LayerRuleViolationDetector:
+    return LayerRuleViolationDetector(
+        get_module_requirement(
+            **{
+                IMPORTERS: [MODULE_FILTER_1, MODULE_FILTER_2, MODULE_FILTER_3],
+                IMPORTEES: [MODULE_FILTER_4, MODULE_FILTER_5, MODULE_FILTER_6],
+            }
+        ),
+        get_behavior_requirement(**{SHOULD: True}),
+        LAYER_MAPPING,
+    )
+
+
+def test_deprecated_abstract_dependencies_hook_delegates_to_replacement() -> None:
+    detector = _create_detector()
+    dependencies = _get_explicitly_requested_dependencies([(MODULE_1, MODULE_5)])
+
+    with pytest.warns(
+        DeprecationWarning,
+        match="_get_abstract_dependencies_without_any_realisations is deprecated",
+    ):
+        legacy_result = detector._get_abstract_dependencies_without_any_realisations(
+            dependencies
+        )
+
+    assert legacy_result == detector._get_abstract_dependencies_without_realisations(
+        dependencies
+    )
+
+
+def test_deprecated_missing_dependencies_hook_delegates_to_replacement() -> None:
+    detector = _create_detector()
+    dependencies = _get_not_explicitly_requested_dependencies([(MODULE_2, MODULE_7)])
+
+    with pytest.warns(
+        DeprecationWarning,
+        match="_get_any_missing_dependencies_in_user_specified_order is deprecated",
+    ):
+        legacy_result = detector._get_any_missing_dependencies_in_user_specified_order(
+            dependencies
+        )
+
+    assert legacy_result == detector._get_missing_dependencies_in_user_specified_order(
+        dependencies
+    )

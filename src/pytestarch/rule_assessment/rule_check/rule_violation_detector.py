@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
@@ -30,6 +31,13 @@ class DependencyExpectation:
 class RuleViolationBaseDetector(ABC):
     """Base class for all classes that detect inconsistencies between the dependencies found within the evaluable
     architecture and the module and behavior requirements.
+
+    Subclasses with different dependency semantics (e.g. layer rules, where "import" means
+    "any module of the layer imports") must override the abstract template methods
+    `_get_abstract_dependencies_without_realisations` and
+    `_get_missing_dependencies_in_user_specified_order`; the shared `_should_*` hooks
+    implemented here dispatch to them. Where the inherited default module-level semantics
+    do not fit, `_get_realised_dependencies` (concrete) must be overridden as well.
     """
 
     def __init__(
@@ -92,173 +100,6 @@ class RuleViolationBaseDetector(ABC):
                 not_explicitly_requested_dependencies,
             ),
         )
-
-    @abstractmethod
-    def _should_not_requirement_violations(
-        self,
-        explicitly_requested_dependencies_should_not_be_present: bool,
-        explicitly_requested_dependencies: (
-            ExplicitlyRequestedDependenciesByBaseModules | None
-        ),
-    ) -> set[Dependency]:
-        pass
-
-    @abstractmethod
-    def _should_requirement_violations(
-        self,
-        explicitly_requested_dependencies_should_be_present: bool,
-        explicitly_requested_dependencies: (
-            ExplicitlyRequestedDependenciesByBaseModules | None
-        ),
-    ) -> set[Dependency]:
-        pass
-
-    @abstractmethod
-    def _should_only_requirement_violations_by_no_import(
-        self,
-        explicitly_requested_dependencies_and_no_other_should_be_present: bool,
-        explicitly_requested_dependencies: (
-            ExplicitlyRequestedDependenciesByBaseModules | None
-        ),
-    ) -> set[Dependency]:
-        pass
-
-    @abstractmethod
-    def _should_only_requirement_violations_by_not_explicitly_requested_dependency(
-        self,
-        explicitly_requested_dependencies_and_no_other_should_be_present: bool,
-        not_explicitly_requested_dependencies: (
-            NotExplicitlyRequestedDependenciesByBaseModule | None
-        ),
-    ) -> set[Dependency]:
-        pass
-
-    @abstractmethod
-    def _should_except_requirement_violations(
-        self,
-        at_least_one_not_explicitly_requested_dependency_should_be_present: bool,
-        not_explicitly_requested_dependencies: (
-            NotExplicitlyRequestedDependenciesByBaseModule | None
-        ),
-    ) -> set[Dependency]:
-        pass
-
-    @abstractmethod
-    def _should_only_except_requirement_violations_due_to_no_other_imports(
-        self,
-        explicitly_requested_dependency_should_not_but_others_should_be_present: bool,
-        not_explicitly_requested_dependencies: (
-            NotExplicitlyRequestedDependenciesByBaseModule | None
-        ),
-    ) -> set[Dependency]:
-        pass
-
-    @abstractmethod
-    def _should_only_except_requirement_violations_due_to_explicit_dependency_present(
-        self,
-        explicitly_requested_dependency_should_not_but_others_should_be_present: bool,
-        explicitly_requested_dependencies: (
-            ExplicitlyRequestedDependenciesByBaseModules | None
-        ),
-    ) -> set[Dependency]:
-        pass
-
-    @abstractmethod
-    def _should_not_except_requirement_violations(
-        self,
-        not_explicitly_requested_dependencies_should_not_be_present: bool,
-        not_explicitly_requested_dependencies: (
-            NotExplicitlyRequestedDependenciesByBaseModule | None
-        ),
-    ) -> set[Dependency]:
-        pass
-
-    def _get_realised_dependencies(
-        self, explicitly_requested_dependencies: dict[Any, list[Dependency]]
-    ) -> set[Dependency]:
-        violating_dependencies = explicitly_requested_dependencies.values()
-
-        violating_dependencies_in_user_specified_rule_subject_object_order = set()
-        for dependencies in violating_dependencies:
-            for dependency in dependencies:
-                dependency_in_user_specified_order = (
-                    self._get_rule_subject_and_object_in_user_specified_order(
-                        dependency
-                    )
-                )
-
-                violating_dependencies_in_user_specified_rule_subject_object_order.add(
-                    dependency_in_user_specified_order
-                )
-
-        return violating_dependencies_in_user_specified_rule_subject_object_order
-
-    def _get_rule_subject_and_object_in_user_specified_order(
-        self, dependency: Dependency
-    ) -> Dependency:
-        if self._module_requirement.rule_specified_with_importer_as_rule_subject:
-            return dependency
-
-        return dependency[1], dependency[0]
-
-    def _get_dependency_expectations(self) -> DependencyExpectation:
-        return DependencyExpectation(
-            not_explicitly_requested_dependencies_should_not_be_present=(
-                self._behavior_requirement.should_not
-                and self._behavior_requirement.behavior_exception
-            ),
-            explicitly_requested_dependencies_should_not_be_present=(
-                self._behavior_requirement.should_not
-                and not self._behavior_requirement.behavior_exception
-            ),
-            explicitly_requested_dependencies_and_no_other_should_be_present=(
-                self._behavior_requirement.should_only
-                and not self._behavior_requirement.behavior_exception
-            ),
-            explicitly_requested_dependencies_should_not_but_others_should_be_present=(
-                self._behavior_requirement.should_only
-                and self._behavior_requirement.behavior_exception
-            ),
-            at_least_one_not_explicitly_requested_dependency_should_be_present=(
-                self._behavior_requirement.should
-                and self._behavior_requirement.behavior_exception
-            ),
-            explicitly_requested_dependencies_should_be_present=(
-                self._behavior_requirement.should
-                and not self._behavior_requirement.behavior_exception
-            ),
-        )
-
-    def _get_importee_modules_as_specified_by_user(self):
-        return [
-            filter_to_module(filter)
-            for filter in self._module_requirement.importees_as_specified_by_user
-        ]
-
-
-class RuleViolationDetector(RuleViolationBaseDetector):
-    """Based on the behavior requirement and the dependencies that have actually been (not) found in the graph,
-    this class decides whether any of the requirements have been violated and how.
-
-    ExplicitlyRequestedDependenciesByBaseModules follow this structure:
-
-    ```
-    {(requested dependency, e.g. from A to B): [list of dependencies found that qualifiy as the requested dependency, e.g. A.a1 imports B, A.a2 imports B]}
-    ```
-
-    NotExplicitlyRequestedDependenciesByBaseModule on the other hand are structured like this:
-
-    ```
-    {Module for which not explicitly requested dependencies (either from or to this module) were found: [list of such dependencies]}
-    ```
-
-    The output is a rule violation object which for each type of rule contains a list of (rule subject, rule object) modules which violate the rule. These are ordered according
-    to the order the user used when specifying the rule, i.e. the rule subject is the original rule subject no matter if the rule is an import
-    or be imported rule.
-
-    If multiple rule subjects have been specified, the rule needs to apply to each one of them in order not
-    to count as being violated.
-    """
 
     def _should_not_requirement_violations(
         self,
@@ -387,6 +228,137 @@ class RuleViolationDetector(RuleViolationBaseDetector):
             return set()
 
         return self._get_realised_dependencies(not_explicitly_requested_dependencies)
+
+    def _get_realised_dependencies(
+        self, explicitly_requested_dependencies: dict[Any, list[Dependency]]
+    ) -> set[Dependency]:
+        violating_dependencies = explicitly_requested_dependencies.values()
+
+        violating_dependencies_in_user_specified_rule_subject_object_order = set()
+        for dependencies in violating_dependencies:
+            for dependency in dependencies:
+                dependency_in_user_specified_order = (
+                    self._get_rule_subject_and_object_in_user_specified_order(
+                        dependency
+                    )
+                )
+
+                violating_dependencies_in_user_specified_rule_subject_object_order.add(
+                    dependency_in_user_specified_order
+                )
+
+        return violating_dependencies_in_user_specified_rule_subject_object_order
+
+    @abstractmethod
+    def _get_abstract_dependencies_without_realisations(
+        self, explicitly_requested_dependencies: dict[Any, list[Dependency]]
+    ) -> set[Dependency]:
+        pass
+
+    @abstractmethod
+    def _get_missing_dependencies_in_user_specified_order(
+        self,
+        not_explicitly_requested_dependencies: NotExplicitlyRequestedDependenciesByBaseModule,
+    ) -> set[Dependency]:
+        pass
+
+    def _get_abstract_dependencies_without_any_realisations(
+        self, explicitly_requested_dependencies: dict[Any, list[Dependency]]
+    ) -> set[Dependency]:
+        """Deprecated alias for `_get_abstract_dependencies_without_realisations`."""
+        warnings.warn(
+            "_get_abstract_dependencies_without_any_realisations is deprecated and "
+            "will be removed in upcoming releases. Use "
+            "_get_abstract_dependencies_without_realisations instead.",
+            category=DeprecationWarning,
+            stacklevel=2,
+        )
+        return self._get_abstract_dependencies_without_realisations(
+            explicitly_requested_dependencies
+        )
+
+    def _get_any_missing_dependencies_in_user_specified_order(
+        self,
+        not_explicitly_requested_dependencies: NotExplicitlyRequestedDependenciesByBaseModule,
+    ) -> set[Dependency]:
+        """Deprecated alias for `_get_missing_dependencies_in_user_specified_order`."""
+        warnings.warn(
+            "_get_any_missing_dependencies_in_user_specified_order is deprecated and "
+            "will be removed in upcoming releases. Use "
+            "_get_missing_dependencies_in_user_specified_order instead.",
+            category=DeprecationWarning,
+            stacklevel=2,
+        )
+        return self._get_missing_dependencies_in_user_specified_order(
+            not_explicitly_requested_dependencies
+        )
+
+    def _get_rule_subject_and_object_in_user_specified_order(
+        self, dependency: Dependency
+    ) -> Dependency:
+        if self._module_requirement.rule_specified_with_importer_as_rule_subject:
+            return dependency
+
+        return dependency[1], dependency[0]
+
+    def _get_dependency_expectations(self) -> DependencyExpectation:
+        return DependencyExpectation(
+            not_explicitly_requested_dependencies_should_not_be_present=(
+                self._behavior_requirement.should_not
+                and self._behavior_requirement.behavior_exception
+            ),
+            explicitly_requested_dependencies_should_not_be_present=(
+                self._behavior_requirement.should_not
+                and not self._behavior_requirement.behavior_exception
+            ),
+            explicitly_requested_dependencies_and_no_other_should_be_present=(
+                self._behavior_requirement.should_only
+                and not self._behavior_requirement.behavior_exception
+            ),
+            explicitly_requested_dependencies_should_not_but_others_should_be_present=(
+                self._behavior_requirement.should_only
+                and self._behavior_requirement.behavior_exception
+            ),
+            at_least_one_not_explicitly_requested_dependency_should_be_present=(
+                self._behavior_requirement.should
+                and self._behavior_requirement.behavior_exception
+            ),
+            explicitly_requested_dependencies_should_be_present=(
+                self._behavior_requirement.should
+                and not self._behavior_requirement.behavior_exception
+            ),
+        )
+
+    def _get_importee_modules_as_specified_by_user(self):
+        return [
+            filter_to_module(filter)
+            for filter in self._module_requirement.importees_as_specified_by_user
+        ]
+
+
+class RuleViolationDetector(RuleViolationBaseDetector):
+    """Based on the behavior requirement and the dependencies that have actually been (not) found in the graph,
+    this class decides whether any of the requirements have been violated and how.
+
+    ExplicitlyRequestedDependenciesByBaseModules follow this structure:
+
+    ```
+    {(requested dependency, e.g. from A to B): [list of dependencies found that qualifiy as the requested dependency, e.g. A.a1 imports B, A.a2 imports B]}
+    ```
+
+    NotExplicitlyRequestedDependenciesByBaseModule on the other hand are structured like this:
+
+    ```
+    {Module for which not explicitly requested dependencies (either from or to this module) were found: [list of such dependencies]}
+    ```
+
+    The output is a rule violation object which for each type of rule contains a list of (rule subject, rule object) modules which violate the rule. These are ordered according
+    to the order the user used when specifying the rule, i.e. the rule subject is the original rule subject no matter if the rule is an import
+    or be imported rule.
+
+    If multiple rule subjects have been specified, the rule needs to apply to each one of them in order not
+    to count as being violated.
+    """
 
     def _get_abstract_dependencies_without_realisations(
         self, explicitly_requested_dependencies: dict[Any, list[Dependency]]

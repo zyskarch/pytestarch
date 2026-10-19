@@ -10,12 +10,14 @@ from collections.abc import Sequence
 from typing import cast
 
 from pytestarch import EvaluableArchitecture, LayeredArchitecture, LayerRule
+from pytestarch.experimental._utils import assert_applies_with_violation_summary
 from pytestarch.query_language.base_language import (
     BaseLayeredArchitecture,
     RuleApplier,
 )
 from pytestarch.query_language.exceptions import ImproperlyConfigured
 from pytestarch.query_language.multiple_rule_applier import MultipleRuleApplier
+from pytestarch.utils.list_helpers import listify
 
 DOMAIN_MODEL_LAYER = "domain model"
 DOMAIN_SERVICE_LAYER = "domain service"
@@ -219,13 +221,9 @@ class OnionArchitecture:
             # an adapter may not be accessed by any layer
             rules.append(self._accessibility_rule(arch, adapter_layer_name, []))
 
-        try:
-            MultipleRuleApplier(rules).assert_applies(evaluable)
-        except AssertionError as error:
-            # the aggregated violations already contain all information needed
-            # to fix the architecture, so suppress the internal traceback to
-            # avoid printing the violations twice
-            raise AssertionError(f"{self} was violated:\n{error}") from None
+        assert_applies_with_violation_summary(
+            MultipleRuleApplier(rules).assert_applies, evaluable, self
+        )
 
     def __str__(self) -> str:
         components = [
@@ -315,10 +313,6 @@ class OnionArchitecture:
 
         return rule.be_accessed_by_any_layer()
 
-    @staticmethod
-    def _listify(modules: str | Sequence[str]) -> list[str]:
-        return [modules] if isinstance(modules, str) else list(modules)
-
     def _validated_modules(
         self, component: str, modules: str | Sequence[str]
     ) -> list[str]:
@@ -340,7 +334,7 @@ class OnionArchitecture:
             ImproperlyConfigured: if no modules are given or a module is
                 already assigned to a component of this architecture.
         """
-        modules = self._listify(modules)
+        modules = listify(modules)
 
         if not modules:
             raise ImproperlyConfigured(
