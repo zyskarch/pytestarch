@@ -10,7 +10,10 @@ ALL_MARKER = "*"
 
 
 class FileFilter:
-    """Uses a regex pattern to determine whether a file or directory should be excluded."""
+    """Uses a regex pattern to determine whether a file or directory should be excluded.
+
+    Paths are matched in forward-slash form, so patterns work on all platforms.
+    """
 
     def __init__(self, config: Config) -> None:
         self._excluded_directories = [
@@ -25,7 +28,7 @@ class FileFilter:
 
     @is_excluded.register(Path)
     def _(self, obj: Path) -> bool:
-        path_as_str = str(obj)
+        path_as_str = obj.as_posix()
 
         return self.is_excluded(path_as_str)
 

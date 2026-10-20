@@ -106,10 +106,11 @@ class NetworkxGraph(AbstractGraph):
         Args:
             node: to add to the graph
         """
-        node = self._flatten_graph_node(node)
+        if self._level_limit is not None:
+            node = self._flatten_graph_node(node)
 
-        if node not in self._graph:
-            self._graph.add_node(node)
+        # add_node is idempotent, so no membership test is needed.
+        self._graph.add_node(node)
 
     def _create_edge(
         self, node_start: Node, node_end: Node, inherits: bool = False
@@ -121,8 +122,9 @@ class NetworkxGraph(AbstractGraph):
             node_end: node the edge points towards
             inherits: if True, edge will be marked as belonging to two nodes that are connected in a parent-child-relationship
         """
-        node_start = self._flatten_graph_node(node_start)
-        node_end = self._flatten_graph_node(node_end)
+        if self._level_limit is not None:
+            node_start = self._flatten_graph_node(node_start)
+            node_end = self._flatten_graph_node(node_end)
 
         if node_start == node_end:
             return

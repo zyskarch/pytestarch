@@ -15,6 +15,9 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 - A bare relative `*` import whose level exceeds the importer's module hierarchy (e.g. `from .. import *` in a module without parent packages) now raises an explanatory `ImportException` instead of being silently ignored: the base package import is recorded for every relative form, and an unresolvable one fails loudly.
 - In partial scans (a `module_path` below `root_path`) with `exclude_external_libraries=False`, internal modules outside the scanned `module_path` are no longer added as nodes.
 - Overlapping layer definitions — a module of one layer being a parent or submodule of another layer's module — are now rejected with an `ImproperlyConfigured` error at definition time, instead of a `LayerMismatch` only when rules are applied.
+- Symlinked directories are named by the path used to reach them, matching Python import semantics. Imports through a link resolve to the link name, and both link and target names are present when both paths exist. Directory listings and parsed ASTs are cached by resolved path, so aliases do not re-read or re-parse the tree; symlink cycles terminate.
+- Less path resolution during graph construction: only the scan start and symlink entries are resolved, and directory listings and ASTs are reused across aliases.
+- Less redundant graph construction work: nodes and edges are flattened only when a `level_limit` is set, and `add_node` is called without a preceding membership test.
 
 ### Fixed
 - Canonical URLs point to the correct versioned page instead of `/latest/<version>/`.

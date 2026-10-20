@@ -68,3 +68,12 @@ def test_exclude_files_in_directory(exclusions: tuple[str, ...]) -> None:
     filtered_files = [file for file in files if not filter.is_excluded(Path(file))]
 
     assert filtered_files == [expected_file]
+
+
+def test_path_exclusions_match_forward_slash_patterns() -> None:
+    """Exclusion patterns are matched against paths in forward-slash form, so
+    'src/skipdir'-style patterns work on Windows as well."""
+    filter = FileFilter(Config(("src/skipdir",)))
+
+    assert filter.is_excluded(Path("src") / "skipdir" / "skipped.py")
+    assert not filter.is_excluded(Path("src") / "keepdir" / "kept.py")

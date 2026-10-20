@@ -22,6 +22,7 @@ from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.networkxgraph import NetworkxGraph
 from pytestarch.eval_structure_generation.file_import.exceptions import ImportException
 from pytestarch.eval_structure_generation.file_import.import_types import AbsoluteImport
+from pytestarch.query_language.exceptions import ImproperlyConfigured
 from resources import nested_root_module_mismatch_project, root_module_mismatch_project
 from resources.from_import_project import app as from_import_app
 from resources.nested_root_module_mismatch_project.dir1.dir2 import nested_app
@@ -831,3 +832,51 @@ def test_container_root_sibling_package_import_is_external_by_default(
     assert "package2" in set(arch_with_external.modules)
     actual_edges_with_external = set(arch_with_external._graph._graph.edges)  # type: ignore
     assert ("src.package1.module1", "package2") in actual_edges_with_external
+
+
+def test_nonexistent_module_path_raises_instead_of_empty_graph(tmp_path: Path) -> None:
+    """A module_path that does not exist raises at the public API instead of
+    silently building an empty graph, in which every rule passes vacuously."""
+    root = tmp_path / "root"
+    root.mkdir()
+    (root / "app.py").write_text("x = 1")
+
+    with pytest.raises(
+        ImproperlyConfigured, match=f"module_path does not exist: .*{tmp_path.name}"
+    ):
+        get_evaluable_architecture(str(root), str(root / "missing"))
+
+
+def test_nonexistent_root_path_raises(tmp_path: Path) -> None:
+    module = tmp_path / "module"
+    module.mkdir()
+    (module / "app.py").write_text("x = 1")
+
+    with pytest.raises(ImproperlyConfigured, match="root_path does not exist"):
+        get_evaluable_architecture(str(tmp_path / "missing"), str(module))
+
+
+def test_top_level_dangling_symlink_path_raises(tmp_path: Path) -> None:
+    """A top-level dangling symlink counts as nonexistent: Path.exists() follows
+    symlinks, so the link itself fails the existence check."""
+    root = tmp_path / "root"
+    root.mkdir()
+    dangling = tmp_path / "dangling"
+    try:
+        dangling.symlink_to(tmp_path / "nowhere")
+    except (NotImplementedError, OSError):
+        pytest.skip("symlinks are not supported on this platform")
+
+    with pytest.raises(ImproperlyConfigured, match="module_path does not exist"):
+        get_evaluable_architecture(str(root), str(dangling))
+
+
+def test_existing_paths_still_build_graph(tmp_path: Path) -> None:
+    """Existing root and module paths are unaffected by the existence check."""
+    root = tmp_path / "root"
+    root.mkdir()
+    (root / "app.py").write_text("x = 1")
+
+    arch = get_evaluable_architecture(str(root), str(root))
+
+    assert set(arch.modules) == {"root", "root.app"}

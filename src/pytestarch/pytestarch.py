@@ -44,7 +44,7 @@ def get_evaluable_architecture(
             modules one level below the module path to be added as nodes. Note that this only applies to the final graph;
             all modules will be parsed, the graph will simply be flattened: if a submodule of X imports Y, this import is
             then assigned to X instead, if Y is above the level limit.
-        regex_exclusions: Proper regex version of 'exclusions'. Can only be specified if exclusions is not specified.
+        regex_exclusions: Proper regex version of 'exclusions'. Can only be specified if exclusions is not specified. Path separators in patterns are forward slashes, independent of the operating system.
         regex_external_exclusions: Proper regex version of 'external_exclusions' to exclude certain external dependencies from being integrated into the evaluable. Can only be specified if exclude_external_libraries is False and external_exclusions is not specified. If a parent module (e.g. 'logging') is excluded, so will be child modules (e.g. 'logging.handlers').
     """
     if regex_exclusions and exclusions:
@@ -76,6 +76,12 @@ def get_evaluable_architecture(
 
     root_as_path = Path(root_path)
     module_as_path = Path(module_path)
+
+    if not root_as_path.exists():
+        raise ImproperlyConfigured(f"root_path does not exist: {root_as_path}")
+
+    if not module_as_path.exists():
+        raise ImproperlyConfigured(f"module_path does not exist: {module_as_path}")
 
     path_diff_between_root_and_module = str(
         module_as_path.relative_to(root_as_path)
