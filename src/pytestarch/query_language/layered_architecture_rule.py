@@ -48,11 +48,11 @@ class LayeredArchitecture(BaseLayeredArchitecture, LayerName, LayerDefinition):
     def layer_mapping(self) -> LayerMapping:
         return LayerMapping(self._modules_by_layer_name)
 
-    def with_layer(self) -> LayerName:
+    def with_layer(self) -> LayeredArchitecture:
         """This is simply a convenience method to achieve proper typing. It can be omitted."""
         return self
 
-    def layer(self, name: str) -> LayerDefinition:
+    def layer(self, name: str) -> LayeredArchitecture:
         underspecified_layers = self._get_layers_without_modules()
 
         if underspecified_layers:
@@ -129,7 +129,7 @@ class LayeredArchitecture(BaseLayeredArchitecture, LayerName, LayerDefinition):
     def have_modules_with_names_matching(
         self,
         regex: str,
-    ) -> BaseLayeredArchitecture:
+    ) -> LayeredArchitecture:
         pending_layer = self._get_pending_layer_name()
 
         self._modules_by_layer_name[pending_layer] = self._from_regex_to_module_objects(
@@ -155,7 +155,7 @@ class LayeredArchitecture(BaseLayeredArchitecture, LayerName, LayerDefinition):
         return [ModuleNameRegexFilter(name=regex)]
 
 
-class LayerRule(
+class LayerRule(  # pyrefly: ignore[invalid-inheritance]
     RuleApplier,
     LayerRuleBase[LayeredArchitecture],
     LayerRuleSubject,
@@ -199,18 +199,18 @@ class LayerRule(
 
         return self
 
-    def are_named(self, layers: str | list[str]) -> LayerBehaviorSpecification:
+    def are_named(self, names: str | list[str]) -> LayerRule:
         if self._rule is None:
             raise ImproperlyConfigured(
                 "Please start with 'layers_that' to ensure the rule is properly set up."
             )
 
-        if not self._rule.rule_subjects and isinstance(layers, list):
+        if not self._rule.rule_subjects and isinstance(names, list):
             raise ImproperlyConfigured(
                 "Layer rule subjects cannot be specified in batch."
             )
 
-        layers = listify(layers)
+        layers = listify(names)
         modules = self._get_all_modules_in_layers(layers)
 
         self._rule = self._rule._add_modules(modules)  # type: ignore[assignment]

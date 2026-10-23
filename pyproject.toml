@@ -41,7 +41,9 @@ dev = [
     "mike",
     "nox==2026.8.17",
     "pre-commit==4.6.2",
+    "pyrefly>=1.4.0,<2",
     "pytest>=9.1.1,<10",
+    "types-networkx>=3.6.1,<4",
     "coverage>=7.16.1,<8",
     "ruff>=0.16.8,<0.17",
 ]
@@ -85,3 +87,8 @@ ignore = [
 
 [tool.ruff.lint.isort]
 known-first-party = ["integration", "resources", "query_language"]
+
+[tool.pyrefly]
+project-includes = ["src", "tests", "noxfile.py"]
+project-excludes = ["tests/resources"]
+search-path = ["src", "tests"]

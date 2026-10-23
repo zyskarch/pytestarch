@@ -8,7 +8,7 @@ and on which requirements need to be fulfilled for a PR to be ready for approval
 Run `uv sync` to create a virtual environment with the required dependencies. Add the optional visualization
 dependencies with `uv sync --extra visualization`.
 
-There are also git hooks for ruff and mypy available via `pre-commit install`.
+There are also git hooks for ruff and pyrefly available via `pre-commit install`.
 
 ## Running the test suite
 To make sure that everything works as expected, run `nox`.

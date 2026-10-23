@@ -16,7 +16,7 @@ class NamedModule:
         name: module name
     """
 
-    module: ast.Module
+    module: ast.AST
     name: str
 
 

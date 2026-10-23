@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 from collections.abc import Callable, Sequence
+from typing import cast
 
 from pytestarch.eval_structure.types import Import
 from pytestarch.eval_structure_generation.file_import.import_types import (
@@ -48,7 +49,7 @@ class ImportConverter:
 
             if child_nodes:
                 module_to_search.extend(
-                    [NamedModule(m, module_name) for m in child_nodes]  # type: ignore
+                    [NamedModule(m, module_name) for m in child_nodes]
                 )
             else:
                 new_imports = self._convert(
@@ -65,7 +66,7 @@ class ImportConverter:
 
     def _convert(
         self,
-        module: ast.Module,
+        module: ast.AST,
         module_name: str,
         absolute_import_prefix: str,
         all_internal_modules: set[str],
@@ -100,7 +101,7 @@ class ImportConverter:
                     AbsoluteImport(
                         module_name,
                         self._adjust_with_root_prefix(
-                            module.module,  # type: ignore
+                            cast(str, module.module),
                             absolute_import_prefix,
                             all_internal_modules,
                         ),

@@ -9,7 +9,15 @@ repos:
             args: [--fix]
           - id: ruff-format
 
-    - repo: https://github.com/pre-commit/mirrors-mypy
-      rev: v2.4.0
+    - repo: https://github.com/facebook/pyrefly-pre-commit
+      rev: 1.4.0
       hooks:
-          - id: mypy
+          - id: pyrefly-check
+            name: Pyrefly (type checking)
+            pass_filenames: false
+            additional_dependencies:
+                - networkx>=3.6
+                - types-networkx>=3.6.1,<4
+                - pytest>=9.1.1,<10
+                - matplotlib>=3.11
+                - nox==2026.8.17

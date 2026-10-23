@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 from pytestarch.diagram_extension.dependency_to_rule_converter import (
     DependencyToRuleConverter,
@@ -75,7 +76,9 @@ class DiagramRule(FileRule, BaseModuleSpecifier, RuleApplier):
 
     def assert_applies(self, evaluable: EvaluableArchitecture) -> None:
         self._assert_required_configuration_present()
-        dependencies: ParsedDependencies = PumlParser().parse(self._file_path)  # type: ignore
+        dependencies: ParsedDependencies = PumlParser().parse(
+            cast(Path, self._file_path)
+        )
         dependencies_with_fully_qualified_names = self._add_base_module_path(
             dependencies
         )

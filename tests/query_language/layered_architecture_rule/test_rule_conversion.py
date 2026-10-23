@@ -24,7 +24,7 @@ LAYER_3 = "L3"
 
 arch: LayeredArchitecture = (
     LayeredArchitecture()
-    .layer(LAYER_1)  # type: ignore
+    .layer(LAYER_1)
     .containing_modules([MODULE_1, MODULE_2])
     .layer(LAYER_2)
     .containing_modules([MODULE_3, MODULE_4])

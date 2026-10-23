@@ -204,19 +204,17 @@ class NetworkxGraph(AbstractGraph):
         self._assert_node_exists(node)
         return sorted(self._graph.successors(node))
 
-    def parent_child_relationship(
-        self, supposed_parent_node: Node, supposed_child_node: Node
-    ) -> bool:
+    def parent_child_relationship(self, parent: Node, child: Node) -> bool:
         """Returns True if the given nodes are marked as a parent-child hierarchy.
 
         Args:
-            supposed_parent_node:
-            supposed_child_node:
+            parent: supposed parent node
+            child: supposed child node
 
         Returns:
             True if supposed parent is actually parent of supposed child node
         """
-        edge_data = self._graph.get_edge_data(supposed_parent_node, supposed_child_node)
+        edge_data = self._graph.get_edge_data(parent, child)
 
         return edge_data["inherits"]
 

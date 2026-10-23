@@ -172,7 +172,7 @@ class DefaultRuleMatcher(RuleMatcher):
     """To be used for rules that operate on modules, such as "module X should not import module Y."""
 
     def _get_rule_violation_detector(
-        self, _: dict[str, list[Module]]
+        self, module_name_conversion_mapping: dict[str, list[Module]]
     ) -> RuleViolationBaseDetector:
         return RuleViolationDetector(
             self._updated_module_requirement, self._behavior_requirement
@@ -246,7 +246,7 @@ class LayerRuleMatcher(RuleMatcher):
     ) -> list[Module]:
         modules_potentially_with_regexes = layer_mapping.get_module_filters(layer)
 
-        result = []
+        result: list[Module] = []
         for module in modules_potentially_with_regexes:
             if not module.identifier_is_regex:
                 result.append(

@@ -8,6 +8,7 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 
 ### Changed
 - Dependency and packaging management moved from Poetry to [uv](https://docs.astral.sh/uv/): `pyproject.toml` now uses a `hatchling` build backend and PEP 735 dependency groups.
+- Replaced mypy with [pyrefly](https://pyrefly.org/) for static type checking: pyrefly runs as a pre-commit hook.
 - Added a root `index.html` that redirects to the latest docs (`https://zyskarch.github.io/pytestarch/` → `https://zyskarch.github.io/pytestarch/latest/`).
 - `from <package> import <module>` is now recognized as an import of `<package>.<module>`, so rules using `are_named` match it ([#145](https://github.com/zyskarch/pytestarch/issues/145)).
 - `from .<package> import <module>` is now recognized as an import of `<package>.<module>` as well ([#145](https://github.com/zyskarch/pytestarch/issues/145)).
@@ -27,6 +28,7 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 - Root and module paths keep the path form the caller passed: anchored (regex) exclusions match again — for the first time also for files — and symlinked roots and module paths keep their link names, so a symlinked `module_path` outside the root builds the graph again instead of crashing.
 - Exclusion patterns are matched against forward-slash paths on all platforms, so `src/skipdir`-style patterns work on Windows as well.
 - `get_evaluable_architecture` raises a clear error when `root_path` or `module_path` does not exist (dangling symlinks included), instead of silently returning an empty graph in which every rule passes vacuously.
+- `get_evaluable_architecture_for_module_objects` raises a clear error when the root or module object has no source file (e.g. namespace or builtin modules), instead of crashing with a `TypeError`.
 - Passing `.` as the root keeps the historical quirk of an empty module name prefix (module names such as `.pkg.m`); pass an explicit path for clean names.
 - Imports inside `else`, `elif`, `except`, `finally` and `match`/`case` blocks are now recognized. Rules that only passed because these imports were missed can now be violated.
 - An importee that starts with the root module name but is not a submodule of it (e.g. `appdirs` for a root module `app`) is no longer misclassified as internal.

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
+from typing import cast
 
 from pytestarch.eval_structure.evaluable_architecture import (
     EvaluableArchitecture,
@@ -45,7 +46,7 @@ class RuleConfiguration:
     rule_object_anything: bool = False
 
 
-class Rule(
+class Rule(  # pyrefly: ignore[invalid-inheritance]
     DependencySpecification,
     RuleBase,
     BehaviorSpecification,
@@ -226,10 +227,11 @@ class Rule(
         matcher.match(evaluable)
 
     def _prepare_rule_matcher(self) -> RuleMatcher:
+        config = self._configuration
         module_requirement = ModuleRequirement(
-            self._configuration.modules_to_check,  # type: ignore
-            self._configuration.modules_to_check_against,  # type: ignore
-            self._configuration.import_,  # type: ignore
+            cast(Sequence[ModuleFilter], config.modules_to_check),
+            cast(Sequence[ModuleFilter], config.modules_to_check_against),
+            cast(bool, config.import_),
         )
         behavior_requirement = BehaviorRequirement(
             self._configuration.should,
@@ -242,25 +244,25 @@ class Rule(
 
     def __str__(self) -> str:
         self._assert_required_configuration_present()
+        modules_to_check = cast(
+            Sequence[ModuleFilter], self._configuration.modules_to_check
+        )
+        modules_to_check_against = cast(
+            Sequence[ModuleFilter], self._configuration.modules_to_check_against
+        )
 
         method_name = f"{'should' if self._configuration.should else 'should only' if self._configuration.should_only else 'should not'}"
 
         subject_prefix = (
-            "Sub modules of "
-            if self._configuration.modules_to_check[0].identifier_is_parent_module  # type: ignore
-            else ""
+            "Sub modules of " if modules_to_check[0].identifier_is_parent_module else ""
         )
         if self._configuration.rule_object_anything:
             object_message = "anything "
         else:
-            object_message = f"modules that are {'sub modules of' if self._configuration.modules_to_check_against[0].identifier_is_parent_module else 'named'} "  # type: ignore
+            object_message = f"modules that are {'sub modules of' if modules_to_check_against[0].identifier_is_parent_module else 'named'} "
 
-        combined_rule_subjects = self._combine_names(
-            self._configuration.modules_to_check  # type: ignore
-        )
-        combined_rule_objects = self._combine_names(
-            self._configuration.modules_to_check_against  # type: ignore
-        )
+        combined_rule_subjects = self._combine_names(modules_to_check)
+        combined_rule_objects = self._combine_names(modules_to_check_against)
         return (
             f'{subject_prefix}"{combined_rule_subjects}" '
             f"{method_name} "

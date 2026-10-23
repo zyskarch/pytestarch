@@ -111,8 +111,18 @@ def get_evaluable_architecture_for_module_objects(
     """Same functionality as get_evaluable_architecture, but root module and module to evaluate are passed in as module objects
     instead of the absolute paths to them.
     """
-    root_path: str = os.path.dirname(root_module.__file__)  # type: ignore
-    module_path: str = os.path.dirname(module.__file__)  # type: ignore
+    root_file = root_module.__file__
+    if root_file is None:
+        raise ImproperlyConfigured(
+            f"root module {root_module.__name__} does not have a source file"
+        )
+    module_file = module.__file__
+    if module_file is None:
+        raise ImproperlyConfigured(
+            f"module {module.__name__} does not have a source file"
+        )
+    root_path: str = os.path.dirname(root_file)
+    module_path: str = os.path.dirname(module_file)
 
     return get_evaluable_architecture(
         root_path,
