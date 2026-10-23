@@ -6,6 +6,7 @@ from pytestarch.eval_structure_generation.file_import.import_filter import (
     ExternalImportFilter,
 )
 from pytestarch.eval_structure_generation.file_import.import_types import AbsoluteImport
+from pytestarch.pytestarch import get_evaluable_architecture
 
 ROOT_PATH = Path("A.B")
 
@@ -72,3 +73,56 @@ def test_import_filter_removes_external_imports_matching_exclusion_pattern() -> 
 
     assert len(filtered_imports) == 1
     assert filtered_imports[0].importee() == "A.B.C"
+
+
+def test_get_evaluable_architecture_with_none_regex_exclusions_excludes_nothing(
+    tmp_path: Path,
+) -> None:
+    """regex_exclusions=None (the public signature default) behaves as no
+    exclusions at all."""
+    root = tmp_path / "root"
+    module = root / "main"
+    module.mkdir(parents=True)
+    (module / "keep.py").write_text("")
+    (module / "skip_me.py").write_text("")
+
+    evaluable = get_evaluable_architecture(
+        str(root),
+        str(module),
+        exclusions=(),
+        # regex_exclusions left as its None default
+    )
+    assert set(evaluable.modules) == {
+        "root",
+        "root.main",
+        "root.main.keep",
+        "root.main.skip_me",
+    }
+
+    explicitly_excluded = get_evaluable_architecture(
+        str(root),
+        str(module),
+        exclusions=("*skip_me*",),
+    )
+    assert "root.main.skip_me" not in explicitly_excluded.modules
+
+
+def test_get_evaluable_architecture_with_none_external_exclusions_keeps_externals(
+    tmp_path: Path,
+) -> None:
+    """external_exclusions and regex_external_exclusions default to None, which
+    must behave as no external exclusions."""
+    root = tmp_path / "root"
+    module = root / "main"
+    module.mkdir(parents=True)
+    (module / "app.py").write_text("import os\n")
+
+    evaluable = get_evaluable_architecture(
+        str(root),
+        str(module),
+        exclusions=(),
+        exclude_external_libraries=False,
+        # external_exclusions and regex_external_exclusions left as their None defaults
+    )
+
+    assert "os" in evaluable.modules

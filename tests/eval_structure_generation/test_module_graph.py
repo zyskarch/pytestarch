@@ -194,3 +194,21 @@ def test_edges_between_importers_and_importees_as_expected(
         "pytestarch.tests.resources.importer.level0.test_dummy",
         "pytest",
     ) in module_graph
+
+
+def test_malformed_edge_contains_raises_type_error(
+    module_graph: NetworkxGraph,
+) -> None:
+    """Membership tests with tuples that are not a pair of two strings are
+    rejected instead of being silently looked up as edges."""
+    with pytest.raises(TypeError, match="Only str and tuple of two str supported."):
+        _ = (1, 2) in module_graph
+
+    with pytest.raises(TypeError, match="Only str and tuple of two str supported."):
+        _ = ("a", "b", "c") in module_graph
+
+    with pytest.raises(TypeError, match="Only str and tuple of two str supported."):
+        _ = () in module_graph
+
+    with pytest.raises(TypeError, match="Only str and tuple of two str supported."):
+        _ = ("a",) in module_graph

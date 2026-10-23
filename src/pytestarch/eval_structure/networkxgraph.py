@@ -150,11 +150,11 @@ class NetworkxGraph(AbstractGraph):
             return self._graph.has_node(item)
 
         if (
-            len(item) > 2
+            len(item) != 2
             or not isinstance(item[0], str)
             or not isinstance(item[1], str)
         ):
-            TypeError(EXPECTED_EDGE_AND_NODE_TYPES)
+            raise TypeError(EXPECTED_EDGE_AND_NODE_TYPES)
 
         return self._graph.has_edge(*item) or has_path(self._graph, *item)
 

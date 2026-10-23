@@ -7,27 +7,33 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 - Experimental predefined architecture rules inspired by ArchUnit ([#134](https://github.com/zyskarch/pytestarch/issues/134)): `pytestarch.experimental.layered_architecture()` enforces a per-layer dependency whitelist, `pytestarch.experimental.onion_architecture()` implements the Onion Architecture style.
 
 ### Changed
-- Switched dependency and packaging management from Poetry to [uv](https://docs.astral.sh/uv/): `pyproject.toml` now uses a `hatchling` build backend and PEP 735 dependency groups.
-- Added root `index.html` with redirect to latest (`https://zyskarch.github.io/pytestarch/` resolves to `https://zyskarch.github.io/pytestarch/latest/`).
+- Dependency and packaging management moved from Poetry to [uv](https://docs.astral.sh/uv/): `pyproject.toml` now uses a `hatchling` build backend and PEP 735 dependency groups.
+- Added a root `index.html` that redirects to the latest docs (`https://zyskarch.github.io/pytestarch/` → `https://zyskarch.github.io/pytestarch/latest/`).
 - `from <package> import <module>` is now recognized as an import of `<package>.<module>`, so rules using `are_named` match it ([#145](https://github.com/zyskarch/pytestarch/issues/145)).
 - `from .<package> import <module>` is now recognized as an import of `<package>.<module>` as well ([#145](https://github.com/zyskarch/pytestarch/issues/145)).
-- The bare relative form `from . import <name>` now also records an import of the containing package itself, matching the absolute `from <package> import <name>` form: both record the base package and the submodule. Rules naming the package now report the package itself; previously the imported submodule was reported, and for imported attributes and `*` no import was recorded at all. This also applies to the level-2+ forms (`from .. import <name>` records the grandparent package).
-- A bare relative `*` import whose level exceeds the importer's module hierarchy (e.g. `from .. import *` in a module without parent packages) now raises an explanatory `ImportException` instead of being silently ignored: the base package import is recorded for every relative form, and an unresolvable one fails loudly.
+- The bare relative form `from . import <name>` now also records an import of the containing package itself, matching the absolute `from <package> import <name>` form. Rules naming the package now report the package itself; previously the imported submodule was reported, and for imported attributes and `*` no import was recorded at all. The level-2+ forms behave the same (`from .. import <name>` records the grandparent package).
+- A bare relative import whose level exceeds the importer's module hierarchy (such as `from .. import *` in a module without parent packages) now raises an `ImportException` instead of being silently ignored.
 - In partial scans (a `module_path` below `root_path`) with `exclude_external_libraries=False`, internal modules outside the scanned `module_path` are no longer added as nodes.
-- Overlapping layer definitions — a module of one layer being a parent or submodule of another layer's module — are now rejected with an `ImproperlyConfigured` error at definition time, instead of a `LayerMismatch` only when rules are applied.
-- Symlinked directories are named by the path used to reach them, matching Python import semantics. Imports through a link resolve to the link name, and both link and target names are present when both paths exist. Directory listings and parsed ASTs are cached by resolved path, so aliases do not re-read or re-parse the tree; symlink cycles terminate.
+- Overlapping layer definitions, where a module of one layer is a parent or submodule of another layer's module, are now rejected with an `ImproperlyConfigured` error at definition time, instead of a `LayerMismatch` only when rules are applied.
+- Symlink aliases are followed during the scan: a module reached through several paths is emitted under each of them, with the target's name only when the walk also reaches the target. Exclusion and `.py`-suffix matching use the walk (link) path, while file content is read from the resolved target. Directory listings and parsed ASTs are cached by resolved path, so aliases are not re-read or re-parsed; symlink cycles terminate.
 - Less path resolution during graph construction: only the scan start and symlink entries are resolved, and directory listings and ASTs are reused across aliases.
-- Less redundant graph construction work: nodes and edges are flattened only when a `level_limit` is set, and `add_node` is called without a preceding membership test.
+- Less redundant graph construction work: the per-node and per-edge flatten call, a no-op without a `level_limit`, is skipped, and `add_node` is called without a preceding membership lookup.
 
 ### Fixed
-- Canonical URLs point to the correct versioned page instead of `/latest/<version>/`.
 - `from . import <name>` no longer turns imported attributes or `*` into imports of non-existent `<package>.<name>` modules.
-- Internal modules are no longer added to the graph as spurious external dependency nodes when `exclude_external_libraries` is set to `False` (partially fixes [#144](https://github.com/zyskarch/pytestarch/issues/144)).
-- Imports of the scanned module itself are no longer classified as external when `exclude_external_libraries` is set to `True`; previously only submodules counted as internal.
+- Internal modules are no longer added to the graph as spurious external dependency nodes when `exclude_external_libraries=False` (partially fixes [#144](https://github.com/zyskarch/pytestarch/issues/144)).
+- Partial scans with `exclude_external_libraries=False` no longer create duplicate bare-name nodes for imports of the scanned module itself (`app` next to the real `src.app`).
+- Imports of the scanned module itself are no longer classified as external when `exclude_external_libraries=True`; previously only submodules counted as internal.
+- Root and module paths keep the path form the caller passed: anchored (regex) exclusions match again — for the first time also for files — and symlinked roots and module paths keep their link names, so a symlinked `module_path` outside the root builds the graph again instead of crashing.
+- Exclusion patterns are matched against forward-slash paths on all platforms, so `src/skipdir`-style patterns work on Windows as well.
+- `get_evaluable_architecture` raises a clear error when `root_path` or `module_path` does not exist (dangling symlinks included), instead of silently returning an empty graph in which every rule passes vacuously.
+- Passing `.` as the root keeps the historical quirk of an empty module name prefix (module names such as `.pkg.m`); pass an explicit path for clean names.
 - Imports inside `else`, `elif`, `except`, `finally` and `match`/`case` blocks are now recognized. Rules that only passed because these imports were missed can now be violated.
 - An importee that starts with the root module name but is not a submodule of it (e.g. `appdirs` for a root module `app`) is no longer misclassified as internal.
 - The layer rule now matches modules on exact dot-separated boundaries: `project.model_utils` is no longer treated as part of layer `project.model`, so accesses to it are detected.
-- Plot label aliases now apply only to the aliased module and its dot-separated submodules; previously they also relabeled name-prefix matches like `appdirs` for an alias on `app`.
+- Plot label aliases now apply only to the aliased module and its dot-separated submodules; previously they also relabeled name-prefix matches such as `appdirs` for an alias on `app`.
+- `regex_exclusions=None` (the `get_evaluable_architecture` default) is accepted as no exclusions; previously it raised a `TypeError` unless `exclusions` was set.
+- Membership checks on the dependency graph raise a `TypeError` for malformed inputs, i.e. anything that is not a module name or a pair of two module names; previously such inputs were silently looked up, producing confusing downstream errors.
 
 
 ## 5.0.0 -- 2026-10-11

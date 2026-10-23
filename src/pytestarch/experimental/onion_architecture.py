@@ -90,8 +90,9 @@ class OnionArchitecture:
                 once, no modules are given, or a module already belongs to
                 another component.
         """
-        self._assert_not_yet_specified("domain models", self._domain_models)
-        self._domain_models = self._validated_modules("domain models", modules)
+        self._domain_models = self._set_component(
+            "domain models", self._domain_models, modules
+        )
         return self
 
     def domain_services(self, modules: str | Sequence[str]) -> OnionArchitecture:
@@ -106,8 +107,9 @@ class OnionArchitecture:
                 than once, no modules are given, or a module already belongs to
                 another component.
         """
-        self._assert_not_yet_specified("domain services", self._domain_services)
-        self._domain_services = self._validated_modules("domain services", modules)
+        self._domain_services = self._set_component(
+            "domain services", self._domain_services, modules
+        )
         return self
 
     def application_services(self, modules: str | Sequence[str]) -> OnionArchitecture:
@@ -122,11 +124,8 @@ class OnionArchitecture:
                 more than once, no modules are given, or a module already
                 belongs to another component.
         """
-        self._assert_not_yet_specified(
-            "application services", self._application_services
-        )
-        self._application_services = self._validated_modules(
-            "application services", modules
+        self._application_services = self._set_component(
+            "application services", self._application_services, modules
         )
         return self
 
@@ -312,6 +311,29 @@ class OnionArchitecture:
             )
 
         return rule.be_accessed_by_any_layer()
+
+    def _set_component(
+        self,
+        component: str,
+        current_modules: list[str] | None,
+        modules: str | Sequence[str],
+    ) -> list[str]:
+        """Sets the modules of one of the core components of this architecture.
+
+        Args:
+            component: name of the component, used in error messages.
+            current_modules: modules currently assigned to the component, if any.
+            modules: module or list of modules belonging to the component.
+
+        Returns:
+            the component's validated modules.
+
+        Raises:
+            ImproperlyConfigured: if the component is already specified or the
+                modules are invalid.
+        """
+        self._assert_not_yet_specified(component, current_modules)
+        return self._validated_modules(component, modules)
 
     def _validated_modules(
         self, component: str, modules: str | Sequence[str]

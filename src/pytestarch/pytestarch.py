@@ -91,7 +91,7 @@ def get_evaluable_architecture(
         root_as_path,
         module_as_path,
         path_diff_between_root_and_module,
-        regex_exclusions,  # type: ignore
+        regex_exclusions,
         exclude_external_libraries,
         level_limit,
         regex_external_exclusions,

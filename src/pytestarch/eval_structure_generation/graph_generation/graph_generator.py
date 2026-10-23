@@ -35,7 +35,7 @@ def generate_graph(
     root_path: Path,
     module_path: Path,
     path_diff_between_root_and_module: str,
-    exclusions: tuple[str, ...],
+    exclusions: tuple[str, ...] | None,
     exclude_external_libraries: bool,
     level_limit: int | None,
     external_exclusions: tuple[str, ...] | None,
@@ -44,6 +44,9 @@ def generate_graph(
         level_limit,
         path_diff_between_root_and_module,
     )
+
+    if exclusions is None:
+        exclusions = ()
 
     file_filter = FileFilter(Config(exclusions))
     parser = Parser(file_filter, root_path)
