@@ -19,7 +19,6 @@ class ImportConverter:
         asts: list[NamedModule],
         absolute_import_prefix: str,
         internal_modules: set[str],
-        root_module_name: str = "",
     ) -> Sequence[Import]:
         """Converts ast modules to custom import modules. Filters out all modules
         that are not imports.
@@ -28,11 +27,6 @@ class ImportConverter:
             asts: list of ast modules
             absolute_import_prefix: prefix for modules imported via absolute import
             internal_modules: set of all internal modules
-            root_module_name: prefix of all parsed module names. If set, imports written
-                root-relative (e.g. 'from package2 import module2' for a 'src' root) are
-                additionally probed against internal module names with this prefix, so
-                they are resolved to their prefixed names instead of staying external.
-                Empty disables this probing.
         Returns:
             list of import objects
         """
@@ -62,7 +56,6 @@ class ImportConverter:
                     module.name,
                     absolute_import_prefix,
                     internal_modules,
-                    root_module_name,
                 )
 
                 if new_imports:
@@ -76,7 +69,6 @@ class ImportConverter:
         module_name: str,
         absolute_import_prefix: str,
         all_internal_modules: set[str],
-        root_module_name: str,
     ) -> Sequence[Import] | None:
         """Calculates all imports of the given ast module.
 
@@ -85,7 +77,6 @@ class ImportConverter:
             module_name: name of the module
             absolute_import_prefix: prefix for modules imported via absolute import
             internal_modules: set of all internal modules
-            root_module_name: root module name for root-relative import probing (see convert)
 
         Returns:
             list of calculated import objects
@@ -99,10 +90,7 @@ class ImportConverter:
                     AbsoluteImport(
                         module_name,
                         self._adjust_with_root_prefix(
-                            alias.name,
-                            absolute_import_prefix,
-                            all_internal_modules,
-                            root_module_name,
+                            alias.name, absolute_import_prefix, all_internal_modules
                         ),
                     )
                 )
@@ -115,7 +103,6 @@ class ImportConverter:
                             module.module,  # type: ignore
                             absolute_import_prefix,
                             all_internal_modules,
-                            root_module_name,
                         ),
                     )
                 ]
@@ -129,7 +116,6 @@ class ImportConverter:
                                 f"{module.module}.{name}",
                                 absolute_import_prefix,
                                 all_internal_modules,
-                                root_module_name,
                             ),
                         ),
                     )
@@ -195,39 +181,17 @@ class ImportConverter:
         module_name: str,
         absolute_import_prefix: str,
         all_internal_modules: set[str],
-        root_module_name: str = "",
     ) -> str:
         """If the user specifies a module import start point that is not the root path, the ast module names will not contain
         the root path. Hence, they will later be flagged as external modules.
         To avoid this, we prepend the root path and check whether this gives a module that we have detected as an internal module earlier.
         If so, we optimistically assume that this prepended module name is the correct module name.
 
-        The same applies to imports written relative to the root itself (root-relative
-        imports, e.g. 'from package2 import module2' for a 'src' root): they are
-        additionally probed against internal module names prefixed with the root module
-        name.
-
         Only absolute imports are affected by this, as the relative imports are resolved internally anyway.
-
-        Args:
-            module_name: name of the imported module as written in the code
-            absolute_import_prefix: prefix for modules imported via absolute import
-            all_internal_modules: set of all internal modules
-            root_module_name: prefix all parsed module names carry; empty disables probing with this name
-
-        Returns:
-            adjusted module name
         """
-        potential_full_names = []
+        potential_full_name = f"{absolute_import_prefix}.{module_name}"
 
-        if absolute_import_prefix:
-            potential_full_names.append(f"{absolute_import_prefix}.{module_name}")
-
-        if root_module_name and module_name != root_module_name:
-            potential_full_names.append(f"{root_module_name}.{module_name}")
-
-        for potential_full_name in potential_full_names:
-            if potential_full_name in all_internal_modules:
-                return potential_full_name
+        if potential_full_name in all_internal_modules:
+            return potential_full_name
 
         return module_name

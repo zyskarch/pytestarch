@@ -135,37 +135,6 @@ as `test_project` is not the top level code directory.
 The `module_path` is the module where the dependency scan will start. It has to be either identical to `root_path` or 
 a submodule of it.
 
-`root_path` is treated in one of two ways, depending on whether it contains an `__init__.py`:
-
-- **Package root**: if `root_path` contains an `__init__.py`, it is a Python module itself. All module names are prefixed
-  with its name (e.g. a root of `.../src` with `.../src/__init__.py` yields names such as `src.moduleA.fileA`), and it is
-  the common ancestor of all internal modules.
-- **Container root**: if `root_path` contains no `__init__.py` (e.g. a plain `src` directory that holds several
-  top-level packages next to each other), it is treated as a pure container directory. By default, module names are still
-  prefixed with the root directory's name (e.g. `src.packageA.moduleA`), keeping the module names consistent with the
-  module paths used before container-support existed. Rules refer to these modules by their prefixed names, e.g.
-  `Rule().modules_that().are_named("src.packageB")...`.
-
-  Imports that are written root-relative (e.g. `from packageB import moduleB` inside `packageA`, with the import
-  resolving against the packages below `src`) are classified as internal dependencies and resolved to their
-  prefixed names (`src.packageA.moduleA` imports `src.packageB`), so no spurious duplicate nodes appear next to the
-  prefixed modules.
-
-  With the opt-in parameter `module_naming="relative"`, module names are instead derived relative to the root directory
-  without any prefix (e.g. `packageA.moduleA`), and root-relative imports resolve against the packages below the root,
-  e.g. `Rule().modules_that().are_named("packageB")...`. As with the default naming, imports of packages that lie
-  outside a partial scan's `module_path` are listed as external dependencies under their bare names. The option has no
-  effect for package roots, as their name is the real package name there and always prefixes the module names.
-
-**Namespace packages**: a PEP 420 namespace package root (a package directory without `__init__.py`) is indistinguishable
-from a container root. Module names keep the root directory prefix by default; pass `module_naming="relative"` to derive
-the names relative to the root without the prefix. In `relative` mode, imports must be written relative to the top-level
-packages below the root.
-
-With `module_naming="relative"`, an import that shares its top-level name with a scanned module is treated as
-internal - mirroring Python's own `sys.path` behavior, where a local package shadows a third-party library with the
-same name.
-
 
 ## Module names
 In all rules, modules have to be referred to by their fully qualified name, meaning relative to the `root_path` - not the

@@ -39,15 +39,12 @@ def modules_and_ast(
             )
         ),
         root_path,
-        "pytestarch",
     ).parse(search_path)
 
 
 @pytest.fixture(scope="module")
 def imports(modules_and_ast: tuple[list[str], list[NamedModule]]) -> Sequence[Import]:
-    return ImportConverter().convert(
-        modules_and_ast[1], "", set(modules_and_ast[0]), "pytestarch"
-    )
+    return ImportConverter().convert(modules_and_ast[1], "", set(modules_and_ast[0]))
 
 
 @pytest.fixture(scope="module")
@@ -55,7 +52,7 @@ def all_modules(
     modules_and_ast: tuple[list[str], list[NamedModule]],
     imports: list[Import],
 ) -> list[str]:
-    return ImporteeModuleCalculator("pytestarch").calculate_importee_modules(
+    return ImporteeModuleCalculator(ROOT_PATH.name).calculate_importee_modules(
         imports,
         modules_and_ast[0],
     )

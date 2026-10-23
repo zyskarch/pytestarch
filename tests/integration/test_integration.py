@@ -22,8 +22,6 @@ from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.networkxgraph import NetworkxGraph
 from pytestarch.eval_structure_generation.file_import.exceptions import ImportException
 from pytestarch.eval_structure_generation.file_import.import_types import AbsoluteImport
-from pytestarch.pytestarch import get_evaluable_architecture_for_module_objects
-from pytestarch.query_language.exceptions import ImproperlyConfigured
 from resources import nested_root_module_mismatch_project, root_module_mismatch_project
 from resources.from_import_project import app as from_import_app
 from resources.nested_root_module_mismatch_project.dir1.dir2 import nested_app
@@ -670,21 +668,6 @@ def test_import_of_root_package_not_treated_as_internal_by_default(
     assert ("app.mod", "app") in actual_edges_with_external
 
 
-def test_container_root_level_relative_import_raises_explanatory_error(
-    tmp_path: Path,
-) -> None:
-    """A top level file of a container root (a scanned directory without __init__.py)
-    has no parent package, so a relative import within it cannot be resolved.
-    This must raise an explanatory ImportException instead of an IndexError."""
-    (tmp_path / "helper.py").write_text("x = 1")
-    (tmp_path / "top.py").write_text("from . import helper")
-
-    with pytest.raises(ImportException, match="relative import"):
-        get_evaluable_architecture(
-            str(tmp_path), str(tmp_path), module_naming="relative"
-        )
-
-
 def test_bare_relative_star_import_above_hierarchy_raises_explanatory_error(
     tmp_path: Path,
 ) -> None:
@@ -694,9 +677,109 @@ def test_bare_relative_star_import_above_hierarchy_raises_explanatory_error(
     (tmp_path / "top.py").write_text("from .. import *")
 
     with pytest.raises(ImportException, match="relative import"):
-        get_evaluable_architecture(
-            str(tmp_path), str(tmp_path), module_naming="relative"
-        )
+        get_evaluable_architecture(str(tmp_path), str(tmp_path))
+
+
+def _symlink_or_skip(target: Path, link: Path, is_directory: bool = False) -> None:
+    try:
+        link.symlink_to(target, target_is_directory=is_directory)
+    except (NotImplementedError, OSError):
+        pytest.skip("symlinks are not supported on this platform")
+
+
+def test_relative_paths_keep_anchored_exclusions_working(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Root and module paths given relative keep their form inside the scan, so
+    anchored exclusion regexes written relative to the caller's working directory
+    match again."""
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "src" / "skipdir").mkdir(parents=True)
+    (tmp_path / "src" / "skipdir" / "skipped.py").write_text("value = 1")
+    (tmp_path / "src" / "keepdir").mkdir()
+    (tmp_path / "src" / "keepdir" / "kept.py").write_text("value = 1")
+
+    evaluable = get_evaluable_architecture(
+        "src", "src", exclusions=(), regex_exclusions=("src/skipdir",)
+    )
+
+    nodes = set(evaluable._graph._graph.nodes)  # type: ignore
+    assert "src.skipdir.skipped" not in nodes
+    assert "src.keepdir.kept" in nodes
+
+
+def test_symlinked_module_path_outside_root_builds_graph(tmp_path: Path) -> None:
+    """A module path that is a symlink pointing outside the root path is scanned
+    under its link name instead of being rejected."""
+    real_module = tmp_path / "outside" / "real_module"
+    real_module.mkdir(parents=True)
+    (real_module / "mod.py").write_text("value = 1")
+    root = tmp_path / "root"
+    root.mkdir()
+    _symlink_or_skip(real_module, root / "linked", is_directory=True)
+
+    evaluable = get_evaluable_architecture(str(root), str(root / "linked"))
+
+    nodes = set(evaluable._graph._graph.nodes)  # type: ignore
+    assert nodes == {"root", "root.linked", "root.linked.mod"}
+
+
+def test_symlinked_root_path_keeps_link_name_for_module_names(tmp_path: Path) -> None:
+    """A root path reached through a symlink names modules after the link, not
+    after the symlink target's directory name."""
+    real_dir = tmp_path / "real_dir"
+    real_dir.mkdir()
+    (real_dir / "mod.py").write_text("value = 1")
+    link = tmp_path / "link_dir"
+    _symlink_or_skip(real_dir, link, is_directory=True)
+
+    evaluable = get_evaluable_architecture(str(link), str(link))
+
+    nodes = set(evaluable._graph._graph.nodes)  # type: ignore
+    assert nodes == {"link_dir", "link_dir.mod"}
+
+
+def test_partial_scan_import_of_scanned_module_creates_no_duplicate_nodes(
+    tmp_path: Path,
+) -> None:
+    """In a partial scan (module_path below root_path) with external libraries
+    included, an absolute import of the scanned module itself ('import app' for a
+    scan of module 'src.app') must resolve to the scanned module, not create a
+    spurious bare-name duplicate node next to it."""
+    src = tmp_path / "src"
+    app = src / "app"
+    app.mkdir(parents=True)
+    (app / "__init__.py").write_text("")
+    (app / "mod.py").write_text("import app\n")
+
+    arch = get_evaluable_architecture(
+        str(src), str(app), ("*__pycache__",), exclude_external_libraries=False
+    )
+
+    nodes = set(arch._graph._graph.nodes)  # type: ignore
+    assert "app" not in nodes
+    assert nodes == {"src", "src.app", "src.app.__init__", "src.app.mod"}
+
+    actual_edges = set(arch._graph._graph.edges)  # type: ignore
+    assert ("src.app.mod", "app") not in actual_edges
+    assert ("src.app.mod", "src.app") in actual_edges
+
+    # imports of the scanned module itself count as internal with external
+    # libraries excluded as well: no spurious node, no dropped edge
+    arch_without_external = get_evaluable_architecture(
+        str(src), str(app), ("*__pycache__",)
+    )
+
+    nodes_without_external = set(arch_without_external._graph._graph.nodes)  # type: ignore
+    assert nodes_without_external == {
+        "src",
+        "src.app",
+        "src.app.__init__",
+        "src.app.mod",
+    }
+
+    actual_edges_without_external = set(arch_without_external._graph._graph.edges)  # type: ignore
+    assert ("src.app.mod", "src.app") in actual_edges_without_external
 
 
 def test_container_root_top_level_relative_import_resolved_in_default_naming(
@@ -720,49 +803,31 @@ def test_container_root_top_level_relative_import_resolved_in_default_naming(
     assert (f"{tmp_path.name}.top", f"{tmp_path.name}.helper") in actual_edges
 
 
-def test_invalid_module_naming_raises(tmp_path: Path) -> None:
-    """An unknown module_naming value must be rejected with ImproperlyConfigured."""
-    (tmp_path / "pkg.py").write_text("")
+def test_container_root_sibling_package_import_is_external_by_default(
+    tmp_path: Path,
+) -> None:
+    """A container root (a scanned directory without __init__.py) is no Python package:
+    its module names carry the root directory's name as prefix, so an absolute import
+    of a sibling package stays external by default. With external libraries included,
+    it appears under its bare, unprefixed name."""
+    src = tmp_path / "src"
+    (src / "package1").mkdir(parents=True)
+    (src / "package2").mkdir()
+    (src / "package1" / "__init__.py").write_text("")
+    (src / "package1" / "module1.py").write_text("from package2 import module2\n")
+    (src / "package2" / "__init__.py").write_text("")
+    (src / "package2" / "module2.py").write_text("value = 1")
 
-    with pytest.raises(ImproperlyConfigured, match="module_naming"):
-        get_evaluable_architecture(
-            str(tmp_path),
-            str(tmp_path),
-            module_naming="bogus",  # type: ignore[arg-type]
-        )
+    arch = get_evaluable_architecture(str(src), str(src))
 
-    with pytest.raises(ImproperlyConfigured, match="module_naming"):
-        get_evaluable_architecture_for_module_objects(
-            src,
-            src,
-            module_naming="bogus",  # type: ignore[arg-type]
-        )
-
-
-def test_package_root_ignores_relative_module_naming(tmp_path: Path) -> None:
-    """module_naming is only relevant for container roots (no __init__.py): if the root
-    path is a Python package itself, its name always prefixes the module names and the
-    option is ignored."""
-    app = tmp_path / "app"
-    app.mkdir()
-    (app / "__init__.py").write_text("")
-    (app / "mod.py").write_text("import app")
-
-    arch = get_evaluable_architecture(str(app), str(app), module_naming="relative")
-
-    assert set(arch.modules) == {"app", "app.__init__", "app.mod"}
-
+    assert "src.package2" in set(arch.modules)
     actual_edges = set(arch._graph._graph.edges)  # type: ignore
-    assert ("app", "app.__init__") in actual_edges
-    assert ("app", "app.mod") in actual_edges
+    assert ("src.package1.module1", "package2") not in actual_edges
 
-
-def test_module_objects_pass_module_naming_through(tmp_path: Path) -> None:
-    """get_evaluable_architecture_for_module_objects forwards module_naming: for a
-    package root the option is ignored (same prefixed names), ensuring the parameter is
-    accepted and wired through."""
-    evaluable = get_evaluable_architecture_for_module_objects(
-        src, src, module_naming="relative"
+    arch_with_external = get_evaluable_architecture(
+        str(src), str(src), exclude_external_libraries=False
     )
 
-    assert "src.moduleA" in set(evaluable.modules)
+    assert "package2" in set(arch_with_external.modules)
+    actual_edges_with_external = set(arch_with_external._graph._graph.edges)  # type: ignore
+    assert ("src.package1.module1", "package2") in actual_edges_with_external

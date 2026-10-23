@@ -8,7 +8,6 @@ from __future__ import annotations
 import os
 from pathlib import Path
 from types import ModuleType
-from typing import Literal
 
 from pytestarch import EvaluableArchitecture
 from pytestarch.eval_structure_generation.graph_generation.graph_generator import (
@@ -21,8 +20,6 @@ from pytestarch.utils.partial_match_to_regex_converter import (
 
 DEFAULT_EXCLUSIONS = ("*__pycache__*",)
 
-MODULE_NAMING_OPTIONS = ("root_dir", "relative")
-
 
 def get_evaluable_architecture(
     root_path: str | Path,
@@ -33,12 +30,11 @@ def get_evaluable_architecture(
     regex_exclusions: tuple[str, ...] | None = None,
     external_exclusions: tuple[str, ...] | None = None,
     regex_external_exclusions: tuple[str, ...] | None = None,
-    module_naming: Literal["root_dir", "relative"] = "root_dir",
 ) -> EvaluableArchitecture:
     """Constructs an evaluable object based on the given module.
 
     Args:
-        root_path: root directory of the source code. Should not be set to a submodule of the top level module. If it contains an __init__.py, it is treated as the top level Python module (its name prefixes all module names); otherwise as a container directory of top level packages (see module_naming).
+        root_path: root directory of the source code. Should not be set to a submodule of the top level module.
         module_path: path of module to generate the evaluable for. Must be a submodule of the root_path module.
         exclusions: pseudo-regex to exclude files and directories from being integrated into the evaluable, e.g. *Test.py. Can only be specified if regex_exclusions is not specified.
         external_exclusions: pseudo-regex version of 'external_exclusions' to exclude certain external dependencies from being integrated into the evaluable. Can only be specified if exclude_external_libraries is False and regex_external_exclusions is not specified. Note that child dependencies are not automatically excluded, e.g. if exclusion regex is 'logging', then 'logging.handler' will not be excluded. For exclude this as well, use 'logging.*'.
@@ -50,23 +46,7 @@ def get_evaluable_architecture(
             then assigned to X instead, if Y is above the level limit.
         regex_exclusions: Proper regex version of 'exclusions'. Can only be specified if exclusions is not specified.
         regex_external_exclusions: Proper regex version of 'external_exclusions' to exclude certain external dependencies from being integrated into the evaluable. Can only be specified if exclude_external_libraries is False and external_exclusions is not specified. If a parent module (e.g. 'logging') is excluded, so will be child modules (e.g. 'logging.handlers').
-        module_naming: only relevant for root paths without an __init__.py (container directories of top level
-            packages, e.g. a plain 'src' folder):
-
-            - "root_dir" (default): all module names are prefixed with the root directory's name (a root of 'src'
-              yields names such as 'src.packageA'), and imports written root-relative (e.g. 'from packageB import
-              moduleB') are resolved to their prefixed names.
-            - "relative": module names are derived relative to the root path, without the prefix (e.g. 'packageA');
-              root-relative imports resolve against the packages below the root.
-
-            No effect for root paths that contain an __init__.py: the real package name always prefixes the module
-            names there.
     """
-    if module_naming not in MODULE_NAMING_OPTIONS:
-        raise ImproperlyConfigured(
-            f"module_naming must be one of {MODULE_NAMING_OPTIONS}, but was '{module_naming}'."
-        )
-
     if regex_exclusions and exclusions:
         raise ImproperlyConfigured(
             "Partial match exclusions and regex exclusions cannot both be specified."
@@ -94,8 +74,8 @@ def get_evaluable_architecture(
             convert_partial_match_to_regex(pattern) for pattern in external_exclusions
         )
 
-    root_as_path = Path(root_path).resolve()
-    module_as_path = Path(module_path).resolve()
+    root_as_path = Path(root_path)
+    module_as_path = Path(module_path)
 
     path_diff_between_root_and_module = str(
         module_as_path.relative_to(root_as_path)
@@ -109,7 +89,6 @@ def get_evaluable_architecture(
         exclude_external_libraries,
         level_limit,
         regex_external_exclusions,
-        module_naming,
     )
 
 
@@ -122,10 +101,9 @@ def get_evaluable_architecture_for_module_objects(
     regex_exclusions: tuple[str, ...] | None = None,
     external_exclusions: tuple[str, ...] | None = None,
     regex_external_exclusions: tuple[str, ...] | None = None,
-    module_naming: Literal["root_dir", "relative"] = "root_dir",
 ) -> EvaluableArchitecture:
     """Same functionality as get_evaluable_architecture, but root module and module to evaluate are passed in as module objects
-    instead of the absolute paths to them, including the root path and module_naming semantics of that function.
+    instead of the absolute paths to them.
     """
     root_path: str = os.path.dirname(root_module.__file__)  # type: ignore
     module_path: str = os.path.dirname(module.__file__)  # type: ignore
@@ -139,5 +117,4 @@ def get_evaluable_architecture_for_module_objects(
         regex_exclusions,
         external_exclusions,
         regex_external_exclusions,
-        module_naming,
     )
