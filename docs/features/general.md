@@ -114,10 +114,10 @@ Note that the module names in the diagram have been abbreviated: For example, th
 
 Most of the edges in this graph are due to parent-child relationships between the modules. However, five of the six import
 relationships defined above are present in the graph - only fileC has no connection to an "os" node; in fact, there is no
-node names "os" at all.
+node named "os" at all.
 
 This has been achieved by setting the `exclude_external_libraries` flag in the `get_evaluable_architecture` function. All modules that 
-not located hierarchically below the root path, in this case "test_project", will be excluded from the graph.
+are not located hierarchically below the root path, in this case "test_project", will be excluded from the graph.
 
 ### Module not found in graph
 If a rule references a module that does not appear in the dependency graph, PyTestArch raises a `ModuleUnknown` error with an actionable message. Common causes are:

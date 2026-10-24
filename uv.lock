@@ -1381,7 +1381,7 @@ wheels = [
 
 [[package]]
 name = "pytestarch"
-version = "5.0.0"
+version = "5.1.0"
 source = { editable = "." }
 default-groups = "all"
 dependencies = [

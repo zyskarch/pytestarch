@@ -39,7 +39,7 @@ Run `mike deploy --push --update-aliases <insert new version> latest`. This will
 
 
 ### One-time setup: redirect the site root to the latest version
-Run `mike set-default --push latest` once to creaet a `index.html` that redirects to latest from the root page.
+Run `mike set-default --push latest` once to create a `index.html` that redirects to latest from the root page.
 
 
 ## Release a new version of PyTestArch

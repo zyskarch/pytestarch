@@ -343,7 +343,7 @@ class RuleViolationDetector(RuleViolationBaseDetector):
     ExplicitlyRequestedDependenciesByBaseModules follow this structure:
 
     ```
-    {(requested dependency, e.g. from A to B): [list of dependencies found that qualifiy as the requested dependency, e.g. A.a1 imports B, A.a2 imports B]}
+    {(requested dependency, e.g. from A to B): [list of dependencies found that qualify as the requested dependency, e.g. A.a1 imports B, A.a2 imports B]}
     ```
 
     NotExplicitlyRequestedDependenciesByBaseModule on the other hand are structured like this:

@@ -131,7 +131,7 @@ class NetworkxGraph(AbstractGraph):
 
         # "from foo import bar" - bar could be a function/class in foo
         # or a submodule of foo
-        # in order to not add a function/class to the eval_structure, an ende to
+        # in order to not add a function/class to the eval_structure, an edge to
         # foo.bar will only be added if both importer
         # and importee are already part of the eval_structure (which they will
         # be if they correspond to modules in the file system
@@ -234,7 +234,7 @@ class NetworkxGraph(AbstractGraph):
                 aliases == {'a': 'A', 'a.c': 'C'} the plot labels will be A, A.b, C,
                 C.d.
             **kwargs: Remaining keyword args are passed to draw_networkx. Notably, "ax"
-                can be used to draw the graph onto an existing matploblib Axis object.
+                can be used to draw the graph onto an existing matplotlib Axis object.
         """
         try:
             import matplotlib  # noqa: F401

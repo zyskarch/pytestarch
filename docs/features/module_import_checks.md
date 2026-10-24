@@ -16,7 +16,7 @@ The meaning of these structural markers is described in the table below.
 | VERB_MARKER_1 | defines the expected behavior, part I                  | should not                         |
 | VERB_MARKER_2 | defines the expected behavior, part II                 | except                             |
 
-The examples given in the table above combined form the rule `modules that are named 'B' (RULE_SUBJECT) should not (VERB_MARKER_1) be imported by (IMPORT_TYPE) modules except (VERB_MARKER_2) modules that are submodules of "A" (RULE_OBJECT)`.
+The examples given in the table above combine to form the rule `modules that are named 'B' (RULE_SUBJECT) should not (VERB_MARKER_1) be imported by (IMPORT_TYPE) modules except (VERB_MARKER_2) modules that are submodules of "A" (RULE_OBJECT)`.
 
 Looking at the diagram in the section Complex Example, we can see that this rule holds - the only module importing 
 from the "B" module is "fileA11", which is a submodule of "A".
@@ -79,7 +79,7 @@ modules_that() \
     .be_imported_by_modules_that() \
     .are_named(["3", "4"])
 ```
-is fulfilled, it the modules "1" and "2" both are not imported by any module other than "3" and "4", and if both "3" and "4" do import "1" and "2".
+is fulfilled, if the modules "1" and "2" both are not imported by any module other than "3" and "4", and if both "3" and "4" do import "1" and "2".
 
 
 ### VERB_MARKER_1
@@ -96,7 +96,7 @@ is fulfilled, it the modules "1" and "2" both are not imported by any module oth
 VERB_MARKER_2 and IMPORT_TYPE have been conflated into one expression to improve readability.
 
 Markers from each category can be combined freely with all markers of all other categories. Example rules could be <br>
-```
+```python
 modules_that() \
     .are_sub_modules_of("A") \
     .should_only() \
@@ -106,7 +106,7 @@ modules_that() \
 (True in the above example)
 
 or <br>
-```
+```python
 modules_that() \
     .are_named("C") \
     .should_only() \
@@ -133,4 +133,4 @@ as reference (M1, M2 are used as RULE_SUBJECT and RULE_OBJECT respectively; pseu
 There are two aliases to make rules easier:
 
 * 'M1 should not import anything' is equivalent to: 'M1 should not import anything except itself' (e.g. imports between its submodules are allowed, but no other imports)
-* 'M1 should not be imported by anything' is equivalent to: 'M1 should not be imported by anything except itself' (dito)
+* 'M1 should not be imported by anything' is equivalent to: 'M1 should not be imported by anything except itself' (ditto)

@@ -2,7 +2,7 @@
 
 This project uses semantic versioning and follows [keep a changelog](https://keepachangelog.com).
 
-## 5.1.0 -- TBD
+## [5.1.0] -- 2026-10-24
 ### Added
 - Experimental predefined architecture rules inspired by ArchUnit ([#134](https://github.com/zyskarch/pytestarch/issues/134)): `pytestarch.experimental.layered_architecture()` enforces a per-layer dependency whitelist, `pytestarch.experimental.onion_architecture()` implements the Onion Architecture style.
 
@@ -38,7 +38,7 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 - Membership checks on the dependency graph raise a `TypeError` for malformed inputs, i.e. anything that is not a module name or a pair of two module names; previously such inputs were silently looked up, producing confusing downstream errors.
 
 
-## 5.0.0 -- 2026-10-11
+## [5.0.0] -- 2026-10-11
 ### Changed
 - Drop support for python 3.9
 - Drop support for python 3.10
@@ -60,11 +60,11 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 - Docstring argument mismatches: actual arguments and docstring diverged, so the generated configuration was incomplete.
 - `site_url` is configured, so the generated sitemap lists all pages and pages define canonical URLs.
 
-## 4.0.1 -- 2025-08-08
+## [4.0.1] -- 2025-08-08
 ### Fixed
 - KeyError when not including all layers with regexes in a Layer rule.
 
-## 4.0.0 -- 2024-04-01
+## [4.0.0] -- 2024-04-01
 ### Changed
 - Mechanism of exporting library modules
 - Python formatting
@@ -87,7 +87,7 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 - Regex syntax error in newer python versions
 
 ## [3.0.0] -- 2024-05-27
-### Added 
+### Added
 - Support for python 3.12
 
 ### Removed
@@ -129,7 +129,7 @@ This project uses semantic versioning and follows [keep a changelog](https://kee
 - More extensive documentation for the regex matching features.
 
 ## [1.4.1] -- 2023-04-09
-## Fixed 
+## Fixed
 - Import paths in documentation.
 
 ## [1.4.0] -- 2023-04-09
