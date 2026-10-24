@@ -37,7 +37,7 @@ repository = "https://github.com/zyskarch/pytestarch"
 
 [dependency-groups]
 dev = [
-    "zensical==0.0.63",
+    "zensical==0.0.72",
     "mkdocstrings-python==2.0.8",
     "mike",
     "nox==2026.8.17",
