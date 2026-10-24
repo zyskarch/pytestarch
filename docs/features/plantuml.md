@@ -17,6 +17,7 @@ There are two options for naming the components in your diagram:
 
 ## Supported PlantUML language features
 Syntactical requirements for .puml files:
+
 * start of dependency definition needs to be tagged with @startuml
 * end of dependency definition needs to be tagged with @enduml
 * all text outside these tags is ignored
