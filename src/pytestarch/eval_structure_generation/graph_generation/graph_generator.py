@@ -26,7 +26,11 @@ def _get_absolute_import_prefix(
     if not _actual_difference_between_root_and_module(
         path_diff_between_root_and_module
     ):
-        return ""
+        # Full scan: absolute imports can only be written relative to the root
+        # itself. For a container root (no __init__.py) the root directory is on
+        # sys.path, so they land under the root's name; inside a package they
+        # can only refer to modules outside it, so nothing must be probed there.
+        return "" if (root_path / "__init__.py").is_file() else root_path.name
 
     return str(module_path.parent.relative_to(root_path.parent)).replace(os.sep, ".")
 

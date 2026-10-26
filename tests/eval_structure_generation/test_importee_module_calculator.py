@@ -61,7 +61,9 @@ def test_external_importee_sharing_root_module_prefix_is_added() -> None:
 
 def test_default_naming_container_root_unprefixed_importee_is_external() -> None:
     """With the default naming, container root module names are prefixed with the root
-    directory's name, so an importee without that prefix is a genuine external module."""
+    directory's name, so an importee without that prefix is a genuine external module
+    (root-relative imports that the converter cannot resolve stay bare and are external
+    as well)."""
     root_module_name = "project"
 
     result = set(

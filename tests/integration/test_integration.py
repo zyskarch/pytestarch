@@ -804,13 +804,14 @@ def test_container_root_top_level_relative_import_resolved_in_default_naming(
     assert (f"{tmp_path.name}.top", f"{tmp_path.name}.helper") in actual_edges
 
 
-def test_container_root_sibling_package_import_is_external_by_default(
+def test_container_root_sibling_package_import_resolves_to_prefixed_module(
     tmp_path: Path,
 ) -> None:
     """A container root (a scanned directory without __init__.py) is no Python package:
-    its module names carry the root directory's name as prefix, so an absolute import
-    of a sibling package stays external by default. With external libraries included,
-    it appears under its bare, unprefixed name."""
+    its module names carry the root directory's name as prefix. An absolute import
+    of a sibling package is written root-relative, so it is probed against the
+    internal module names with that prefix and resolves to the prefixed name instead
+    of staying external."""
     src = tmp_path / "src"
     (src / "package1").mkdir(parents=True)
     (src / "package2").mkdir()
@@ -823,15 +824,120 @@ def test_container_root_sibling_package_import_is_external_by_default(
 
     assert "src.package2" in set(arch.modules)
     actual_edges = set(arch._graph._graph.edges)  # type: ignore
+    assert ("src.package1.module1", "src.package2") in actual_edges
+    assert ("src.package1.module1", "src.package2.module2") in actual_edges
     assert ("src.package1.module1", "package2") not in actual_edges
 
     arch_with_external = get_evaluable_architecture(
         str(src), str(src), exclude_external_libraries=False
     )
 
-    assert "package2" in set(arch_with_external.modules)
+    # 'package2' was resolved to 'src.package2' - no prefix-less node for it
+    assert "package2" not in set(arch_with_external.modules)
     actual_edges_with_external = set(arch_with_external._graph._graph.edges)  # type: ignore
-    assert ("src.package1.module1", "package2") in actual_edges_with_external
+    assert ("src.package1.module1", "package2") not in actual_edges_with_external
+
+    # rules over top level packages are enforced instead of passing vacuously
+    (
+        Rule()
+        .modules_that()
+        .are_named("src.package2")
+        .should()
+        .be_imported_by_modules_that()
+        .are_named("src.package1.module1")
+    ).assert_applies(arch)
+
+
+def test_container_root_partial_scan_keeps_unscanned_sibling_import_external(
+    tmp_path: Path,
+) -> None:
+    """A partial scan does not parse the sibling package, so the root-relative import
+    cannot resolve and stays external under its bare name, as before."""
+    src = tmp_path / "src"
+    (src / "package1").mkdir(parents=True)
+    (src / "package2").mkdir()
+    (src / "package1" / "__init__.py").write_text("")
+    (src / "package1" / "module1.py").write_text("from package2 import module2\n")
+    (src / "package2" / "__init__.py").write_text("")
+    (src / "package2" / "module2.py").write_text("value = 1")
+
+    arch = get_evaluable_architecture(
+        str(src), str(src / "package1"), exclude_external_libraries=False
+    )
+
+    assert "src.package2" not in set(arch.modules)
+    assert "package2" in set(arch.modules)
+    actual_edges = set(arch._graph._graph.edges)  # type: ignore
+    assert ("src.package1.module1", "package2") in actual_edges
+
+
+def test_package_root_keeps_absolute_import_of_same_named_submodule_external(
+    tmp_path: Path,
+) -> None:
+    """For a package root (with __init__.py), a bare absolute import can only refer
+    to a module outside the package: 'import logging' never means an internal
+    '<root>.logging' subpackage, so root-relative probing must not apply there."""
+    myapp = tmp_path / "myapp"
+    (myapp / "logging").mkdir(parents=True)
+    (myapp / "__init__.py").write_text("")
+    (myapp / "logging" / "__init__.py").write_text("")
+    (myapp / "mod.py").write_text("import logging\n")
+
+    arch_with_external = get_evaluable_architecture(
+        str(myapp), str(myapp), exclude_external_libraries=False
+    )
+
+    # the stdlib module stays an external dependency under its own name
+    assert "logging" in set(arch_with_external.modules)
+    actual_edges = set(arch_with_external._graph._graph.edges)  # type: ignore
+    assert (f"{myapp.name}.mod", "logging") in actual_edges
+    assert (f"{myapp.name}.mod", f"{myapp.name}.logging") not in actual_edges
+
+
+def test_container_root_internal_top_level_module_shadows_external_library(
+    tmp_path: Path,
+) -> None:
+    """In a container root, a bare absolute import whose name matches an internal
+    top-level module is resolved to it: the root directory is on sys.path when the
+    code runs, so the internal module genuinely shadows the external library."""
+    src = tmp_path / "src"
+    (src / "package1").mkdir(parents=True)
+    (src / "logging").mkdir()
+    (src / "package1" / "__init__.py").write_text("")
+    (src / "package1" / "module1.py").write_text("import logging\n")
+    (src / "logging" / "__init__.py").write_text("")
+
+    arch_with_external = get_evaluable_architecture(
+        str(src), str(src), exclude_external_libraries=False
+    )
+
+    actual_edges = set(arch_with_external._graph._graph.edges)  # type: ignore
+    assert ("src.package1.module1", "src.logging") in actual_edges
+    # no external node is created for the shadowed library
+    assert "logging" not in set(arch_with_external.modules)
+
+
+def test_deep_partial_scan_keeps_root_relative_import_external(
+    tmp_path: Path,
+) -> None:
+    """A partial scan two or more levels below the root probes absolute imports
+    against the scanned module's parent only: root-relative imports cannot
+    resolve there and stay external under their bare name."""
+    src = tmp_path / "src"
+    (src / "pkg").mkdir(parents=True)
+    (src / "pkg" / "sub").mkdir()
+    (src / "pkg" / "sub" / "__init__.py").write_text("")
+    (src / "pkg" / "sub" / "mod.py").write_text("from pkg.sub import helper\n")
+    (src / "pkg" / "sub" / "helper.py").write_text("value = 1")
+
+    arch_with_external = get_evaluable_architecture(
+        str(src), str(src / "pkg" / "sub"), exclude_external_libraries=False
+    )
+
+    actual_edges = set(arch_with_external._graph._graph.edges)  # type: ignore
+    assert ("src.pkg.sub.mod", "src.pkg.sub") not in actual_edges
+    assert ("src.pkg.sub.mod", "src.pkg.sub.helper") not in actual_edges
+    assert ("src.pkg.sub.mod", "pkg.sub") in actual_edges
 
 
 def test_nonexistent_module_path_raises_instead_of_empty_graph(tmp_path: Path) -> None:

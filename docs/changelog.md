@@ -2,6 +2,13 @@
 
 This project uses semantic versioning and follows [keep a changelog](https://keepachangelog.com).
 
+## [Unreleased] -- TBD
+### Changed
+- In a container root (a `root_path` directory without `__init__.py`, e.g. `src`), imports between top-level packages are now classified as internal. Forbidding rules over them that previously passed vacuously may now fail; rules and `external_exclusions` must use the prefixed names (`src.package2` instead of `package2`).
+
+### Fixed
+- Absolute imports written root-relative to the scan root (e.g. `from package2 import module2` below a `src` root) are now resolved to their prefixed module names (`src.package2.module2`) instead of staying external (partially fixes [#144](https://github.com/zyskarch/pytestarch/issues/144); module naming is unchanged). Partial scans and package roots (with `__init__.py`) are unaffected. A top-level internal module sharing its name with an external library (`src/logging` vs `logging`) takes precedence.
+
 ## [5.1.0] -- 2026-10-24
 ### Added
 - Experimental predefined architecture rules inspired by ArchUnit ([#134](https://github.com/zyskarch/pytestarch/issues/134)): `pytestarch.experimental.layered_architecture()` enforces a per-layer dependency whitelist, `pytestarch.experimental.onion_architecture()` implements the Onion Architecture style.
