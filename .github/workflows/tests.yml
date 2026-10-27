@@ -18,6 +18,11 @@ jobs:
           - python-version: "3.14"
             os: macos-latest
             resolution: highest
+        # lowest-direct on 3.15 has to build dependencies from source
+        exclude:
+          - python-version: "3.15"
+            os: ubuntu-latest
+            resolution: lowest-direct
 
     steps:
       - name: checkout
