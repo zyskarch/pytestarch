@@ -82,6 +82,35 @@ class RelativeImport(Import):
                 f"'{self._importer}'. This happens if the module is located directly "
                 "at the root of a scanned directory that is not a Python package."
             )
-        base = self._importer_module_hierarchy[-self._level]
-        name = ".".join(part for part in (self._module_name, self._import_name) if part)
+        return self.importee_name(
+            self._importer_module_hierarchy,
+            self._module_name,
+            self._import_name,
+            self._level,
+        )
+
+    @staticmethod
+    def importee_name(
+        importer_hierarchy: list[str],
+        module_name: str | None,
+        import_name: str | None,
+        level: int,
+    ) -> str:
+        """Calculates the module name a relative import resolves to: the
+        submodule of the importer's level-th parent package.
+
+        Public so that import probing (see ImportConverter) checks against the
+        exact name that the constructed RelativeImport resolves to.
+
+        Args:
+            importer_hierarchy: parent modules of the importing module, outermost first.
+            module_name: module part of the relative import, if any.
+            import_name: imported name, if any.
+            level: number of leading dots of the relative import.
+
+        Returns:
+            fully resolved importee name.
+        """
+        base = importer_hierarchy[-level]
+        name = ".".join(part for part in (module_name, import_name) if part)
         return f"{base}.{name}" if name else base

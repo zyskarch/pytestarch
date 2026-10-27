@@ -22,6 +22,7 @@ from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
 from pytestarch.eval_structure.networkxgraph import NetworkxGraph
 from pytestarch.eval_structure_generation.file_import.exceptions import ImportException
 from pytestarch.eval_structure_generation.file_import.import_types import AbsoluteImport
+from pytestarch.pytestarch import get_evaluable_architecture_for_module_objects
 from pytestarch.query_language.exceptions import ImproperlyConfigured
 from resources import nested_root_module_mismatch_project, root_module_mismatch_project
 from resources.from_import_project import app as from_import_app
@@ -669,6 +670,19 @@ def test_import_of_root_package_not_treated_as_internal_by_default(
     assert ("app.mod", "app") in actual_edges_with_external
 
 
+def test_container_root_level_relative_import_raises_explanatory_error(
+    tmp_path: Path,
+) -> None:
+    """A top level file of a container root (a scanned directory without __init__.py)
+    has no parent package, so a relative import within it cannot be resolved.
+    This must raise an explanatory ImportException instead of an IndexError."""
+    (tmp_path / "helper.py").write_text("x = 1")
+    (tmp_path / "top.py").write_text("from . import helper")
+
+    with pytest.raises(ImportException, match="relative import"):
+        get_evaluable_architecture(str(tmp_path), str(tmp_path), mode="multi_module")
+
+
 def test_bare_relative_star_import_above_hierarchy_raises_explanatory_error(
     tmp_path: Path,
 ) -> None:
@@ -678,7 +692,7 @@ def test_bare_relative_star_import_above_hierarchy_raises_explanatory_error(
     (tmp_path / "top.py").write_text("from .. import *")
 
     with pytest.raises(ImportException, match="relative import"):
-        get_evaluable_architecture(str(tmp_path), str(tmp_path))
+        get_evaluable_architecture(str(tmp_path), str(tmp_path), mode="multi_module")
 
 
 def _symlink_or_skip(target: Path, link: Path, is_directory: bool = False) -> None:
@@ -686,6 +700,70 @@ def _symlink_or_skip(target: Path, link: Path, is_directory: bool = False) -> No
         link.symlink_to(target, target_is_directory=is_directory)
     except (NotImplementedError, OSError):
         pytest.skip("symlinks are not supported on this platform")
+
+
+def test_container_root_top_level_relative_import_resolved_in_default_naming(
+    tmp_path: Path,
+) -> None:
+    """With the default naming, module names carry the root directory's name as prefix,
+    so a top level file of a container root has that name as its parent module and its
+    relative import resolves against the root (i.e. it is an internal dependency)."""
+    (tmp_path / "helper.py").write_text("x = 1")
+    (tmp_path / "top.py").write_text("from . import helper")
+
+    arch = get_evaluable_architecture(str(tmp_path), str(tmp_path))
+
+    assert set(arch.modules) == {
+        tmp_path.name,
+        f"{tmp_path.name}.helper",
+        f"{tmp_path.name}.top",
+    }
+
+    actual_edges = set(arch._graph._graph.edges)  # type: ignore
+    assert (f"{tmp_path.name}.top", f"{tmp_path.name}.helper") in actual_edges
+
+
+def test_invalid_mode_raises(tmp_path: Path) -> None:
+    """An unknown scan mode must be rejected with ImproperlyConfigured."""
+    (tmp_path / "pkg.py").write_text("")
+
+    with pytest.raises(ImproperlyConfigured, match="mode"):
+        get_evaluable_architecture(
+            str(tmp_path),
+            str(tmp_path),
+            mode="bogus",  # type: ignore[arg-type]
+        )
+
+    with pytest.raises(ImproperlyConfigured, match="mode"):
+        get_evaluable_architecture_for_module_objects(
+            src,
+            src,
+            mode="bogus",  # type: ignore[arg-type]
+        )
+
+
+def test_multi_module_mode_keeps_package_root_name(tmp_path: Path) -> None:
+    """A package root keeps its own name in multi-module mode."""
+    app = tmp_path / "app"
+    app.mkdir()
+    (app / "__init__.py").write_text("")
+    (app / "mod.py").write_text("import app")
+
+    arch = get_evaluable_architecture(str(app), str(app), mode="multi_module")
+
+    assert set(arch.modules) == {"app", "app.__init__", "app.mod"}
+
+    actual_edges = set(arch._graph._graph.edges)  # type: ignore
+    assert ("app", "app.__init__") in actual_edges
+    assert ("app", "app.mod") in actual_edges
+
+
+def test_module_objects_multi_module_mode_uses_full_import_name() -> None:
+    evaluable = get_evaluable_architecture_for_module_objects(
+        src, src, mode="multi_module"
+    )
+
+    assert "resources.test_project.src.moduleA" in set(evaluable.modules)
 
 
 def test_relative_paths_keep_anchored_exclusions_working(
@@ -783,25 +861,68 @@ def test_partial_scan_import_of_scanned_module_creates_no_duplicate_nodes(
     assert ("src.app.mod", "src.app") in actual_edges_without_external
 
 
-def test_container_root_top_level_relative_import_resolved_in_default_naming(
-    tmp_path: Path,
+def test_nonexistent_module_path_raises_instead_of_empty_graph(tmp_path: Path) -> None:
+    """A module_path that does not exist raises at the public API instead of
+    silently building an empty graph, in which every rule passes vacuously."""
+    root = tmp_path / "root"
+    root.mkdir()
+    (root / "app.py").write_text("x = 1")
+
+    with pytest.raises(
+        ImproperlyConfigured, match=rf"module_path '.*{tmp_path.name}.*' does not exist"
+    ):
+        get_evaluable_architecture(str(root), str(root / "missing"))
+
+
+def test_nonexistent_root_path_raises(tmp_path: Path) -> None:
+    module = tmp_path / "module"
+    module.mkdir()
+    (module / "app.py").write_text("x = 1")
+
+    with pytest.raises(ImproperlyConfigured, match=r"root_path .* does not exist"):
+        get_evaluable_architecture(str(tmp_path / "missing"), str(module))
+
+
+def test_top_level_dangling_symlink_path_raises(tmp_path: Path) -> None:
+    """A top-level dangling symlink counts as nonexistent: Path.exists() follows
+    symlinks, so the link itself fails the existence check."""
+    root = tmp_path / "root"
+    root.mkdir()
+    dangling = tmp_path / "dangling"
+    try:
+        dangling.symlink_to(tmp_path / "nowhere")
+    except (NotImplementedError, OSError):
+        pytest.skip("symlinks are not supported on this platform")
+
+    with pytest.raises(ImproperlyConfigured, match=r"module_path .* does not exist"):
+        get_evaluable_architecture(str(root), str(dangling))
+
+
+def test_existing_paths_still_build_graph(tmp_path: Path) -> None:
+    """Existing root and module paths are unaffected by the existence check."""
+    root = tmp_path / "root"
+    root.mkdir()
+    (root / "app.py").write_text("x = 1")
+
+    arch = get_evaluable_architecture(str(root), str(root))
+
+    assert set(arch.modules) == {"root", "root.app"}
+
+
+def test_dot_root_yields_clean_module_names(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """With the default naming, module names carry the root directory's name as prefix,
-    so a top level file of a container root has that name as its parent module and its
-    relative import resolves against the root (i.e. it is an internal dependency)."""
-    (tmp_path / "helper.py").write_text("x = 1")
-    (tmp_path / "top.py").write_text("from . import helper")
+    """Passing '.' as root and module path no longer produces an empty module
+    name prefix: names come out clean, e.g. 'pkg.mod' instead of '.pkg.mod'."""
+    monkeypatch.chdir(tmp_path)
+    package = tmp_path / "pkg"
+    package.mkdir()
+    (package / "__init__.py").write_text("")
+    (package / "mod.py").write_text("value = 1")
 
-    arch = get_evaluable_architecture(str(tmp_path), str(tmp_path))
+    evaluable = get_evaluable_architecture(".", ".")
 
-    assert set(arch.modules) == {
-        tmp_path.name,
-        f"{tmp_path.name}.helper",
-        f"{tmp_path.name}.top",
-    }
-
-    actual_edges = set(arch._graph._graph.edges)  # type: ignore
-    assert (f"{tmp_path.name}.top", f"{tmp_path.name}.helper") in actual_edges
+    assert set(evaluable.modules) == {"pkg", "pkg.__init__", "pkg.mod"}
 
 
 def test_container_root_sibling_package_import_resolves_to_prefixed_module(
@@ -948,7 +1069,7 @@ def test_nonexistent_module_path_raises_instead_of_empty_graph(tmp_path: Path) -
     (root / "app.py").write_text("x = 1")
 
     with pytest.raises(
-        ImproperlyConfigured, match=f"module_path does not exist: .*{tmp_path.name}"
+        ImproperlyConfigured, match=rf"module_path '.*{tmp_path.name}.*' does not exist"
     ):
         get_evaluable_architecture(str(root), str(root / "missing"))
 
@@ -958,7 +1079,7 @@ def test_nonexistent_root_path_raises(tmp_path: Path) -> None:
     module.mkdir()
     (module / "app.py").write_text("x = 1")
 
-    with pytest.raises(ImproperlyConfigured, match="root_path does not exist"):
+    with pytest.raises(ImproperlyConfigured, match=r"root_path .* does not exist"):
         get_evaluable_architecture(str(tmp_path / "missing"), str(module))
 
 
@@ -973,16 +1094,5 @@ def test_top_level_dangling_symlink_path_raises(tmp_path: Path) -> None:
     except (NotImplementedError, OSError):
         pytest.skip("symlinks are not supported on this platform")
 
-    with pytest.raises(ImproperlyConfigured, match="module_path does not exist"):
+    with pytest.raises(ImproperlyConfigured, match=r"module_path .* does not exist"):
         get_evaluable_architecture(str(root), str(dangling))
-
-
-def test_existing_paths_still_build_graph(tmp_path: Path) -> None:
-    """Existing root and module paths are unaffected by the existence check."""
-    root = tmp_path / "root"
-    root.mkdir()
-    (root / "app.py").write_text("x = 1")
-
-    arch = get_evaluable_architecture(str(root), str(root))
-
-    assert set(arch.modules) == {"root", "root.app"}

@@ -3,8 +3,10 @@ from __future__ import annotations
 import os
 from collections.abc import Sequence
 from pathlib import Path
+from typing import Literal
 
 from pytestarch.eval_structure.evaluable_graph import EvaluableArchitectureGraph
+from pytestarch.eval_structure.exceptions import ImproperlyConfigured
 from pytestarch.eval_structure.module_name_boundaries import is_internal_module
 from pytestarch.eval_structure.networkxgraph import NetworkxGraph, Node
 from pytestarch.eval_structure.types import Import
@@ -14,6 +16,7 @@ from pytestarch.eval_structure_generation.file_import.file_filter import FileFil
 from pytestarch.eval_structure_generation.file_import.import_filter import (
     ExternalImportFilter,
 )
+from pytestarch.eval_structure_generation.file_import.import_roots import ImportRoots
 from pytestarch.eval_structure_generation.file_import.importee_module_calculator import (
     ImporteeModuleCalculator,
 )
@@ -21,7 +24,10 @@ from pytestarch.eval_structure_generation.file_import.parser import Parser
 
 
 def _get_absolute_import_prefix(
-    path_diff_between_root_and_module: str, root_path: Path, module_path: Path
+    path_diff_between_root_and_module: str,
+    root_path: Path,
+    module_path: Path,
+    root_module_name: str,
 ) -> str:
     if not _actual_difference_between_root_and_module(
         path_diff_between_root_and_module
@@ -32,7 +38,11 @@ def _get_absolute_import_prefix(
         # can only refer to modules outside it, so nothing must be probed there.
         return "" if (root_path / "__init__.py").is_file() else root_path.name
 
-    return str(module_path.parent.relative_to(root_path.parent)).replace(os.sep, ".")
+    relative_parent = str(module_path.parent.relative_to(root_path)).replace(
+        os.sep, "."
+    )
+    prefix = "" if relative_parent == "." else relative_parent
+    return ".".join(part for part in (root_module_name, prefix) if part)
 
 
 def generate_graph(
@@ -43,36 +53,74 @@ def generate_graph(
     exclude_external_libraries: bool,
     level_limit: int | None,
     external_exclusions: tuple[str, ...] | None,
+    mode: Literal["legacy", "multi_module"] = "legacy",
+    scan_paths: Sequence[Path] | None = None,
+    root_module_name: str = "",
+    import_roots: ImportRoots | None = None,
 ) -> EvaluableArchitectureGraph:
     level_limit = _add_extra_levels_to_limit_if_root_and_module_path_differ(
         level_limit,
         path_diff_between_root_and_module,
     )
 
+    if level_limit is not None and not root_module_name:
+        # With relative naming the root itself is not a module and occupies no
+        # hierarchy level, so the same limit covers one level less of module names.
+        level_limit -= 1
+
+        if level_limit < 0:
+            raise ImproperlyConfigured(
+                "level_limit must be at least 1 when mode is 'multi_module' and "
+                "the root path is a container directory (no __init__.py): the root "
+                "itself is not a module, so a limit of 0 would leave no module."
+            )
+
     if exclusions is None:
         exclusions = ()
 
     file_filter = FileFilter(Config(exclusions))
-    parser = Parser(file_filter, root_path)
-    all_modules, ast = parser.parse(module_path)
+
+    parser = Parser(file_filter, root_path, root_module_name)
+    all_modules, ast = parser.parse(scan_paths or [module_path])
+
+    # A full scan with a named root includes the root module itself. When the root
+    # directory itself is not among the scan paths, it was not walked, so add its
+    # node explicitly. Do not re-add a root that an exclusion removed.
+    if (
+        root_module_name
+        and module_path == root_path
+        and scan_paths is not None
+        and root_path not in scan_paths
+        and not file_filter.is_excluded(root_path)
+        and root_module_name not in all_modules
+    ):
+        all_modules.insert(0, root_module_name)
 
     internal_module_name = _get_internal_module_name(
-        path_diff_between_root_and_module, root_path
+        path_diff_between_root_and_module, root_module_name
     )
 
-    imports = ImportConverter().convert(
+    # Parsed module names include every non-excluded directory, so imports of parent
+    # packages (e.g. 'from package2 import module2') are matched by the detected set
+    # directly, without a parent closure.
+    internal_modules = _get_all_internal_modules(all_modules, internal_module_name)
+
+    if import_roots is None and mode == "multi_module":
+        import_roots = ImportRoots.for_named_root(root_path, root_module_name)
+
+    imports = ImportConverter(import_roots=import_roots).convert(
         ast,
         _get_absolute_import_prefix(
-            path_diff_between_root_and_module, root_path, module_path
+            path_diff_between_root_and_module, root_path, module_path, root_module_name
         ),
-        _get_all_internal_modules(all_modules, internal_module_name),
+        internal_modules,
     )
 
     if external_exclusions is None:
         external_exclusions = ()
 
     import_filter = ExternalImportFilter(
-        exclude_external_libraries, internal_module_name, external_exclusions
+        exclude_external_libraries, internal_modules, external_exclusions
     )
     imports = import_filter.filter(imports)
 
@@ -80,7 +128,7 @@ def generate_graph(
         all_modules,
         exclude_external_libraries,
         imports,
-        root_path.name,
+        root_module_name,
         external_exclusions,
     )
     return EvaluableArchitectureGraph(NetworkxGraph(all_modules, imports, level_limit))
@@ -113,21 +161,25 @@ def _append_external_modules_to_module_list(
 
 
 def _get_internal_module_name(
-    path_diff_between_root_and_module: str, root_path: Path
+    path_diff_between_root_and_module: str, root_module_name: str
 ) -> str:
     """In general, all internal modules should start with the root module name to be able to differentiate between
     internal and external modules. If the root and base module differ, the modules between them also need to be taken
     into account, as not-root.a.b-modules are external, but root.a.b.base-modules are internal.
 
     The returned name carries no trailing dot: it is matched boundary-safely, so the internal
-    module itself ('root', or 'root.a.b' if the scanned module lies below the root) also counts as internal.
+    module itself also counts as internal. If module names carry no prefix at all (relative
+    module naming for a container root), it is only the path difference between root and
+    module (if any).
     """
-    internal_module_name = root_path.name
-
     if _actual_difference_between_root_and_module(path_diff_between_root_and_module):
-        internal_module_name += f".{path_diff_between_root_and_module}"
+        return (
+            f"{root_module_name}.{path_diff_between_root_and_module}"
+            if root_module_name
+            else path_diff_between_root_and_module
+        )
 
-    return internal_module_name
+    return root_module_name
 
 
 def _actual_difference_between_root_and_module(
@@ -157,10 +209,13 @@ def _get_all_internal_modules(
 ) -> set[str]:
     """All parsed modules that are the internal module itself or its submodules.
 
-    This set backs the converter's exact-name lookups when resolving 'from <module>
-    import <name>' statements to submodule imports and when adjusting absolute import
-    prefixes. The internal module itself is included, so that imports of the scanned
-    module (e.g. 'import app' for a partial scan of module 'src.app') resolve to it
-    instead of creating a spurious external node.
+    This set backs the converter's exact-name lookups ('from <module> import <name>'
+    resolution, absolute import prefix adjustment) and the import filter. The internal
+    module itself is included, so that imports of the scanned module count as internal.
     """
+    if not internal_module_name:
+        # Relative module naming for a container root: every detected module lies
+        # under the scanned root.
+        return set(modules)
+
     return {m for m in modules if is_internal_module(m, internal_module_name)}

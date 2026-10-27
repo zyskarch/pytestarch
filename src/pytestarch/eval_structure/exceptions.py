@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 
+class ImproperlyConfigured(Exception):
+    """Raised when an architecture scan or rule has invalid configuration."""
+
+
 class ImpossibleMatch(Exception):
     pass
 

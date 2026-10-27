@@ -6,6 +6,8 @@
 
 ## ::: src.pytestarch.eval_structure_generation.file_import.import_filter
 
+## ::: src.pytestarch.eval_structure_generation.file_import.import_roots
+
 ## ::: src.pytestarch.eval_structure_generation.file_import.import_types
 
 ## ::: src.pytestarch.eval_structure_generation.file_import.importee_module_calculator

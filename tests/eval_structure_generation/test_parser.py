@@ -39,6 +39,7 @@ def test_parser_parses_all_files_in_directory() -> None:
     parser = Parser(
         FileFilter(Config((convert_partial_match_to_regex("*__pycache__"),))),
         SOURCE_ROOT,
+        "tests",
     )
 
     all_modules, parsed_modules = parser.parse(RESOURCES_DIR)
@@ -66,24 +67,37 @@ def test_parser_parses_all_files_in_directory() -> None:
     assert set(map(lambda module: module.name, parsed_modules)) == expected_modules
 
 
-def test_parser_prefixes_module_names_with_root_dir_name(tmp_path) -> None:
-    """Module names are prefixed with the root directory's name - no matter whether
-    the root directory contains an __init__.py."""
+@pytest.mark.parametrize("root_module_name_is_root_dir_name", [False, True])
+def test_parser_prefixes_module_names_with_root_module_name(
+    tmp_path, root_module_name_is_root_dir_name: bool
+) -> None:
+    """Module names are prefixed with the given root module name. With the default
+    module naming, that is the root directory's name - no matter whether the root
+    directory contains an __init__.py. Only relative module naming for a container
+    root (root_module_name="") yields prefix-less module names, and then the root
+    itself is not added as a module."""
     (tmp_path / "pkg_a").mkdir()
     (tmp_path / "pkg_a" / "__init__.py").write_text("")
     (tmp_path / "pkg_a" / "mod.py").write_text("x = 1")
 
-    parser = Parser(FileFilter(Config(())), tmp_path)
+    if root_module_name_is_root_dir_name:
+        root_module_name = tmp_path.name
+        prefix = f"{root_module_name}."
+        expected_root_module = {root_module_name}
+    else:
+        root_module_name = ""
+        prefix = ""
+        expected_root_module = set()
+
+    parser = Parser(FileFilter(Config(())), tmp_path, root_module_name)
 
     all_modules, parsed_modules = parser.parse(tmp_path)
 
-    prefix = f"{tmp_path.name}."
     assert set(map(lambda module: module.name, parsed_modules)) == {
         f"{prefix}pkg_a.__init__",
         f"{prefix}pkg_a.mod",
     }
-    assert set(all_modules) == {
-        tmp_path.name,
+    assert set(all_modules) == expected_root_module | {
         f"{prefix}pkg_a",
         f"{prefix}pkg_a.__init__",
         f"{prefix}pkg_a.mod",
@@ -107,17 +121,23 @@ def test_parser_reads_special_chars(tmp_path, contents) -> None:
         [
             sys.executable,
             "-c",
-            f"""
+            """
+import sys
+from pathlib import Path
+
 from pytestarch.eval_structure_generation import file_import as fi
 from pytestarch.utils.partial_match_to_regex_converter import (
     convert_partial_match_to_regex,
 )
-from pathlib import Path
+
+target = Path(sys.argv[1])
 fi.parser.Parser(
     fi.file_filter.FileFilter(fi.config.Config((convert_partial_match_to_regex("*__pycache__"),))),
-    Path("{tmp_path!s}")
-).parse(Path("{tmp_path!s}"))
+    target,
+    target.name,
+).parse(target)
             """,
+            str(tmp_path),
         ],
         env={
             **os.environ,
@@ -131,6 +151,7 @@ fi.parser.Parser(
         capture_output=True,
     )
 
+    assert result.returncode == 0, result.stderr.decode("utf-8")
     assert "UnicodeDecodeError" not in result.stderr.decode("utf-8"), (
         "Parser fails to parse code files with utf-8 character contents."
     )
@@ -143,7 +164,7 @@ def test_parser_parses_single_file_as_walk_start(tmp_path: Path) -> None:
     source.mkdir()
     (source / "module.py").write_text("x = 1")
 
-    parser = Parser(FileFilter(Config(())), source)
+    parser = Parser(FileFilter(Config(())), source, source.name)
     all_modules, parsed_modules = parser.parse(source / "module.py")
 
     assert all_modules == ["package.module"]
@@ -168,7 +189,7 @@ def test_parser_keeps_names_for_each_symlinked_path(
 
     monkeypatch.setattr(ast, "parse", counting_parse)
 
-    parser = Parser(FileFilter(Config(())), source)
+    parser = Parser(FileFilter(Config(())), source, source.name)
     all_modules, parsed_modules = parser.parse(source)
 
     assert set(all_modules) == {
@@ -197,11 +218,13 @@ def test_parser_accepts_symlinked_directory_outside_root_as_walk_start(
     code = """
 import sys
 from pathlib import Path
+
 from pytestarch.eval_structure_generation import file_import as fi
 source, linked = sys.argv[1], sys.argv[2]
 all_modules, _ = fi.parser.Parser(
     fi.file_filter.FileFilter(fi.config.Config(())),
     Path(source),
+    Path(source).name,
 ).parse(Path(linked))
 print("\\n".join(sorted(all_modules)))
 """
@@ -250,7 +273,7 @@ def test_parser_walks_each_alias_for_outside_target(
         _symlink_or_skip(outside, source / link_name, is_directory=True)
 
     regex_exclusions = tuple(map(convert_partial_match_to_regex, exclusions))
-    parser = Parser(FileFilter(Config(regex_exclusions)), source)
+    parser = Parser(FileFilter(Config(regex_exclusions)), source, source.name)
     all_modules, parsed_modules = parser.parse(source)
 
     expected_modules = {"package"}
@@ -270,7 +293,7 @@ def test_parser_names_and_filters_symlinked_file_by_link_path(tmp_path: Path) ->
     _symlink_or_skip(outside / "module.py", source / "module.py")
 
     exclusions = (convert_partial_match_to_regex("*outside*"),)
-    parser = Parser(FileFilter(Config(exclusions)), source)
+    parser = Parser(FileFilter(Config(exclusions)), source, source.name)
     all_modules, parsed_modules = parser.parse(source)
 
     assert set(all_modules) == {"package", "package.module"}
@@ -287,7 +310,7 @@ def test_parser_requires_py_suffix_on_link_path(tmp_path: Path) -> None:
     (pkg / "real.py").write_text("x = 1")
     _symlink_or_skip(pkg / "real.py", pkg / "module")
 
-    parser = Parser(FileFilter(Config(())), source)
+    parser = Parser(FileFilter(Config(())), source, source.name)
     all_modules, parsed_modules = parser.parse(source)
 
     assert set(all_modules) == {"package", "package.pkg", "package.pkg.real"}
@@ -306,7 +329,7 @@ def test_parser_surfaces_syntax_error_for_py_named_link_to_non_python_file(
     (pkg / "data.txt").write_text("this is not python {")
     _symlink_or_skip(pkg / "data.txt", pkg / "x.py")
 
-    parser = Parser(FileFilter(Config(())), source)
+    parser = Parser(FileFilter(Config(())), source, source.name)
     with pytest.raises(SyntaxError):
         parser.parse(source)
 
@@ -320,7 +343,7 @@ def test_parser_applies_exclusions_to_walk_path(tmp_path: Path) -> None:
     _symlink_or_skip(hidden, source / "alias", is_directory=True)
 
     exclusions = (convert_partial_match_to_regex("*hidden*"),)
-    parser = Parser(FileFilter(Config(exclusions)), source)
+    parser = Parser(FileFilter(Config(exclusions)), source, source.name)
     all_modules, parsed_modules = parser.parse(source)
 
     assert set(all_modules) == {
@@ -338,11 +361,43 @@ def test_parser_skips_broken_symlinks(tmp_path: Path) -> None:
     source.mkdir()
     _symlink_or_skip(source / "missing.py", source / "broken.py")
 
-    parser = Parser(FileFilter(Config(())), source)
+    parser = Parser(FileFilter(Config(())), source, source.name)
     all_modules, parsed_modules = parser.parse(source)
 
     assert set(all_modules) == {"package"}
     assert parsed_modules == []
+
+
+def test_parser_skips_symlink_directory_loop(tmp_path: Path) -> None:
+    source = tmp_path / "package"
+    source.mkdir()
+    first = source / "first"
+    second = source / "second"
+    _symlink_or_skip(second, first, is_directory=True)
+    _symlink_or_skip(first, second, is_directory=True)
+
+    parser = Parser(FileFilter(Config(())), source, source.name)
+    all_modules, parsed_modules = parser.parse(source)
+
+    assert set(all_modules) == {"package"}
+    assert parsed_modules == []
+
+
+def test_parser_raises_when_alias_budget_is_exceeded(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    source, outside = _package_and_external_module(tmp_path)
+    _symlink_or_skip(outside, source / "aaa_alias", is_directory=True)
+    _symlink_or_skip(outside, source / "zzz_alias", is_directory=True)
+    monkeypatch.setattr(
+        "pytestarch.eval_structure_generation.file_import.parser.MAX_ALIAS_MODULE_NAMES",
+        1,
+    )
+
+    parser = Parser(FileFilter(Config(())), source, source.name)
+
+    with pytest.raises(RuntimeError, match="symlink aliases"):
+        parser.parse(source)
 
 
 def test_parser_keeps_relative_source_root_relative(
@@ -355,7 +410,7 @@ def test_parser_keeps_relative_source_root_relative(
     source.mkdir()
     (source / "module.py").write_text("x = 1")
 
-    parser = Parser(FileFilter(Config(())), Path("package"))
+    parser = Parser(FileFilter(Config(())), Path("package"), "package")
     all_modules, parsed_modules = parser.parse(Path("package"))
 
     assert set(all_modules) == {"package", "package.module"}
