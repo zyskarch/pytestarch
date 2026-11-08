@@ -2,20 +2,26 @@ from __future__ import annotations
 
 import nox
 
-locations = "src", "tests", "noxfile.py"
 
-
-@nox.session(python=["3.11", "3.12", "3.13", "3.14", "3.15"])
-def tests(session):
+def _sync(session):
+    # --active targets nox's session env instead of the project's .venv.
     session.run(
         "uv",
         "sync",
-        "--python",
-        session.python,
+        "--active",
         "--extra",
         "visualization",
         external=True,
     )
-    session.run(
-        "uv", "run", "--python", session.python, "--no-sync", "pytest", external=True
-    )
+
+
+@nox.session(python=["3.11", "3.12", "3.13", "3.14", "3.15"], allow_parallel=True)
+def tests(session):
+    _sync(session)
+    session.run("uv", "run", "--active", "--no-sync", "pytest", external=True)
+
+
+@nox.session
+def typecheck(session):
+    _sync(session)
+    session.run("uv", "run", "--active", "--no-sync", "pyrefly", "check", external=True)
