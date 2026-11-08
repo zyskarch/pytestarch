@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import os
+from collections.abc import Sequence
 from operator import itemgetter
 from pathlib import Path
 
@@ -10,13 +11,20 @@ from pytestarch.eval_structure_generation.file_import.import_types import NamedM
 
 PYTHON_FILE_SUFFIX = ".py"
 
-_DirectoryEntry = tuple[str, Path, bool]  # name, resolved path, is directory
+# Alias paths are real module paths and are therefore emitted in full. The cap
+# only stops a pathological fan-out of links from exhausting memory; normal
+# trees, including a few aliases, stay far below it.
+MAX_ALIAS_MODULE_NAMES = 100_000
+
+DirectoryEntry = tuple[str, Path, bool]  # name, resolved path, is directory
 
 
 class Parser:
     """Parses all files that match given criteria starting at a source path."""
 
-    def __init__(self, filter: FileFilter, source_root: Path) -> None:
+    def __init__(
+        self, filter: FileFilter, source_root: Path, root_module_name: str
+    ) -> None:
         """
         Args:
             filter: filter for files and directories that shall not be parsed
@@ -24,6 +32,9 @@ class Parser:
                 is used for module names, so a symlinked root keeps its link name, and
                 it keeps the path form it was given in (relative or absolute), so
                 exclusions match the form the caller used.
+            root_module_name: prefix of all parsed module names, e.g. the top level
+                package's name. Empty for mode="multi_module" on a container
+                root (see get_evaluable_architecture).
         """
         self._filter = filter
         # As reached: neither resolved nor made absolute. A symlinked root keeps
@@ -33,31 +44,37 @@ class Parser:
         # (symlink-free) paths are only used internally, for reading file
         # content and for cycle and duplicate detection.
         self._source_root = source_root
+        self._root_module_name = root_module_name
 
-    def parse(self, path: Path) -> tuple[list[str], list[NamedModule]]:
-        """Reads all python files in the given path and returns list of ast
+    def parse(self, path: Path | Sequence[Path]) -> tuple[list[str], list[NamedModule]]:
+        """Reads all python files in the given path(s) and returns list of ast
         modules with names.
 
         Args:
-            path: either to a file or to a directory
+            path: either to a file or to a directory, or several directories to scan
+                as one module set.
         Returns:
             list of python modules, one per python file and module name
         """
         self._all_modules: list[str] = []
         self._parsed_asts: dict[Path, ast.Module] = {}
-        self._directory_entries: dict[Path, tuple[_DirectoryEntry, ...]] = {}
+        self._directory_entries: dict[Path, tuple[DirectoryEntry, ...]] = {}
+        self._alias_module_names: int = 0
 
-        naming_start = path
-        try:
-            resolved = naming_start.resolve()
-        except (OSError, RuntimeError):
-            return self._all_modules, []
-        if not resolved.exists():
-            return self._all_modules, []
+        start_paths = [path] if isinstance(path, Path) else list(path)
+        stack: list[tuple[Path, Path, bool, frozenset[Path], bool]] = []
+        for start in sorted(start_paths, reverse=True):
+            naming_start = start
+            try:
+                resolved = naming_start.resolve()
+            except (OSError, RuntimeError):
+                continue
+            if not resolved.exists():
+                continue
+            stack.append(
+                (naming_start, resolved, naming_start.is_dir(), frozenset(), False)
+            )
 
-        stack: list[tuple[Path, Path, bool, frozenset[Path], bool]] = [
-            (naming_start, resolved, naming_start.is_dir(), frozenset(), False)
-        ]
         modules: list[NamedModule] = []
         visited: set[Path] = set()
 
@@ -65,9 +82,10 @@ class Parser:
         # exactly once, so each module name is emitted once per path it is
         # reached under: a directory under its real path on the first visit
         # (visited), and again as an alias (is_alias, counted against the
-        # alias budget) when reached through another path. Every file is parsed
-        # once (cache in _parse_file) and the ancestor set terminates symlink
-        # cycles.
+        # alias budget) when reached through another path. Overlapping start
+        # paths therefore legitimately emit a name more than once. Every file
+        # is parsed once (cache in _parse_file) and the ancestor set
+        # terminates symlink cycles.
         while stack:
             naming_path, resolved_path, is_directory, ancestors, is_alias = stack.pop()
 
@@ -101,13 +119,15 @@ class Parser:
             else:
                 new_module = self._parse_file(naming_path, resolved_path)
                 if new_module:
+                    if is_alias:
+                        self._check_alias_budget()
                     modules.append(new_module)
 
         return self._all_modules, modules
 
     def _entries(
         self, naming_path: Path, resolved_path: Path
-    ) -> tuple[_DirectoryEntry, ...]:
+    ) -> tuple[DirectoryEntry, ...]:
         """Directory entries, cached by their real directory.
 
         Resolving every entry would reintroduce a per-file syscall. Only symlink
@@ -118,7 +138,7 @@ class Parser:
         if cached is not None:
             return cached
 
-        entries: list[_DirectoryEntry] = []
+        entries: list[DirectoryEntry] = []
         try:
             with os.scandir(naming_path) as directory:
                 for entry in directory:
@@ -164,19 +184,31 @@ class Parser:
             self._all_modules.append(module_name)
 
     def _add_alias_module_name(self, path: Path) -> None:
+        self._check_alias_budget()
         self._add_module_name(path)
+
+    def _check_alias_budget(self) -> None:
+        self._alias_module_names += 1
+        if self._alias_module_names > MAX_ALIAS_MODULE_NAMES:
+            raise RuntimeError(
+                "The scan found more than "
+                f"{MAX_ALIAS_MODULE_NAMES} modules through symlink aliases. "
+                "Reduce the number of links inside the scanned tree."
+            )
 
     def _get_module_name(self, path: Path) -> str:
         """Determine full name of module, such as A.B.C"""
         module_path = path.relative_to(self._source_root)
 
         if str(module_path) == ".":
-            return self._source_root.name
+            return self._root_module_name
 
-        module_without_file_suffix = module_path.with_suffix("")
-        module_in_dot_notation = str(module_without_file_suffix).replace(os.sep, ".")
+        module_in_dot_notation = str(module_path.with_suffix("")).replace(os.sep, ".")
 
-        return f"{self._source_root.name}.{module_in_dot_notation}"
+        if self._root_module_name:
+            return f"{self._root_module_name}.{module_in_dot_notation}"
+
+        return module_in_dot_notation
 
     def _file_should_be_parsed(self, path: Path) -> bool:
         """Returns True if path represents a python file that does not match any exclusion filters."""

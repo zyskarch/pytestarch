@@ -10,6 +10,7 @@ from pytestarch.eval_structure.types import Import
 from pytestarch.eval_structure_generation.file_import.config import Config
 from pytestarch.eval_structure_generation.file_import.converter import ImportConverter
 from pytestarch.eval_structure_generation.file_import.file_filter import FileFilter
+from pytestarch.eval_structure_generation.file_import.import_roots import ImportRoots
 from pytestarch.eval_structure_generation.file_import.import_types import NamedModule
 from pytestarch.eval_structure_generation.file_import.importee_module_calculator import (
     ImporteeModuleCalculator,
@@ -39,12 +40,15 @@ def modules_and_ast(
             )
         ),
         root_path,
+        "pytestarch",
     ).parse(search_path)
 
 
 @pytest.fixture(scope="module")
 def imports(modules_and_ast: tuple[list[str], list[NamedModule]]) -> Sequence[Import]:
-    return ImportConverter().convert(modules_and_ast[1], "", set(modules_and_ast[0]))
+    return ImportConverter(ImportRoots.for_named_root(ROOT_PATH, "pytestarch")).convert(
+        modules_and_ast[1], "", set(modules_and_ast[0])
+    )
 
 
 @pytest.fixture(scope="module")
@@ -52,7 +56,7 @@ def all_modules(
     modules_and_ast: tuple[list[str], list[NamedModule]],
     imports: list[Import],
 ) -> list[str]:
-    return ImporteeModuleCalculator(ROOT_PATH.name).calculate_importee_modules(
+    return ImporteeModuleCalculator("pytestarch").calculate_importee_modules(
         imports,
         modules_and_ast[0],
     )

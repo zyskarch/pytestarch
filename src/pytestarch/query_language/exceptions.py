@@ -1,5 +1,5 @@
 from __future__ import annotations
 
-
-class ImproperlyConfigured(Exception):
-    pass
+from pytestarch.eval_structure.exceptions import (
+    ImproperlyConfigured as ImproperlyConfigured,
+)
