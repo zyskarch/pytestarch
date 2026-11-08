@@ -362,8 +362,8 @@ def test_multi_module_no_duplicate_modules_when_including_external_libraries(
     )
 
     actual_edges = set(
-        graph_from_src_root_multi_module_with_external._graph._graph.edges
-    )  # type: ignore
+        graph_from_src_root_multi_module_with_external._graph._graph.edges  # type: ignore
+    )
     assert actual_edges == MULTI_MODULE_FULL_EDGES | {("package1.module1", "sys")}
 
 
@@ -390,8 +390,8 @@ def test_multi_module_partial_scan_no_duplicates_when_including_external_librari
     )
 
     actual_edges = set(
-        graph_from_package_1_multi_module_with_external._graph._graph.edges
-    )  # type: ignore
+        graph_from_package_1_multi_module_with_external._graph._graph.edges  # type: ignore
+    )
     assert actual_edges == MULTI_MODULE_PACKAGE_1_HIERARCHY_EDGES | {
         ("package1.module1", "sys"),
         ("package1.module1", "package2"),
