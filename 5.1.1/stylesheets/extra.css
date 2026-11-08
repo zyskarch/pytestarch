@@ -1,0 +1,10 @@
+/*
+ * Workaround while migrating from Material for MkDocs 9.5 to Zensical:
+ * Zensical reserves a stable scrollbar gutter on the document root,
+ * shifting the page content left by the gutter width. Material 9.5
+ * only reserved it inside the sidebar scrollwraps, so restore that
+ * behavior to keep the page layout identical.
+ */
+html {
+  scrollbar-gutter: auto;
+}
