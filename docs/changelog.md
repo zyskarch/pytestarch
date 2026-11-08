@@ -2,7 +2,7 @@
 
 This project uses semantic versioning and follows [keep a changelog](https://keepachangelog.com).
 
-## [Unreleased] -- TBD
+## [5.1.1] -- 2026-11-08
 ### Changed
 - In a container root (a `root_path` directory without `__init__.py`, e.g. `src`), imports between top-level packages are now classified as internal. Forbidding rules over them that previously passed vacuously may now fail; rules and `external_exclusions` must use the prefixed names (`src.package2` instead of `package2`).
 
